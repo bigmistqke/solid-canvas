@@ -3,15 +3,16 @@ import {
   Component,
   createEffect,
   createSignal,
+  JSX,
   mapArray,
   onCleanup,
   onMount,
   untrack,
 } from 'solid-js'
-import { JSX } from 'solid-js/jsx-runtime'
 import { Position } from '..'
 import { CanvasContext } from '../context'
-import { CanvasMouseEvent, CanvasToken, parser } from '../parser'
+import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from '../parser'
+import { getExtendedColor } from '../utils/getColor'
 
 export const Canvas: Component<{
   to?: string
@@ -39,13 +40,35 @@ export const Canvas: Component<{
   ) as HTMLCanvasElement
   const ctx = canvas.getContext('2d')!
 
+  const isPointInPath = (token: Path2DToken, event: CanvasMouseEvent) => {
+    // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
+
+    // if (!token.props.fill) return false
+    return event.ctx.isPointInPath(token.path(), event.position.x, event.position.y)
+  }
+  const isPointInStroke = (token: Path2DToken, event: CanvasMouseEvent) => {
+    // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
+
+    // if (!token.props.stroke) return false
+    return event.ctx.isPointInStroke(token.path(), event.position.x, event.position.y)
+  }
+
+  const isPointInShape = (token: Path2DToken, event: CanvasMouseEvent) => {
+    return isPointInPath(token, event) || isPointInStroke(token, event)
+  }
+
+  let lastPosition: Position | undefined
+
   const mouseEventHandler = (
     e: MouseEvent,
-    callback: (event: CanvasMouseEvent, token: CanvasToken) => boolean,
-    final: (event: CanvasMouseEvent) => any,
+    callback: (event: CanvasMouseEvent, token: Path2DToken) => void,
+    final: (event: CanvasMouseEvent) => void,
   ) => {
     const position = { x: e.clientX, y: e.clientY }
-    const delta = { x: e.movementX, y: e.movementY }
+    const delta = lastPosition
+      ? { x: position.x - lastPosition.x, y: position.y - lastPosition.y }
+      : { x: 0, y: 0 }
+    lastPosition = position
     let stop = false
     const event: CanvasMouseEvent = {
       ctx,
@@ -54,11 +77,15 @@ export const Canvas: Component<{
       stopPropagation: () => (stop = true),
       target: [],
     }
-
-    for (let token of stack()) {
-      const inBounds = callback(event, token)
+    let i = stack().length - 1
+    let token: CanvasToken | undefined
+    while ((token = stack()[i])) {
+      if (token.type !== 'Path2D') continue
+      const inBounds = isPointInShape(token, event)
+      if (inBounds) callback(event, token)
       if (inBounds) event.target.push(token)
       if (inBounds && stop) break
+      i--
     }
 
     if (!stop) final(event)
@@ -69,23 +96,24 @@ export const Canvas: Component<{
   const mouseDownHandler = (e: MouseEvent) => {
     mouseEventHandler(
       e,
-      (event, token) => token.mouseDown(event),
+      (event, token) => token.props.onMouseDown?.(event),
       event => props.onMouseDown?.(event),
     )
   }
   const mouseMoveHandler = (e: MouseEvent) => {
     mouseEventHandler(
       e,
-      (event, token) => token.mouseMove(event),
+      (event, token) => token.props.onMouseMove?.(event),
       event => props.onMouseMove?.(event),
     )
   }
   const mouseUpHandler = (e: MouseEvent) => {
     mouseEventHandler(
       e,
-      (event, token) => token.mouseUp(event),
+      (event, token) => token.props.onMouseUp?.(event),
       event => props.onMouseUp?.(event),
     )
+    lastPosition = undefined
   }
 
   onMount(() => {
@@ -101,27 +129,49 @@ export const Canvas: Component<{
     window.addEventListener('resize', updateDimensions)
   })
 
-  const render = () => {
-    ctx.beginPath()
-    ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
-    stack().forEach(token => token.render(ctx))
-  }
-
-  createEffect(() => render())
-
   return (
     <>
       {canvas}
-      <CanvasContext.Provider value={{}}>
+      <CanvasContext.Provider
+        value={{
+          ctx,
+        }}
+      >
         {untrack(() => {
           const tokens = resolveTokens(parser, () => props.children)
           // TODO: bookkeep z-index
           const map = mapArray(tokens, (token, i) => {
-            // stack.splice(i(), 0, token.data)
-            setStack(stack => [...stack, token.data])
-            onCleanup(() => console.log('token removed itself'))
+            const index = stack().length - i()
+
+            setStack(stack => [...stack.slice(0, index), token.data, ...stack.slice(index)])
+            onCleanup(() => {
+              const index = stack().length - i()
+              setStack(stack => [...stack.slice(0, index - 1), ...stack.slice(index)])
+            })
           })
           createEffect(map)
+
+          const renderPath = (token: Path2DToken) => {
+            if (token.type !== 'Path2D') return
+            ctx.setLineDash(token.props.dash ?? [])
+            ctx.strokeStyle = getExtendedColor(token.props.stroke) ?? 'black'
+            ctx.fillStyle = getExtendedColor(token.props.fill) ?? 'transparent'
+            ctx.lineWidth = token.props.lineWidth
+            ctx.fill(token.path())
+            ctx.stroke(token.path())
+            ctx.setLineDash([])
+          }
+
+          const render = () => {
+            ctx.beginPath()
+            ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
+            stack().forEach(token => {
+              if (token.type === 'Path2D') renderPath(token)
+            })
+          }
+
+          createEffect(() => render())
+
           return ''
         })}
 
