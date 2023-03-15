@@ -1,4 +1,8 @@
+import { JSX } from 'solid-js'
+
 export { Canvas } from './components/Canvas'
+export { Gradient } from './components/Color/Gradient'
+export { Pattern } from './components/Color/Pattern'
 export { Line } from './components/Path2D/Line'
 export { Rectangle } from './components/Path2D/Rectangle'
 export { useCanvas } from './context'
@@ -22,4 +26,5 @@ export type HSL = {
   l: number
 }
 
-export type Color = RGB | HSL | string | CanvasGradient | CanvasPattern
+export type Color = RGB | HSL | string
+export type ExtendedColor = Color | CanvasGradient | CanvasPattern | JSX.Element | null
