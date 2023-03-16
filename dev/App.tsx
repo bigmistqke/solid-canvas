@@ -32,27 +32,29 @@ const App: Component = () => {
           setSelected(false)
           setMoveOrigin(false)
         }}
-        alpha={false}
-        fill="yellow"
+        alpha={true}
+        // fill="yellow"
         // origin={origin()}
       >
         <Rectangle
-          shadow={{
-            offset: {
-              x: 10,
-              y: 10,
-            },
-            blur: 10,
-            color: 'red',
-          }}
           dimensions={{ width: 500, height: 500 }}
-          fill="black"
+          fill={{ r: 50, g: 200, b: 100 }}
           stroke="transparent"
           lineWidth={20}
           skewY={-20}
+          composite="difference"
           draggable
         />
-        <Group
+        <Image
+          image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBSFirstScanImage.jpg/840px-NBSFirstScanImage.jpg"
+          dimensions={{
+            width: 100,
+            height: 100,
+          }}
+          onMouseDown={() => console.log('clicked')}
+          draggable
+        />
+        {/* <Group
           position={{ x: 100, y: 100 }}
           clip={
             <>
@@ -61,15 +63,7 @@ const App: Component = () => {
             </>
           }
         >
-          <Image
-            image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBSFirstScanImage.jpg/840px-NBSFirstScanImage.jpg"
-            dimensions={{
-              width: 100,
-              height: 100,
-            }}
-            onMouseDown={() => console.log('clicked')}
-            draggable
-          />
+         
 
           <Rectangle
             // onMouseDown={() => setSelected(true)}
@@ -79,7 +73,7 @@ const App: Component = () => {
             fill="blue"
             skewY={10}
           />
-        </Group>
+        </Group> */}
       </Canvas>
     </>
   )
