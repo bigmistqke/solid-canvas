@@ -150,13 +150,15 @@ const App: Component = () => {
 
 - [ ] Path2D
   - [x] Rectangle
-  - [x] Line
+  - [ ] Line
   - [ ] Arc
   - [ ] Bezier
   - [ ] Quadratic
 - [x] Text
 - [x] Group (with `clip`-prop)
 - [ ] Image
+- [ ] ImageData
+- [ ] Compositing
 - [x] Color (for fill/stroke)
   - [x] Gradient
   - [x] Pattern
