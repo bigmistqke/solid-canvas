@@ -6,6 +6,7 @@ export { Pattern } from './components/Color/Pattern'
 export { Line } from './components/Path2D/Line'
 export { Text } from './components/Text'
 export { Group } from './components/Group'
+export { Image } from './components/Image'
 
 export { Rectangle } from './components/Path2D/Rectangle'
 export { useCanvas } from './context'
@@ -31,3 +32,12 @@ export type HSL = {
 
 export type Color = RGB | HSL | string
 export type ExtendedColor = Color | CanvasGradient | CanvasPattern | JSX.Element | null
+
+export type Image =
+  | HTMLImageElement
+  | HTMLVideoElement
+  | SVGImageElement
+  | HTMLCanvasElement
+  | ImageBitmap
+  | OffscreenCanvas
+  | string
