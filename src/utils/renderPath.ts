@@ -1,11 +1,7 @@
-import { Path2DPropsWithoutEvents } from 'src/components/Path2D'
+import { ResolvedPath2DProps } from 'src/components/Path2D'
 import { resolveColor, resolveExtendedColor } from './resolveColor'
 
-export default (
-  ctx: CanvasRenderingContext2D,
-  props: Required<Path2DPropsWithoutEvents>,
-  path: Path2D,
-) => {
+export default (ctx: CanvasRenderingContext2D, props: ResolvedPath2DProps, path: Path2D) => {
   ctx.setLineDash(props.dash)
   if (props.shadow) {
     ctx.shadowBlur = props.shadow.blur ?? 0

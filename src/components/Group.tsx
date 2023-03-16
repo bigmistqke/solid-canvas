@@ -1,6 +1,6 @@
 import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
 import { JSX, mergeProps } from 'solid-js'
-import { Position, useCanvas } from 'src'
+import { Composite, Position, useCanvas } from 'src'
 import { CanvasContext } from 'src/context'
 
 import { CanvasMouseEvent, parser } from 'src/parser'
@@ -15,6 +15,7 @@ const Group = createToken(
     children: JSX.Element | JSX.Element[]
     position?: Position
     clip?: JSX.Element | JSX.Element[]
+    composite?: Composite
   }) => {
     const context = useCanvas()
     if (!context) throw 'CanvasTokens need to be included in Canvas'
@@ -47,11 +48,10 @@ const Group = createToken(
         })
         ctx.clip(path)
       }
-      if (props.shadow) {
-        ctx.shadowBlur = props.shadow.blur ?? 0
-        ctx.shadowOffsetX = props.shadow.offset?.x ?? 0
-        ctx.shadowOffsetY = props.shadow.offset?.y ?? 0
-        ctx.shadowColor = resolveColor(props.shadow.color ?? 'black') ?? 'black'
+      if (merged.composite) {
+        // TODO:  to accurately composite `Group` we should render the contents of `Group`
+        //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
+        ctx.globalCompositeOperation = merged.composite
       }
       revEach(tokens(), ({ data }) => {
         if ('render' in data) {

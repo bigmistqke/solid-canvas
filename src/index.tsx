@@ -41,3 +41,26 @@ export type ImageSource =
   | ImageBitmap
   | OffscreenCanvas
   | string
+
+export type Composite =
+  | 'source-over'
+  | 'source-atop'
+  | 'source-in'
+  | 'source-out'
+  | 'destination-over'
+  | 'destination-atop'
+  | 'destination-in'
+  | 'destination-out'
+  | 'lighter'
+  | 'copy'
+  | 'xor'
+  | 'multiply'
+  | 'screen'
+  | 'overlay'
+  | 'darken'
+  | 'color-dodge'
+  | 'color-burn'
+  | 'hard-light'
+  | 'soft-light'
+  | 'difference'
+  | 'exclusion'

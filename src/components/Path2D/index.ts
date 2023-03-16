@@ -1,5 +1,5 @@
 import { splitProps } from 'solid-js'
-import { Color, ExtendedColor, Position } from 'src'
+import { Color, Composite, ExtendedColor, Position } from 'src'
 import { CanvasMouseEvent } from 'src/parser.js'
 
 export type Path2DProps = {
@@ -23,40 +23,19 @@ export type Path2DProps = {
     offset?: Position
   }
 
-  composite?:
-    | 'source-over'
-    | 'source-atop'
-    | 'source-in'
-    | 'source-out'
-    | 'destination-over'
-    | 'destination-atop'
-    | 'destination-in'
-    | 'destination-out'
-    | 'lighter'
-    | 'copy'
-    | 'xor'
-    | 'multiply'
-    | 'screen'
-    | 'overlay'
-    | 'darken'
-    | 'color-dodge'
-    | 'color-burn'
-    | 'hard-light'
-    | 'soft-light'
-    | 'difference'
-    | 'exclusion'
+  composite?: Composite
 
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
 }
 
-export type Path2DPropsWithoutEvents = Omit<
-  Path2DProps,
-  'onMouseDown' | 'onMouseMove' | 'onMouseUp'
->
+export type ResolvedPath2DProps = Required<
+  Omit<Path2DProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
+> &
+  Pick<Path2DProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
 
-export const defaultPath2DProps: Required<Path2DPropsWithoutEvents> = {
+export const defaultPath2DProps: ResolvedPath2DProps = {
   position: { x: 0, y: 0 },
   stroke: 'black',
   rotation: 0,
