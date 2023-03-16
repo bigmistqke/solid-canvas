@@ -30,7 +30,7 @@ export default () => {
   })
 
   const dragEventHandler = (event: CanvasMouseEvent) => {
-    if (event.type === 'onMouseDown') {
+    if (event.target.length === 1 && event.type === 'onMouseDown') {
       setSelected(true)
     }
   }
