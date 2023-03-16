@@ -67,6 +67,7 @@ const Text = createToken(
     return {
       props: filteredProps,
       type: 'Path2D',
+      id: 'Text',
       render,
       hitTest: function (event) {
         const token: Path2DToken = this

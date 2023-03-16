@@ -26,6 +26,7 @@ const Rectangle = createToken(
     })
 
     return {
+      id: 'Rectangle',
       type: 'Path2D',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       clip: ctx => ctx.clip(path()),

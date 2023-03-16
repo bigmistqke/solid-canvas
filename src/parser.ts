@@ -13,6 +13,7 @@ export type CanvasMouseEvent = {
 
 export type Path2DToken = {
   type: 'Path2D'
+  id: string
   hitTest: (event: CanvasMouseEvent) => boolean
   path: Accessor<Path2D>
 

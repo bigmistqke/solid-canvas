@@ -75,13 +75,15 @@ const Group = createToken(
         if (!hitTestClip(event)) return false
       }
       let result = false
-      // NOTE:  for some reason tokens()
       tokens().forEach(({ data }) => {
         if ('hitTest' in data) {
           const hit = data.hitTest(event)
+
           if (hit) result = true
         }
       })
+      /* revEach(tokens(), ({ data }) => {
+      }) */
       return result
     }
 

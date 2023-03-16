@@ -37,6 +37,7 @@ const Line = createToken(
 
     return {
       type: 'Path2D',
+      id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       clip: ctx => ctx.clip(path()),
       path,
