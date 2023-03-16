@@ -90,6 +90,8 @@ export const Canvas: Component<{
 
     if (!stop) final(event)
 
+    eventListeners[type].forEach(listener => listener(event))
+
     return event
   }
 
@@ -99,7 +101,6 @@ export const Canvas: Component<{
   const mouseMoveHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseMove', event => {
       props.onMouseMove?.(event)
-      eventListeners.onMouseMove.forEach(listener => listener(event))
     })
   }
   const mouseUpHandler = (e: MouseEvent) => {

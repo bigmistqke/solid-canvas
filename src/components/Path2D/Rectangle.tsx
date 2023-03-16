@@ -1,11 +1,11 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, createSignal, mergeProps, onCleanup } from 'solid-js'
+import { mergeProps } from 'solid-js'
 
-import { Dimensions, useCanvas } from 'src'
-import { CanvasMouseEvent, CanvasToken, parser } from 'src/parser'
+import { Dimensions } from 'src'
+import { parser, Path2DToken } from 'src/parser'
 import {
   defaultPath2DProps,
-  isPointInShape,
+  hitTest,
   Path2DProps,
   renderPath,
   transformPath,
@@ -34,11 +34,8 @@ const Rectangle = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        const hit = isPointInShape(event, path())
-        if (hit) props[event.type]?.(event)
-        if (hit && props.draggable) dragEventHandler(event)
-        if (hit) event.target.push(this as CanvasToken)
-        return hit
+        const self: Path2DToken = this
+        return hitTest(self, event, merged, dragEventHandler)
       },
     }
   },

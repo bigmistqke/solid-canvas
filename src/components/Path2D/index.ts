@@ -1,7 +1,7 @@
 import { Accessor, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 import { ExtendedColor, Position, useCanvas } from 'src'
 import { getExtendedColor } from 'src/utils/getColor'
-import { CanvasMouseEvent, Path2DToken } from 'src/parser.js'
+import { CanvasMouseEvent, CanvasToken, Path2DToken } from 'src/parser.js'
 
 export type Path2DProps = {
   position?: Position
@@ -64,6 +64,8 @@ export const transformPath = (
       y: (props.position?.y ?? 0) + dragPosition().y + (context?.origin.y ?? 0),
     }
 
+    // NOTE:  since we use `matrix.translateSelf` to also handle the translation
+    //        we can not short-circuit anymore
     // if (!props.rotation && !props.skewX && !props.skewY) return untransformed
 
     const transformed = new Path2D()
@@ -74,7 +76,7 @@ export const transformPath = (
     matrix.skewXSelf(props.skewX)
     matrix.skewYSelf(props.skewY)
 
-    // these lines are necessary because skewing causes horizontal/vertical offset
+    // NOTE:  these lines are necessary because skewing causes horizontal/vertical offset
     const point = new DOMPoint(position.x, position.y)
     const offset = point.matrixTransform(matrix)
     matrix.translateSelf(position.x + point.x - offset.x, position.y + point.y - offset.y)
@@ -122,34 +124,47 @@ export const useDraggable = () => {
 
   createEffect(() => {
     if (!context) return
-    const handleMouseMove = (event: CanvasMouseEvent) => {
-      console.log('move', event)
-      setDragPosition(position => ({
-        x: position.x + event.delta.x,
-        y: position.y + event.delta.y,
-      }))
-    }
     if (selected()) {
+      const handleMouseMove = (event: CanvasMouseEvent) => {
+        setDragPosition(position => ({
+          x: position.x + event.delta.x,
+          y: position.y + event.delta.y,
+        }))
+      }
+      const handleMouseUp = (event: CanvasMouseEvent) => {
+        setSelected(false)
+      }
       context.addEventListener('onMouseMove', handleMouseMove)
+      context.addEventListener('onMouseUp', handleMouseUp)
+
       onCleanup(() => {
-        console.log('CLEANUP!!!!')
         context.removeEventListener('onMouseMove', handleMouseMove)
       })
     }
   })
 
   const dragEventHandler = (event: CanvasMouseEvent) => {
-    switch (event.type) {
-      case 'onMouseDown':
-        setSelected(true)
-        break
-      case 'onMouseMove':
-        break
-      case 'onMouseUp':
-        setSelected(false)
-        break
+    if (event.type === 'onMouseDown') {
+      setSelected(true)
     }
   }
 
   return [dragPosition, dragEventHandler] as const
+}
+
+export function hitTest(
+  token: Path2DToken,
+  event: CanvasMouseEvent,
+  props: Path2DProps,
+  dragEventHandler: (event: CanvasMouseEvent) => void,
+) {
+  const hit = isPointInShape(event, token.path())
+  if (hit) {
+    props[event.type]?.(event)
+    event.target.push(token)
+    if (props.draggable) {
+      dragEventHandler(event)
+    }
+  }
+  return hit
 }
