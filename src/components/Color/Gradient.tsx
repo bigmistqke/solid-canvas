@@ -1,6 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps, useContext } from 'solid-js'
-import { getColor } from 'src/utils/getColor'
+import { resolveColor } from 'src/utils/resolveColor'
 
 import { Color, Position, useCanvas } from 'src'
 import { parser } from 'src/parser'
@@ -58,7 +58,7 @@ const Gradient = createToken(parser, (props: GradientProps) => {
     // Add three color stops
 
     for (let { offset, color } of props.stops) {
-      gradient.addColorStop(offset, getColor(color) ?? 'black')
+      gradient.addColorStop(offset, resolveColor(color) ?? 'black')
     }
     /* gradient.addColorStop(0, 'green')
     gradient.addColorStop(0.5, 'cyan')

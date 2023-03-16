@@ -13,7 +13,7 @@ import { createStore } from 'solid-js/store'
 import { Color, Position } from 'src'
 import { CanvasContext } from 'src/context'
 import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from 'src/parser'
-import { getColor, getExtendedColor } from 'src/utils/getColor'
+import { resolveColor, resolveExtendedColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 
 export const Canvas: Component<{
@@ -161,7 +161,7 @@ export const Canvas: Component<{
             ctx.beginPath()
             ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
             if (props.fill) {
-              ctx.fillStyle = getColor(props.fill) ?? 'white'
+              ctx.fillStyle = resolveColor(props.fill) ?? 'white'
               ctx.fillRect(0, 0, canvas.width, canvas.height)
             }
             ctx.restore()

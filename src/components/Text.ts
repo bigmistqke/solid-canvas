@@ -3,7 +3,7 @@ import { createSignal, mergeProps } from 'solid-js'
 
 import { ExtendedColor, Position, useCanvas } from 'src'
 import { CanvasToken, parser, Path2DToken } from 'src/parser'
-import { getExtendedColor } from 'src/utils/getColor'
+import { resolveExtendedColor } from 'src/utils/resolveColor'
 import hitTest from 'src/utils/hitTest'
 import { isPointInShape } from 'src/utils/isPointInShape'
 import transformPath from 'src/utils/transformPath'
@@ -52,7 +52,7 @@ const Text = createToken(
       ctx.font = '30px Arial'
       setTextMetrics(ctx.measureText(merged.text))
       if (merged.background) {
-        const color = getExtendedColor(merged.background) ?? 'black'
+        const color = resolveExtendedColor(merged.background) ?? 'black'
         ctx.fillStyle = color
         ctx.fill(path())
         ctx.strokeStyle = color

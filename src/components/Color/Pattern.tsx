@@ -1,19 +1,12 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createEffect, createMemo, JSX, mergeProps, on, useContext } from 'solid-js'
 
-import { Color, Position, useCanvas } from 'src'
+import { Color, Image, Position, useCanvas } from 'src'
 import { parser } from 'src/parser'
+import resolveImage from 'src/utils/resolveImage'
 
 type PatternProps = {
-  image:
-    | HTMLImageElement
-    | HTMLVideoElement
-    | SVGImageElement
-    | HTMLCanvasElement
-    | ImageBitmap
-    | OffscreenCanvas
-    | string
-
+  image: Image
   repetition?: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'
 }
 
@@ -24,59 +17,10 @@ const Pattern = createToken(parser, (props: PatternProps) => {
 
   const context = useCanvas()
 
-  // props.image.addEventListener?.('load', () => console.log('ok'))
-
-  /* createEffect(() => {
-    if (props.image instanceof HTMLImageElement || props.image instanceof HTMLVideoElement) {
-      
-      HIDE.append(props.image)
-    }
-  }) */
-
-  const media = createMemo(
-    on(
-      () => props.image,
-      () => {
-        if (typeof props.image === 'string') {
-          const split = props.image.split('.')
-          const extension = split[split.length - 1]
-          if (!extension) return
-          if (['mov', 'mp4', 'ogg', 'webm'].includes(extension?.toLowerCase())) {
-            const media = document.createElement('video')
-            media.autoplay = true
-            media.muted = true
-            media.addEventListener('load', () => console.log('loaded!'))
-            media.src = props.image
-            // HIDE.append(media)
-            return media
-            // return context.ctx.createPattern(media, merged.repetition)
-          }
-          if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(extension?.toLowerCase())) {
-            const media = document.createElement('img')
-            media.src = props.image
-            return media
-            // return context.ctx.createPattern(media, merged.repetition)
-          }
-          console.error('invalid media-type:', extension)
-          return
-        }
-      },
-    ),
-  )
+  const image = resolveImage(() => props.image)
 
   const color = () => {
-    if (!context || !props.image) return
-    if (typeof props.image === 'string') {
-      const m = media()
-      return m ? context.ctx.createPattern(m, merged.repetition) : undefined
-    }
-
-    /* if (props.image instanceof HTMLImageElement || props.image instanceof HTMLVideoElement) {
-      if (!HIDE.contains(props.image)) HIDE.append(props.image)
-    } */
-
-    const pattern = context.ctx.createPattern(props.image, merged.repetition)
-    return pattern
+    return context && image() ? context.ctx.createPattern(image()!, merged.repetition) : undefined
   }
 
   return {

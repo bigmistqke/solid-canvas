@@ -5,6 +5,7 @@ import { CanvasContext } from 'src/context'
 
 import { CanvasMouseEvent, parser } from 'src/parser'
 import { isPointInShape } from 'src/utils/isPointInShape'
+import { resolveColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
 
@@ -46,6 +47,12 @@ const Group = createToken(
         })
         ctx.clip(path)
       }
+      if (props.shadow) {
+        ctx.shadowBlur = props.shadow.blur ?? 0
+        ctx.shadowOffsetX = props.shadow.offset?.x ?? 0
+        ctx.shadowOffsetY = props.shadow.offset?.y ?? 0
+        ctx.shadowColor = resolveColor(props.shadow.color ?? 'black') ?? 'black'
+      }
       revEach(tokens(), ({ data }) => {
         if ('render' in data) {
           data.render(ctx)
@@ -68,7 +75,8 @@ const Group = createToken(
         if (!hitTestClip(event)) return false
       }
       let result = false
-      revEach(tokens(), ({ data }) => {
+      // NOTE:  for some reason tokens()
+      tokens().forEach(({ data }) => {
         if ('hitTest' in data) {
           const hit = data.hitTest(event)
           if (hit) result = true

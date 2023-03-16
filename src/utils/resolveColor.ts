@@ -2,7 +2,7 @@ import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import { Color, ExtendedColor } from 'src'
 import { CanvasToken } from 'src/parser'
 
-const getExtendedColor = (color: ExtendedColor) => {
+const resolveExtendedColor = (color: ExtendedColor) => {
   if (!color) return
   if (typeof color === 'function') {
     const token = (color as TokenElement<CanvasToken>).data
@@ -10,10 +10,10 @@ const getExtendedColor = (color: ExtendedColor) => {
 
     return token.color()
   }
-  return getColor(color as Color)
+  return resolveColor(color as Color)
 }
 
-const getColor = (color: Color) => {
+const resolveColor = (color: Color) => {
   if (!color) return
   if (typeof color === 'object') {
     if ('r' in color) {
@@ -27,4 +27,4 @@ const getColor = (color: Color) => {
   return undefined
 }
 
-export { getColor, getExtendedColor }
+export { resolveColor, resolveExtendedColor }

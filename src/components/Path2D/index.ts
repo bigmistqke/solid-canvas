@@ -1,7 +1,6 @@
-import { Accessor, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
-import { ExtendedColor, Position, useCanvas } from 'src'
-import { getExtendedColor } from 'src/utils/getColor'
-import { CanvasMouseEvent, CanvasToken, Path2DToken } from 'src/parser.js'
+import { splitProps } from 'solid-js'
+import { Color, ExtendedColor, Position } from 'src'
+import { CanvasMouseEvent } from 'src/parser.js'
 
 export type Path2DProps = {
   position?: Position
@@ -16,6 +15,13 @@ export type Path2DProps = {
   rotation?: number
 
   draggable?: boolean
+  pointerEvents?: boolean
+
+  shadow?: {
+    blur?: number
+    color?: Color
+    offset?: Position
+  }
 
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
@@ -37,6 +43,7 @@ export const defaultPath2DProps: Required<Path2DPropsWithoutEvents> = {
   skewX: 0,
   skewY: 0,
   draggable: false,
+  pointerEvents: true,
 }
 
 export const filterPath2DProps = <T extends Record<string, any>>(props: T) =>
