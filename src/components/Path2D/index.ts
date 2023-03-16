@@ -23,6 +23,29 @@ export type Path2DProps = {
     offset?: Position
   }
 
+  composite?:
+    | 'source-over'
+    | 'source-atop'
+    | 'source-in'
+    | 'source-out'
+    | 'destination-over'
+    | 'destination-atop'
+    | 'destination-in'
+    | 'destination-out'
+    | 'lighter'
+    | 'copy'
+    | 'xor'
+    | 'multiply'
+    | 'screen'
+    | 'overlay'
+    | 'darken'
+    | 'color-dodge'
+    | 'color-burn'
+    | 'hard-light'
+    | 'soft-light'
+    | 'difference'
+    | 'exclusion'
+
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void

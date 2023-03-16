@@ -14,6 +14,8 @@ export default (
     ctx.shadowColor = resolveColor(props.shadow.color ?? 'black') ?? 'black'
   }
 
+  if (props.composite) ctx.globalCompositeOperation = props.composite
+
   ctx.strokeStyle = resolveExtendedColor(props.stroke) ?? 'black'
   ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'
   ctx.lineWidth = props.lineWidth
