@@ -16,6 +16,10 @@ import { Color, Position, CanvasMouseEvent } from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 
+/**
+ * All `solid-canvas`-components have to be inside a `Canvas`
+ */
+
 export const Canvas: Component<{
   children: JSX.Element
   style: JSX.CSSProperties

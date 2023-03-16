@@ -11,6 +11,11 @@ import resolveImage from 'src/utils/resolveImageSource'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 
+/**
+ * Paints an image to the canvas
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/putImageData)
+ */
+
 const Image = createToken(
   parser,
   (

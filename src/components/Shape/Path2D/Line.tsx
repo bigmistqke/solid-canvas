@@ -10,6 +10,11 @@ import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 
+/**
+ * Paints a straight line to the canvas
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
+ */
+
 const Line = createToken(
   parser,
   (

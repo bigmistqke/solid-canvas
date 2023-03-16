@@ -9,6 +9,10 @@ import { isPointInShape } from 'src/utils/isPointInShape'
 import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
 
+/**
+ * Groups (and clips) the component's children
+ */
+
 const Group = createToken(
   parser,
   (props: {

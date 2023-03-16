@@ -11,6 +11,11 @@ import { resolveExtendedColor } from 'src/utils/resolveColor'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 
+/**
+ * Paints a text to the canvas
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillText)
+ */
+
 const Text = createToken(
   parser,
   (
