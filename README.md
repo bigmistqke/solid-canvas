@@ -15,22 +15,15 @@ Use it:
 - simple example
 
 ```tsx
-import solid-canvas from 'solid-canvas'
+import { Canvas, Text, Rectangle } from 'solid-canvas'
 
 const App: Component = () => {
   return (
     <>
-      <Canvas
-        style={{ width: '100vw', height: '100vh' }}
-        fill="yellow"
-      >
-        <Text
-          position={{x: 100, y: 100}}
-          text="hallo"
-          fill="white"
-        />
+      <Canvas style={{ width: '100vw', height: '100vh' }} fill="yellow">
+        <Text position={{ x: 100, y: 100 }} text="hallo" fill="white" />
         <Rectangle
-          position={{x: 100, y: 100}}
+          position={{ x: 100, y: 100 }}
           dimensions={{ width: 50, height: 50 }}
           stroke="black"
           lineWidth={10}
@@ -44,22 +37,21 @@ const App: Component = () => {
 - MouseEvents: draggable rectangle
 
 ```tsx
-import solid-canvas from 'solid-canvas'
+import { Canvas, Rectangle } from 'solid-canvas'
 
 const App: Component = () => {
-
-  const [selected, setSelected] = createSignal(false);
-  const [position, setPosition] = createSignal({ width: 100, height: 100 });
+  const [selected, setSelected] = createSignal(false)
+  const [position, setPosition] = createSignal({ width: 100, height: 100 })
 
   return (
     <>
       <Canvas
         style={{ width: '100vw', height: '100vh' }}
-        onMouseMove={(event) => {
-          if(!selected()) return
+        onMouseMove={event => {
+          if (!selected()) return
           setPosition(position => ({
             x: position + event.delta.x,
-            y: position + event.delta.y
+            y: position + event.delta.y,
           }))
         }}
         onMouseUp={() => setSelected(false)}
@@ -78,26 +70,23 @@ const App: Component = () => {
 - Group and Crop
 
 ```tsx
-import solid-canvas from 'solid-canvas'
+import { Canvas, Rectangle, Group } from 'solid-canvas'
 
 const App: Component = () => {
   return (
     <>
-      <Canvas
-        style={{ width: '100vw', height: '100vh' }}
-        fill="yellow"
-      >
+      <Canvas style={{ width: '100vw', height: '100vh' }} fill="yellow">
         <Group
-          position={{x: 100, y: 100}}
+          position={{ x: 100, y: 100 }}
           clip={
             <>
               <Rectangle
-                position={{x:0, y: 25}}
+                position={{ x: 0, y: 25 }}
                 dimensions={{ width: 100, height: 50 }}
                 onMouseDown={() => setSelected(true)}
               />
               <Rectangle
-                position={{x:25, y: 0}}
+                position={{ x: 25, y: 0 }}
                 dimensions={{ width: 50, height: 100 }}
                 onMouseDown={() => setSelected(true)}
               />
@@ -115,7 +104,7 @@ const App: Component = () => {
 - Gradient
 
 ```tsx
-import solid-canvas from 'solid-canvas'
+import { Canvas, Rectangle, Gradient } from 'solid-canvas'
 
 const App: Component = () => {
   return (
