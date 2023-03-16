@@ -74,6 +74,8 @@ const Text = createToken(
         if (hit) event.target.push(this as CanvasToken)
         return hit
       },
+      clip: ctx => ctx.clip(path()),
+      path,
     }
   },
 )
