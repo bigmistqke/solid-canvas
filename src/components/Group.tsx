@@ -17,6 +17,9 @@ const Group = createToken(
   parser,
   (props: {
     children: JSX.Element | JSX.Element[]
+    /**
+     * Defaults to { x: 0, y: 0}
+     */
     position?: Position
     clip?: JSX.Element | JSX.Element[]
     composite?: Composite

@@ -56,19 +56,39 @@ export type Composite =
   | 'exclusion'
 
 export type ShapeProps = {
-  position?: Position
-
+  /**
+   * Default: 'black'.
+   */
   stroke?: ExtendedColor
+  /**
+   * Default: 2
+   */
   lineWidth?: number
+  /**
+   * Default: 'transparent'
+   */
   fill?: ExtendedColor
-  dash?: number[]
+  /**
+   * Default: []
+   */
+  lineDash?: number[]
 
+  /**
+   * Default: 0
+   */
   skewX?: number
+  /**
+   * Default: 0
+   */
   skewY?: number
+  /**
+   * Default: { x: 0, y: 0 }
+   */
   rotation?: number
-
-  draggable?: boolean
-  pointerEvents?: boolean
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  position?: Position
 
   shadow?: {
     blur?: number
@@ -76,10 +96,31 @@ export type ShapeProps = {
     offset?: Position
   }
 
+  /**
+   * Set the ctx.globalCompositeOperation
+   */
   composite?: Composite
 
+  /**
+   * Makes shape draggable. Default: false
+   */
+  draggable?: boolean
+  /**
+   * Ignore all pointer-events. Default: false
+   */
+  pointerEvents?: boolean
+
+  /**
+   * Set onMouseDown-eventhandler.
+   */
   onMouseDown?: (event: CanvasMouseEvent) => void
+  /**
+   * Set onMouseDown-eventhandler.
+   */
   onMouseMove?: (event: CanvasMouseEvent) => void
+  /**
+   * Set onMouseDown-eventhandler.
+   */
   onMouseUp?: (event: CanvasMouseEvent) => void
 }
 

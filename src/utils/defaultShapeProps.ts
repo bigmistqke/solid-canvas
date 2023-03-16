@@ -5,7 +5,7 @@ const defaultShapeProps: ResolvedShapeProps = {
   stroke: 'black',
   rotation: 0,
   fill: 'transparent',
-  dash: [],
+  lineDash: [],
   lineWidth: 2,
   skewX: 0,
   skewY: 0,
