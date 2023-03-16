@@ -1,6 +1,6 @@
-import { TokenElement } from '@solid-primitives/jsx-parser'
+import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import { Color, ExtendedColor } from 'src'
-import { CanvasToken } from '../parser'
+import { CanvasToken } from 'src/parser'
 
 const getExtendedColor = (color: ExtendedColor) => {
   if (!color) return

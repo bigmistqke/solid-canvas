@@ -1,9 +1,9 @@
-import { createToken } from '@solid-primitives/jsx-parser'
+import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps, useContext } from 'solid-js'
-import { getColor } from '../../utils/getColor'
+import { getColor } from 'src/utils/getColor'
 
-import { Color, Position, useCanvas } from '../..'
-import { parser } from '../../parser'
+import { Color, Position, useCanvas } from 'src'
+import { parser } from 'src/parser'
 
 type GradientProps = { stops: { offset: number; color: Color }[] } & (
   | {

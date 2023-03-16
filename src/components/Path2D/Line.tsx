@@ -1,9 +1,9 @@
-import { createToken } from '@solid-primitives/jsx-parser'
+import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { Position } from '../..'
-import { parser } from '../../parser'
-import { defaultPath2DProps, filterPath2DProps, Path2DProps, transformPath } from './'
+import { Position } from 'src'
+import { parser } from 'src/parser'
+import { defaultPath2DProps, filterPath2DProps, Path2DProps, transformPath } from '.'
 
 const Line = createToken(
   parser,

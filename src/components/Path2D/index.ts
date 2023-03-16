@@ -2,7 +2,6 @@ import { Accessor, createMemo, splitProps } from 'solid-js'
 import { ExtendedColor, Position, useCanvas } from 'src'
 import { getExtendedColor } from 'src/utils/getColor'
 import { CanvasMouseEvent, Path2DToken } from 'src/parser.js'
-// import { getExtendedColor } from '../../utils/getColor'
 
 export type Path2DProps = {
   position?: Position

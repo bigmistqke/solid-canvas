@@ -1,8 +1,8 @@
-import { createToken } from '@solid-primitives/jsx-parser'
+import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createEffect, createMemo, JSX, mergeProps, on, useContext } from 'solid-js'
 
-import { Color, Position, useCanvas } from '../..'
-import { parser } from '../../parser'
+import { Color, Position, useCanvas } from 'src'
+import { parser } from 'src/parser'
 
 type PatternProps = {
   image:
@@ -28,20 +28,16 @@ const Pattern = createToken(parser, (props: PatternProps) => {
 
   /* createEffect(() => {
     if (props.image instanceof HTMLImageElement || props.image instanceof HTMLVideoElement) {
-      console.log('this happens')
+      
       HIDE.append(props.image)
     }
   }) */
-
-  console.log('REMOUNT!!')
 
   const media = createMemo(
     on(
       () => props.image,
       () => {
-        console.log('props.image')
         if (typeof props.image === 'string') {
-          console.log('MEDIA')
           const split = props.image.split('.')
           const extension = split[split.length - 1]
           if (!extension) return

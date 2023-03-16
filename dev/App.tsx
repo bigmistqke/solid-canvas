@@ -1,5 +1,5 @@
 import { Component, createSignal } from 'solid-js'
-import { Canvas, Gradient, Pattern, Rectangle } from '../src'
+import { Canvas, Gradient, Group, Rectangle, Text } from 'src'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -8,72 +8,85 @@ const App: Component = () => {
 
   const [selected, setSelected] = createSignal(false)
   const [position, setPosition] = createSignal({ x: 200, y: 100 })
-
-  const image = (
-    <img
-      width="100"
-      height="100"
-      style={{ height: '100px', width: '100px' }}
-      src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b6/Image_created_with_a_mobile_phone.png/1920px-Image_created_with_a_mobile_phone.png"
-    />
-  )
-
-  const video = (
-    <video
-      controls
-      muted={true}
-      autoplay
-      // style={{ 'z-index': 2, position: 'absolute' }}
-      src="https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4"
-    />
-  )
+  const [moveOrigin, setMoveOrigin] = createSignal(false)
+  const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
 
   return (
     <>
-      {/* {video} */}
       <Canvas
         style={{ width: '100vw', height: '100vh' }}
         onMouseDown={e => {
-          if (e.target.length === 0) setSelected(false)
+          if (e.target.length === 0) {
+            setSelected(false)
+            setMoveOrigin(true)
+          }
         }}
         onMouseMove={e => {
           if (selected()) {
             setPosition(pos => ({ x: pos.x + e.delta.x, y: pos.y + e.delta.y }))
+          } else if (moveOrigin()) {
+            setOrigin(pos => ({ x: pos.x + e.delta.x, y: pos.y + e.delta.y }))
           }
         }}
+        onMouseUp={() => {
+          setSelected(false)
+          setMoveOrigin(false)
+        }}
+        alpha={false}
+        background="yellow"
+        // origin={origin()}
       >
-        <Rectangle
-          onMouseDown={event => {
+        <Text
+          onMouseDown={() => {
+            console.log('CLICKED!')
             setSelected(true)
           }}
-          onMouseUp={event => {
-            setSelected(false)
-          }}
-          position={position()}
-          dimensions={{ width: 100, height: 100 }}
-          lineWidth={20}
-          stroke={
-            <Gradient
-              type="linear"
-              start={{ x: window.innerWidth, y: 0 }}
-              end={{ x: 0, y: window.innerHeight }}
-              stops={[
-                { offset: 0, color: 'red' },
-                { offset: 1, color: 'blue' },
-              ]}
-            />
-          }
-          fill={
-            <Pattern
-              image={
-                'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4'
-              }
-              repetition="repeat"
-            />
-          }
-          rotation={3}
-          skewX={5}
+          text="hallo"
+          stroke="black"
+          background="red"
+          position={{ x: 100, y: 100 }}
         />
+        <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 10, height: 10 }} />
+        {/* <Group position={{ x: 100, y: 100 }}>
+          <Text
+            onMouseDown={() => {
+              console.log('CLICKED!')
+              setSelected(true)
+            }}
+            text="hallo"
+            stroke="black"
+            background="red"
+          />
+          <Rectangle
+            onMouseDown={() => setSelected(true)}
+            dimensions={{ width: 500, height: 500 }}
+            lineWidth={20}
+            stroke={
+              <Gradient
+                type="linear"
+                start={{ x: window.innerWidth, y: 0 }}
+                end={{ x: 0, y: window.innerHeight }}
+                stops={[
+                  { offset: 0, color: 'red' },
+                  { offset: 1, color: 'blue' },
+                ]}
+              />
+            }
+            fill={
+              <Gradient
+                type="conic"
+                center={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
+                startAngle={10}
+                end={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
+                stops={[
+                  { offset: 0, color: 'red' },
+                  { offset: 1, color: 'blue' },
+                ]}
+              />
+            }
+            skewY={10}
+          />
+        </Group> */}
       </Canvas>
     </>
   )
