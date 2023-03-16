@@ -22,6 +22,7 @@ const App: Component = () => {
     <>
       <Canvas
         style={{ width: '100vw', height: '100vh' }}
+        fill="yellow"
       >
         <Text
           position={{x: 100, y: 100}}
@@ -84,7 +85,7 @@ const App: Component = () => {
     <>
       <Canvas
         style={{ width: '100vw', height: '100vh' }}
-        background="yellow"
+        fill="yellow"
       >
         <Group
           position={{x: 100, y: 100}}
@@ -121,7 +122,6 @@ const App: Component = () => {
     <>
       <Canvas
         style={{ width: '100vw', height: '100vh' }}
-        background="yellow"
       >
         <Rectangle
           position={{x:0, y: 25}}
@@ -168,9 +168,9 @@ const App: Component = () => {
 - [x] Text
 - [x] Group (with `clip`-prop)
 - [ ] Image
-- [ ] Color
-  - [ ] Gradient
-  - [ ] Pattern
+- [x] Color (for fill/stroke)
+  - [x] Gradient
+  - [x] Pattern
 
 ## additional API
 
