@@ -17,7 +17,7 @@ import { getColor, getExtendedColor } from 'src/utils/getColor'
 export const Canvas: Component<{
   children: JSX.Element
   style: JSX.CSSProperties
-  background?: Color
+  fill?: Color
   origin?: Position
   alpha?: boolean
   onMouseDown?: (event: CanvasMouseEvent) => void
@@ -135,8 +135,8 @@ export const Canvas: Component<{
             ctx.save()
             ctx.beginPath()
             ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
-            if (props.background) {
-              ctx.fillStyle = getColor(props.background) ?? 'white'
+            if (props.fill) {
+              ctx.fillStyle = getColor(props.fill) ?? 'white'
               ctx.fillRect(0, 0, canvas.width, canvas.height)
             }
             ctx.restore()

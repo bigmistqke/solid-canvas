@@ -33,7 +33,7 @@ const App: Component = () => {
           setMoveOrigin(false)
         }}
         alpha={false}
-        background="yellow"
+        fill="yellow"
         origin={origin()}
       >
         <Group
