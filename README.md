@@ -10,16 +10,6 @@ a solid wrapper around the `Canvas` API
 
 ## Quick start
 
-Install it:
-
-```bash
-npm i solid-canvas
-# or
-yarn add solid-canvas
-# or
-pnpm add solid-canvas
-```
-
 Use it:
 
 - simple example
