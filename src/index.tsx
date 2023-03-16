@@ -33,7 +33,7 @@ export type HSL = {
 export type Color = RGB | HSL | string
 export type ExtendedColor = Color | CanvasGradient | CanvasPattern | JSX.Element | null
 
-export type Image =
+export type ImageSource =
   | HTMLImageElement
   | HTMLVideoElement
   | SVGImageElement

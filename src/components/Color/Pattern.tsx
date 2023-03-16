@@ -1,12 +1,12 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, createMemo, JSX, mergeProps, on, useContext } from 'solid-js'
+import { mergeProps } from 'solid-js'
 
-import { Color, Image, Position, useCanvas } from 'src'
+import { ImageSource, useCanvas } from 'src'
 import { parser } from 'src/parser'
-import resolveImage from 'src/utils/resolveImage'
+import resolveImage from 'src/utils/resolveImageSource'
 
 type PatternProps = {
-  image: Image
+  image: ImageSource
   repetition?: 'no-repeat' | 'repeat' | 'repeat-x' | 'repeat-y'
 }
 

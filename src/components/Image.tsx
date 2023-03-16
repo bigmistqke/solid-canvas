@@ -1,10 +1,10 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { Dimensions, ExtendedColor, Image as ImageType, useCanvas } from 'src'
+import { Dimensions, ExtendedColor, ImageSource, useCanvas } from 'src'
 import { parser, Path2DToken } from 'src/parser'
 import hitTest from 'src/utils/hitTest'
-import resolveImage from 'src/utils/resolveImage'
+import resolveImage from 'src/utils/resolveImageSource'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import { defaultPath2DProps, filterPath2DProps, Path2DProps } from './Path2D'
@@ -13,7 +13,7 @@ const Image = createToken(
   parser,
   (
     props: Path2DProps & {
-      image: ImageType
+      image: ImageSource
       dimensions?: Dimensions
       fontFamily?: string
       background?: ExtendedColor
