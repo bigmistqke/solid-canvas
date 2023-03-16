@@ -34,20 +34,17 @@ const App: Component = () => {
         }}
         alpha={false}
         background="yellow"
-        // origin={origin()}
+        origin={origin()}
       >
-        <Text
-          onMouseDown={() => {
-            console.log('CLICKED!')
-            setSelected(true)
-          }}
-          text="hallo"
-          stroke="black"
-          background="red"
+        <Group
           position={{ x: 100, y: 100 }}
-        />
-        <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 10, height: 10 }} />
-        {/* <Group position={{ x: 100, y: 100 }}>
+          clip={
+            <>
+              <Rectangle dimensions={{ width: 500, height: 500 }} />
+              <Rectangle dimensions={{ width: 500, height: 500 }} skewX={20} />
+            </>
+          }
+        >
           <Text
             onMouseDown={() => {
               console.log('CLICKED!')
@@ -86,7 +83,7 @@ const App: Component = () => {
             }
             skewY={10}
           />
-        </Group> */}
+        </Group>
       </Canvas>
     </>
   )

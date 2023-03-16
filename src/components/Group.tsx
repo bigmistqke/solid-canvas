@@ -5,6 +5,7 @@ import { CanvasContext } from 'src/context'
 
 import { CanvasMouseEvent, CanvasToken, parser } from 'src/parser'
 import withContext from 'src/utils/withContext'
+import { isPointInShape } from './Path2D'
 
 const Group = createToken(
   parser,
@@ -40,12 +41,14 @@ const Group = createToken(
 
     const render = (ctx: CanvasRenderingContext2D) => {
       if (props.clip) {
+        const path = new Path2D()
         clipTokens().forEach(({ data }) => {
           if ('clip' in data) {
-            data.clip(ctx)
+            // data.clip(ctx)
+            path.addPath(data.path())
           }
         })
-        // ctx.clip()
+        ctx.clip(path)
       }
       reversedTokens().forEach(({ data }) => {
         if ('render' in data) {
@@ -54,6 +57,16 @@ const Group = createToken(
       })
     }
     const hitTest = (event: CanvasMouseEvent) => {
+      if (clipTokens().length > 0) {
+        const path = new Path2D()
+        clipTokens().forEach(({ data }) => {
+          if ('path' in data) {
+            path.addPath(data.path())
+          }
+        })
+        const result = isPointInShape(event, path)
+        if (!result) return false
+      }
       let result = false
       reversedTokens().forEach(({ data }) => {
         if ('hitTest' in data) {

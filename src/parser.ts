@@ -14,6 +14,7 @@ export type CanvasMouseEvent = {
 export type Path2DToken = {
   type: 'Path2D'
   hitTest: (event: CanvasMouseEvent) => boolean
+  path: Accessor<Path2D>
 
   clip: (ctx: CanvasRenderingContext2D) => void
   render: (ctx: CanvasRenderingContext2D) => void

@@ -31,6 +31,7 @@ const Rectangle = createToken(
       type: 'Path2D',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       clip: ctx => ctx.clip(path()),
+      path,
       hitTest: function (event) {
         const hit = isPointInShape(event, path())
         if (hit) props[event.type]?.(event)
