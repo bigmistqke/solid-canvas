@@ -1,11 +1,11 @@
-import { Path2DProps } from 'src/components/Path2D'
-import { Path2DToken, CanvasMouseEvent } from 'src/parser'
+import { ShapeProps } from 'src/components/Shape'
+import { ShapeToken, CanvasMouseEvent } from 'src/parser'
 import { isPointInShape } from './isPointInShape'
 
 export default (
-  token: Path2DToken,
+  token: ShapeToken,
   event: CanvasMouseEvent,
-  props: Path2DProps,
+  props: ShapeProps,
   dragEventHandler: (event: CanvasMouseEvent) => void,
 ) => {
   if (props.pointerEvents === false) return false

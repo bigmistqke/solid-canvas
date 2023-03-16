@@ -1,18 +1,9 @@
 import { createTokenizer } from '@solid-primitives/jsx-tokenizer'
 import { Accessor } from 'solid-js'
-import { ExtendedColor, Position } from './'
+import { CanvasMouseEvent } from './types'
 
-export type CanvasMouseEvent = {
-  ctx: CanvasRenderingContext2D
-  type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp'
-  position: Position
-  delta: Position
-  stopPropagation: () => void
-  target: CanvasToken[]
-}
-
-export type Path2DToken = {
-  type: 'Path2D'
+export type ShapeToken = {
+  type: 'Shape'
   id: string
   hitTest: (event: CanvasMouseEvent) => boolean
   path: Accessor<Path2D>
@@ -27,7 +18,7 @@ export type ColorToken = {
 }
 
 export type CanvasToken =
-  | Path2DToken
+  | ShapeToken
   | ColorToken
   | {
       type: 'Group'

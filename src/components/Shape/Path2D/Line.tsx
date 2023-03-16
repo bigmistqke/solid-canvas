@@ -1,25 +1,25 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { Position } from 'src'
-import { CanvasToken, parser, Path2DToken } from 'src/parser'
+import { parser, ShapeToken } from 'src/parser'
+import { Position, ShapeProps } from 'src/types'
+import defaultShapeProps from 'src/utils/defaultShapeProps'
+import filterShapeProps from 'src/utils/filterShapeProps'
 import hitTest from 'src/utils/hitTest'
-import { isPointInShape } from 'src/utils/isPointInShape'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
-import { defaultPath2DProps, filterPath2DProps, Path2DProps } from '.'
 
 const Line = createToken(
   parser,
   (
-    props: Path2DProps & {
+    props: ShapeProps & {
       points: Position[]
       close: boolean
     },
   ) => {
-    const merged = mergeProps({ ...defaultPath2DProps, close: true }, props)
-    const filteredProps = filterPath2DProps(merged)
+    const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
+    const filteredProps = filterShapeProps(merged)
     const [dragPosition, dragEventHandler] = useDraggable()
 
     const path = transformPath(merged, dragPosition, () => {
@@ -36,12 +36,12 @@ const Line = createToken(
     })
 
     return {
-      type: 'Path2D',
+      type: 'Shape',
       id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       clip: ctx => ctx.clip(path()),
       path,
-      hitTest: function (this: Path2DToken, event) {
+      hitTest: function (this: ShapeToken, event) {
         return hitTest(this, event, merged, dragEventHandler)
       },
     }

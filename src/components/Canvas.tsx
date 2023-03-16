@@ -10,10 +10,10 @@ import {
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
-import { Color, Position } from 'src'
 import { CanvasContext } from 'src/context'
-import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from 'src/parser'
-import { resolveColor, resolveExtendedColor } from 'src/utils/resolveColor'
+import { CanvasToken, parser } from 'src/parser'
+import { Color, Position, CanvasMouseEvent } from 'src/types'
+import { resolveColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 
 export const Canvas: Component<{

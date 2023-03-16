@@ -1,9 +1,9 @@
 import { Accessor, createMemo } from 'solid-js'
 import { Position, useCanvas } from 'src'
-import { Path2DProps } from 'src/components/Path2D'
+import { ShapeProps } from 'src/components/Shape'
 
 export default (
-  props: Path2DProps,
+  props: ShapeProps,
   // NOTE: has to be an accessor else it will not trigger an update
   dragPosition: Accessor<Position>,
   path: Accessor<Path2D>,

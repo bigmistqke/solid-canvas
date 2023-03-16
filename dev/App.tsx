@@ -36,25 +36,7 @@ const App: Component = () => {
         // fill="yellow"
         // origin={origin()}
       >
-        <Rectangle
-          dimensions={{ width: 500, height: 500 }}
-          fill={{ r: 50, g: 200, b: 100 }}
-          stroke="transparent"
-          lineWidth={20}
-          skewY={-20}
-          composite="difference"
-          draggable
-        />
-        <Image
-          image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBSFirstScanImage.jpg/840px-NBSFirstScanImage.jpg"
-          dimensions={{
-            width: 100,
-            height: 100,
-          }}
-          onMouseDown={() => console.log('clicked')}
-          draggable
-        />
-        {/* <Group
+        <Group
           position={{ x: 100, y: 100 }}
           clip={
             <>
@@ -62,9 +44,17 @@ const App: Component = () => {
               <Rectangle dimensions={{ width: 500, height: 500 }} skewX={20} />
             </>
           }
+          composite="color-burn"
         >
-         
-
+          <Image
+            image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBSFirstScanImage.jpg/840px-NBSFirstScanImage.jpg"
+            dimensions={{
+              width: 100,
+              height: 100,
+            }}
+            onMouseDown={() => console.log('clicked')}
+            draggable
+          />
           <Rectangle
             // onMouseDown={() => setSelected(true)}
             dimensions={{ width: 500, height: 500 }}
@@ -73,7 +63,16 @@ const App: Component = () => {
             fill="blue"
             skewY={10}
           />
-        </Group> */}
+        </Group>
+        <Rectangle
+          dimensions={{ width: 500, height: 500 }}
+          fill={{ r: 50, g: 200, b: 100 }}
+          stroke="transparent"
+          lineWidth={20}
+          skewY={-20}
+          // composite="difference"
+          draggable
+        />
       </Canvas>
     </>
   )

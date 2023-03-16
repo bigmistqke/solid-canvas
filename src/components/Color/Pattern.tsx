@@ -1,8 +1,9 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { ImageSource, useCanvas } from 'src'
+import { useCanvas } from 'src'
 import { parser } from 'src/parser'
+import { ImageSource } from 'src/types'
 import resolveImage from 'src/utils/resolveImageSource'
 
 type PatternProps = {

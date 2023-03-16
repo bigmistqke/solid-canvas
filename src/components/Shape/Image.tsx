@@ -1,28 +1,32 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
+import { useCanvas } from 'src'
 
-import { Dimensions, ExtendedColor, ImageSource, useCanvas } from 'src'
-import { parser, Path2DToken } from 'src/parser'
+import { parser, ShapeToken } from 'src/parser'
+import { Normalize, ShapeProps, ImageSource, Dimensions, ExtendedColor } from 'src/types'
+import defaultShapeProps from 'src/utils/defaultShapeProps'
+import filterShapeProps from 'src/utils/filterShapeProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
-import { defaultPath2DProps, filterPath2DProps, Path2DProps } from './Path2D'
 
 const Image = createToken(
   parser,
   (
-    props: Path2DProps & {
-      image: ImageSource
-      dimensions?: Dimensions
-      fontFamily?: string
-      background?: ExtendedColor
-    },
+    props: Normalize<
+      ShapeProps & {
+        image: ImageSource
+        dimensions?: Dimensions
+        fontFamily?: string
+        background?: ExtendedColor
+      }
+    >,
   ) => {
     const context = useCanvas()
     const merged = mergeProps(
       {
-        ...defaultPath2DProps,
+        ...defaultShapeProps,
         close: true,
         fontFamily: 'arial',
         size: 10,
@@ -30,7 +34,7 @@ const Image = createToken(
       },
       props,
     )
-    const filteredProps = filterPath2DProps(merged)
+    const filteredProps = filterShapeProps(merged)
 
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -59,11 +63,11 @@ const Image = createToken(
 
     return {
       props: filteredProps,
-      type: 'Path2D',
+      type: 'Shape',
       id: 'Image',
       render,
       hitTest: function (event) {
-        return hitTest(this as Path2DToken, event, merged, dragEventHandler)
+        return hitTest(this as ShapeToken, event, merged, dragEventHandler)
       },
       clip: ctx => ctx.clip(path()),
       path,

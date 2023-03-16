@@ -1,11 +1,11 @@
 import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
 import { JSX, mergeProps } from 'solid-js'
-import { Composite, Position, useCanvas } from 'src'
+import { useCanvas } from 'src'
 import { CanvasContext } from 'src/context'
 
-import { CanvasMouseEvent, parser } from 'src/parser'
+import { parser } from 'src/parser'
+import { Position, Composite, CanvasMouseEvent } from 'src/types'
 import { isPointInShape } from 'src/utils/isPointInShape'
-import { resolveColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
 

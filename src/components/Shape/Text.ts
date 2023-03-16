@@ -1,33 +1,36 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createSignal, mergeProps } from 'solid-js'
 
-import { ExtendedColor, Position, useCanvas } from 'src'
-import { CanvasToken, parser, Path2DToken } from 'src/parser'
-import { resolveExtendedColor } from 'src/utils/resolveColor'
+import { useCanvas } from 'src'
+import { parser, ShapeToken } from 'src/parser'
+import { ExtendedColor, Normalize, ShapeProps } from 'src/types'
+import defaultShapeProps from 'src/utils/defaultShapeProps'
+import filterShapeProps from 'src/utils/filterShapeProps'
 import hitTest from 'src/utils/hitTest'
-import { isPointInShape } from 'src/utils/isPointInShape'
+import { resolveExtendedColor } from 'src/utils/resolveColor'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
-import { defaultPath2DProps, filterPath2DProps, Path2DProps } from './Path2D'
 
 const Text = createToken(
   parser,
   (
-    props: Path2DProps & {
-      text: string
-      size?: number
-      fontFamily?: string
-      background?: ExtendedColor
-    },
+    props: Normalize<
+      ShapeProps & {
+        text: string
+        size?: number
+        fontFamily?: string
+        background?: ExtendedColor
+      }
+    >,
   ) => {
     const context = useCanvas()
-    const [dragPosition, dragEventHandler] = useDraggable()
-
     const merged = mergeProps(
-      { ...defaultPath2DProps, close: true, fontFamily: 'arial', size: 10 },
+      { ...defaultShapeProps, close: true, fontFamily: 'arial', size: 10 },
       props,
     )
-    const filteredProps = filterPath2DProps(merged)
+    const filteredProps = filterShapeProps(merged)
+
+    const [dragPosition, dragEventHandler] = useDraggable()
 
     const [textMetrics, setTextMetrics] = createSignal<TextMetrics>()
 
@@ -66,11 +69,11 @@ const Text = createToken(
 
     return {
       props: filteredProps,
-      type: 'Path2D',
+      type: 'Shape',
       id: 'Text',
       render,
       hitTest: function (event) {
-        const token: Path2DToken = this
+        const token: ShapeToken = this
         return hitTest(token, event, merged, dragEventHandler)
       },
       clip: ctx => ctx.clip(path()),

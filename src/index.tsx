@@ -1,66 +1,9 @@
-import { JSX } from 'solid-js'
-
 export { Canvas } from './components/Canvas'
 export { Gradient } from './components/Color/Gradient'
 export { Pattern } from './components/Color/Pattern'
-export { Line } from './components/Path2D/Line'
-export { Text } from './components/Text'
 export { Group } from './components/Group'
-export { Image } from './components/Image'
-
-export { Rectangle } from './components/Path2D/Rectangle'
+export { Image } from './components/Shape/Image'
+export { Line } from './components/Shape/Path2D/Line'
+export { Rectangle } from './components/Shape/Path2D/Rectangle'
+export { Text } from './components/Shape/Text'
 export { useCanvas } from './context'
-
-export type Position = {
-  x: number
-  y: number
-}
-export type Dimensions = {
-  width: number
-  height: number
-}
-export type RGB = {
-  r: number
-  g: number
-  b: number
-}
-export type HSL = {
-  h: number
-  s: number
-  l: number
-}
-
-export type Color = RGB | HSL | string
-export type ExtendedColor = Color | CanvasGradient | CanvasPattern | JSX.Element | null
-
-export type ImageSource =
-  | HTMLImageElement
-  | HTMLVideoElement
-  | SVGImageElement
-  | HTMLCanvasElement
-  | ImageBitmap
-  | OffscreenCanvas
-  | string
-
-export type Composite =
-  | 'source-over'
-  | 'source-atop'
-  | 'source-in'
-  | 'source-out'
-  | 'destination-over'
-  | 'destination-atop'
-  | 'destination-in'
-  | 'destination-out'
-  | 'lighter'
-  | 'copy'
-  | 'xor'
-  | 'multiply'
-  | 'screen'
-  | 'overlay'
-  | 'darken'
-  | 'color-dodge'
-  | 'color-burn'
-  | 'hard-light'
-  | 'soft-light'
-  | 'difference'
-  | 'exclusion'
