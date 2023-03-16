@@ -34,7 +34,7 @@ const App: Component = () => {
         }}
         alpha={false}
         fill="yellow"
-        origin={origin()}
+        // origin={origin()}
       >
         <Group
           position={{ x: 100, y: 100 }}
@@ -45,7 +45,7 @@ const App: Component = () => {
             </>
           }
         >
-          <Text
+          {/* <Text
             onMouseDown={() => {
               console.log('CLICKED!')
               setSelected(true)
@@ -53,11 +53,12 @@ const App: Component = () => {
             text="hallo"
             stroke="black"
             background="red"
-          />
+          /> */}
           <Rectangle
-            onMouseDown={() => setSelected(true)}
+            // onMouseDown={() => setSelected(true)}
             dimensions={{ width: 500, height: 500 }}
             lineWidth={20}
+            draggable
             stroke={
               <Gradient
                 type="linear"

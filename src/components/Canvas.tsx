@@ -9,6 +9,7 @@ import {
   onMount,
   untrack,
 } from 'solid-js'
+import { createStore } from 'solid-js/store'
 import { Color, Position } from 'src'
 import { CanvasContext } from 'src/context'
 import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from 'src/parser'
@@ -43,6 +44,16 @@ export const Canvas: Component<{
   const ctx = canvas.getContext('2d', { alpha: props.alpha })!
 
   let lastPosition: Position | undefined
+
+  const [eventListeners, setEventListeners] = createStore<{
+    onMouseDown: ((event: CanvasMouseEvent) => void)[]
+    onMouseMove: ((event: CanvasMouseEvent) => void)[]
+    onMouseUp: ((event: CanvasMouseEvent) => void)[]
+  }>({
+    onMouseDown: [],
+    onMouseMove: [],
+    onMouseUp: [],
+  })
 
   const mouseEventHandler = (
     e: MouseEvent,
@@ -86,7 +97,10 @@ export const Canvas: Component<{
     mouseEventHandler(e, 'onMouseDown', event => props.onMouseDown?.(event))
   }
   const mouseMoveHandler = (e: MouseEvent) => {
-    mouseEventHandler(e, 'onMouseMove', event => props.onMouseMove?.(event))
+    mouseEventHandler(e, 'onMouseMove', event => {
+      props.onMouseMove?.(event)
+      eventListeners.onMouseMove.forEach(listener => listener(event))
+    })
   }
   const mouseUpHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseUp', event => props.onMouseUp?.(event))
@@ -114,6 +128,22 @@ export const Canvas: Component<{
           ctx,
           get origin() {
             return props.origin ?? { x: 0, y: 0 }
+          },
+          addEventListener: (
+            type: CanvasMouseEvent['type'],
+            callback: (event: CanvasMouseEvent) => void,
+          ) => {
+            setEventListeners(type, listeners => [...listeners, callback])
+          },
+          removeEventListener: (
+            type: CanvasMouseEvent['type'],
+            callback: (event: CanvasMouseEvent) => void,
+          ) => {
+            setEventListeners(type, listeners => {
+              const index = listeners.indexOf(callback)
+              const result = [...listeners.slice(0, index), ...listeners.slice(index + 1)]
+              return result
+            })
           },
         }}
       >

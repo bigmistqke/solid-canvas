@@ -22,7 +22,7 @@ const Group = createToken(
     const tokens = resolveTokens(
       parser,
       withContext(() => props.children, CanvasContext, {
-        ctx: context!.ctx,
+        ...context!,
         get origin() {
           return context
             ? {

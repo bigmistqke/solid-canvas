@@ -1,4 +1,4 @@
-import { Accessor, createMemo, splitProps } from 'solid-js'
+import { Accessor, createEffect, createMemo, createSignal, onCleanup, splitProps } from 'solid-js'
 import { ExtendedColor, Position, useCanvas } from 'src'
 import { getExtendedColor } from 'src/utils/getColor'
 import { CanvasMouseEvent, Path2DToken } from 'src/parser.js'
@@ -14,6 +14,8 @@ export type Path2DProps = {
   skewX?: number
   skewY?: number
   rotation?: number
+
+  draggable?: boolean
 
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
@@ -31,6 +33,7 @@ export const defaultPath2DProps: Required<Path2DPropsWithoutEvents> = {
   lineWidth: 2,
   skewX: 0,
   skewY: 0,
+  draggable: false,
 }
 
 export const filterPath2DProps = <T extends Record<string, any>>(props: T) =>
@@ -44,18 +47,21 @@ export const filterPath2DProps = <T extends Record<string, any>>(props: T) =>
     'onMouseMove',
   ])[0]
 
-export const transformPath = (props: Path2DProps, path: Accessor<Path2D>) => {
+export const transformPath = (
+  props: Path2DProps,
+  // NOTE: has to be an accessor else it will not trigger an update
+  dragPosition: Accessor<Position>,
+  path: Accessor<Path2D>,
+) => {
   const context = useCanvas()
 
   const memo = createMemo(path)
   return createMemo(() => {
     const untransformed = memo()
 
-    console.log('context?.origin.x', context?.origin.x, untransformed)
-
     const position = {
-      x: (props.position?.x ?? 0) + (context?.origin.x ?? 0),
-      y: (props.position?.y ?? 0) + (context?.origin.y ?? 0),
+      x: (props.position?.x ?? 0) + dragPosition().x + (context?.origin.x ?? 0),
+      y: (props.position?.y ?? 0) + dragPosition().y + (context?.origin.y ?? 0),
     }
 
     // if (!props.rotation && !props.skewX && !props.skewY) return untransformed
@@ -106,4 +112,44 @@ const isPointInStroke = (event: CanvasMouseEvent, path: Path2D) => {
 
 export const isPointInShape = (event: CanvasMouseEvent, path: Path2D) => {
   return isPointInPath(event, path) || isPointInStroke(event, path)
+}
+
+export const useDraggable = () => {
+  const context = useCanvas()
+
+  const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
+  const [selected, setSelected] = createSignal(false)
+
+  createEffect(() => {
+    if (!context) return
+    const handleMouseMove = (event: CanvasMouseEvent) => {
+      console.log('move', event)
+      setDragPosition(position => ({
+        x: position.x + event.delta.x,
+        y: position.y + event.delta.y,
+      }))
+    }
+    if (selected()) {
+      context.addEventListener('onMouseMove', handleMouseMove)
+      onCleanup(() => {
+        console.log('CLEANUP!!!!')
+        context.removeEventListener('onMouseMove', handleMouseMove)
+      })
+    }
+  })
+
+  const dragEventHandler = (event: CanvasMouseEvent) => {
+    switch (event.type) {
+      case 'onMouseDown':
+        setSelected(true)
+        break
+      case 'onMouseMove':
+        break
+      case 'onMouseUp':
+        setSelected(false)
+        break
+    }
+  }
+
+  return [dragPosition, dragEventHandler] as const
 }
