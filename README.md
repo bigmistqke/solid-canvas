@@ -41,7 +41,7 @@ const App: Component = () => {
 }
 ```
 
-- MouseEvents: movable rectangle
+- MouseEvents: draggable rectangle
 
 ```tsx
 import solid-canvas from 'solid-canvas'
