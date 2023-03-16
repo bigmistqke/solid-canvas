@@ -1,36 +1,36 @@
 <p>
-  <img width="100%" src="https://assets.solidjs.com/banner?type={{name_of_lib}}&background=tiles&project=%20" alt="{{name_of_lib}}">
+  <img width="100%" src="https://assets.solidjs.com/banner?type=solid-canvas&background=tiles&project=%20" alt="solid-canvas">
 </p>
 
-# {{name_of_lib}}
+# solid-canvas
 
 [![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-cc00ff.svg?style=for-the-badge&logo=pnpm)](https://pnpm.io/)
 
-{{desc_of_lib}}
+a solid-wrapper around the `Canvas` API
 
-> **Note** After using this template, you have to search and replace all `{{name_of_lib}}` and similar strings
+> **Note** After using this template, you have to search and replace all `solid-canvas` and similar strings
 > with appropriate texts.
 >
-> `{{name_of_lib}}` should be a **kebab-case** string representing the name of you monorepo.
+> `solid-canvas` should be a **kebab-case** string representing the name of you monorepo.
 >
-> `{{desc_of_lib}}` should be a **Normal case** string with the description of the repository.
+> `a solid-wrapper around the `Canvas` API` should be a **Normal case** string with the description of the repository.
 >
-> `{{me}}` should be a **kebab-case** string from your profile URL.
+> `bigmistqke` should be a **kebab-case** string from your profile URL.
 
 ## Quick start
 
 Install it:
 
 ```bash
-npm i {{name_of_lib}}
+npm i solid-canvas
 # or
-yarn add {{name_of_lib}}
+yarn add solid-canvas
 # or
-pnpm add {{name_of_lib}}
+pnpm add solid-canvas
 ```
 
 Use it:
 
 ```tsx
-import {{name_of_lib}} from '{{name_of_lib}}'
+import solid-canvas from 'solid-canvas'
 ```

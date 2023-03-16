@@ -1,17 +1,17 @@
 {
   "version": "0.0.0",
-  "name": "{{name_of_lib}}",
-  "description": "{{desc_of_lib}}",
+  "name": "solid-canvas",
+  "description": "a solid-wrapper around the `Canvas` API",
   "license": "MIT",
-  "author": "{{me}}",
+  "author": "bigmistqke",
   "contributors": [],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/{{me}}/{{name_of_lib}}.git"
+    "url": "git+https://github.com/bigmistqke/solid-canvas.git"
   },
-  "homepage": "https://github.com/{{me}}/{{name_of_lib}}#readme",
+  "homepage": "https://github.com/bigmistqke/solid-canvas#readme",
   "bugs": {
-    "url": "https://github.com/{{me}}/{{name_of_lib}}/issues"
+    "url": "https://github.com/bigmistqke/solid-canvas/issues"
   },
   "files": [
     "dist"
