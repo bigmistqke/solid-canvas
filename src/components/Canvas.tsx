@@ -1,4 +1,4 @@
-import { resolveTokens } from '@solid-primitives/jsx-parser'
+import { resolveTokens } from '@solid-primitives/jsx-tokenizer'
 import {
   Component,
   createEffect,
@@ -9,15 +9,17 @@ import {
   onMount,
   untrack,
 } from 'solid-js'
-import { Position } from '..'
-import { CanvasContext } from '../context'
-import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from '../parser'
-import { getExtendedColor } from '../utils/getColor'
+import { Color, Position } from 'src'
+import { CanvasContext } from 'src/context'
+import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from 'src/parser'
+import { getColor, getExtendedColor } from 'src/utils/getColor'
 
 export const Canvas: Component<{
-  to?: string
   children: JSX.Element
   style: JSX.CSSProperties
+  background?: Color
+  origin?: Position
+  alpha?: boolean
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -38,30 +40,13 @@ export const Canvas: Component<{
       onMouseUp={e => mouseUpHandler(e)}
     />
   ) as HTMLCanvasElement
-  const ctx = canvas.getContext('2d')!
-
-  const isPointInPath = (token: Path2DToken, event: CanvasMouseEvent) => {
-    // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
-
-    // if (!token.props.fill) return false
-    return event.ctx.isPointInPath(token.path(), event.position.x, event.position.y)
-  }
-  const isPointInStroke = (token: Path2DToken, event: CanvasMouseEvent) => {
-    // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
-
-    // if (!token.props.stroke) return false
-    return event.ctx.isPointInStroke(token.path(), event.position.x, event.position.y)
-  }
-
-  const isPointInShape = (token: Path2DToken, event: CanvasMouseEvent) => {
-    return isPointInPath(token, event) || isPointInStroke(token, event)
-  }
+  const ctx = canvas.getContext('2d', { alpha: props.alpha })!
 
   let lastPosition: Position | undefined
 
   const mouseEventHandler = (
     e: MouseEvent,
-    callback: (event: CanvasMouseEvent, token: Path2DToken) => void,
+    type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
     final: (event: CanvasMouseEvent) => void,
   ) => {
     const position = { x: e.clientX, y: e.clientY }
@@ -76,15 +61,19 @@ export const Canvas: Component<{
       delta,
       stopPropagation: () => (stop = true),
       target: [],
+      type,
     }
     let i = stack().length - 1
     let token: CanvasToken | undefined
     while ((token = stack()[i])) {
-      if (token.type !== 'Path2D') continue
-      const inBounds = isPointInShape(token, event)
-      if (inBounds) callback(event, token)
-      if (inBounds) event.target.push(token)
-      if (inBounds && stop) break
+      // if (token.type === 'Path2D') {
+      if ('hitTest' in token) {
+        token.hitTest(event)
+        /* const inBounds = isPointInShape(token, event)
+        if (inBounds) callback(event, token)
+        if (inBounds) event.target.push(token)
+        if (inBounds && stop) break */
+      }
       i--
     }
 
@@ -94,25 +83,13 @@ export const Canvas: Component<{
   }
 
   const mouseDownHandler = (e: MouseEvent) => {
-    mouseEventHandler(
-      e,
-      (event, token) => token.props.onMouseDown?.(event),
-      event => props.onMouseDown?.(event),
-    )
+    mouseEventHandler(e, 'onMouseDown', event => props.onMouseDown?.(event))
   }
   const mouseMoveHandler = (e: MouseEvent) => {
-    mouseEventHandler(
-      e,
-      (event, token) => token.props.onMouseMove?.(event),
-      event => props.onMouseMove?.(event),
-    )
+    mouseEventHandler(e, 'onMouseMove', event => props.onMouseMove?.(event))
   }
   const mouseUpHandler = (e: MouseEvent) => {
-    mouseEventHandler(
-      e,
-      (event, token) => token.props.onMouseUp?.(event),
-      event => props.onMouseUp?.(event),
-    )
+    mouseEventHandler(e, 'onMouseUp', event => props.onMouseUp?.(event))
     lastPosition = undefined
   }
 
@@ -135,6 +112,9 @@ export const Canvas: Component<{
       <CanvasContext.Provider
         value={{
           ctx,
+          get origin() {
+            return props.origin ?? { x: 0, y: 0 }
+          },
         }}
       >
         {untrack(() => {
@@ -151,22 +131,19 @@ export const Canvas: Component<{
           })
           createEffect(map)
 
-          const renderPath = (token: Path2DToken) => {
-            if (token.type !== 'Path2D') return
-            ctx.setLineDash(token.props.dash ?? [])
-            ctx.strokeStyle = getExtendedColor(token.props.stroke) ?? 'black'
-            ctx.fillStyle = getExtendedColor(token.props.fill) ?? 'transparent'
-            ctx.lineWidth = token.props.lineWidth
-            ctx.fill(token.path())
-            ctx.stroke(token.path())
-            ctx.setLineDash([])
-          }
-
           const render = () => {
+            ctx.save()
             ctx.beginPath()
             ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
+            if (props.background) {
+              ctx.fillStyle = getColor(props.background) ?? 'white'
+              ctx.fillRect(0, 0, canvas.width, canvas.height)
+            }
+            ctx.restore()
             stack().forEach(token => {
-              if (token.type === 'Path2D') renderPath(token)
+              ctx.save()
+              if ('render' in token) token.render(ctx)
+              ctx.restore()
             })
           }
 
@@ -174,8 +151,6 @@ export const Canvas: Component<{
 
           return ''
         })}
-
-        {/* {props.children} */}
       </CanvasContext.Provider>
     </>
   )

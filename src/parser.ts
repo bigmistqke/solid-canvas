@@ -1,9 +1,10 @@
-import { createJSXParser } from '@solid-primitives/jsx-parser'
+import { createTokenizer } from '@solid-primitives/jsx-tokenizer'
 import { Accessor } from 'solid-js'
 import { ExtendedColor, Position } from './'
 
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
+  type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp'
   position: Position
   delta: Position
   stopPropagation: () => void
@@ -12,18 +13,10 @@ export type CanvasMouseEvent = {
 
 export type Path2DToken = {
   type: 'Path2D'
-  path: Accessor<Path2D>
+  hitTest: (event: CanvasMouseEvent) => boolean
 
-  props: {
-    stroke: ExtendedColor
-    fill: ExtendedColor
-    dash: number[]
-    lineWidth: number
-
-    onMouseDown?: (event: CanvasMouseEvent) => void
-    onMouseMove?: (event: CanvasMouseEvent) => void
-    onMouseUp?: (event: CanvasMouseEvent) => void
-  }
+  clip: (ctx: CanvasRenderingContext2D) => void
+  render: (ctx: CanvasRenderingContext2D) => void
 }
 
 export type ColorToken = {
@@ -31,6 +24,13 @@ export type ColorToken = {
   color: Accessor<CanvasGradient | CanvasPattern | null | undefined>
 }
 
-export type CanvasToken = Path2DToken | ColorToken
+export type CanvasToken =
+  | Path2DToken
+  | ColorToken
+  | {
+      type: 'Group'
+      render: (ctx: CanvasRenderingContext2D) => void
+      hitTest: (event: CanvasMouseEvent) => boolean
+    }
 
-export const parser = createJSXParser<CanvasToken>({ name: 'solid-canvas' })
+export const parser = createTokenizer<CanvasToken>({ name: 'solid-canvas' })

@@ -1,36 +1,42 @@
-import { createToken } from '@solid-primitives/jsx-parser'
+import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { Dimensions, Position, useCanvas } from '../..'
-import { parser } from '../../parser'
-import { defaultPath2DProps, filterPath2DProps, Path2DProps, transformPath } from './'
+import { Dimensions, useCanvas } from 'src'
+import { CanvasToken, parser } from 'src/parser'
+import {
+  defaultPath2DProps,
+  filterPath2DProps,
+  isPointInShape,
+  Path2DProps,
+  renderPath,
+  transformPath,
+} from '.'
 
 const Rectangle = createToken(
   parser,
   (
     props: Path2DProps & {
-      position: Position
       dimensions: Dimensions
     },
   ) => {
     const merged = mergeProps({ ...defaultPath2DProps, close: true }, props)
-    const filteredProps = filterPath2DProps(merged)
 
     const path = transformPath(merged, () => {
       const path = new Path2D()
-      path.rect(
-        merged.position.x,
-        merged.position.y,
-        merged.dimensions.width,
-        merged.dimensions.height,
-      )
+      path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
       return path
     })
 
     return {
-      props: filteredProps,
       type: 'Path2D',
-      path,
+      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
+      clip: ctx => ctx.clip(path()),
+      hitTest: function (event) {
+        const hit = isPointInShape(event, path())
+        if (hit) props[event.type]?.(event)
+        if (hit) event.target.push(this as CanvasToken)
+        return hit
+      },
     }
   },
 )
