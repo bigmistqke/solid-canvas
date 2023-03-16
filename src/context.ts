@@ -1,6 +1,5 @@
 import { createContext, useContext } from 'solid-js'
-import { Position } from 'src'
-import { CanvasMouseEvent } from './parser'
+import { Position, CanvasMouseEvent } from './types'
 
 export const CanvasContext = createContext<{
   ctx: CanvasRenderingContext2D
