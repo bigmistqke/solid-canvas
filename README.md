@@ -156,9 +156,11 @@ const App: Component = () => {
   - [ ] Quadratic
 - [x] Text
 - [x] Group (with `clip`-prop)
-- [ ] Image
+- [x] Image
 - [ ] ImageData
 - [ ] Compositing
+  - [x] Path2D
+  - [ ] Group
 - [x] Color (for fill/stroke)
   - [x] Gradient
   - [x] Pattern
