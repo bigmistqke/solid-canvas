@@ -8,7 +8,10 @@ export default (
   props: Path2DProps,
   dragEventHandler: (event: CanvasMouseEvent) => void,
 ) => {
+  if (props.pointerEvents === false) return false
+
   const hit = isPointInShape(event, token.path())
+
   if (hit) {
     props[event.type]?.(event)
     event.target.push(token)
