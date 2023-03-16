@@ -1,5 +1,5 @@
 import { Component, createSignal } from 'solid-js'
-import { Canvas, Gradient, Group, Rectangle, Text } from 'src'
+import { Canvas, Gradient, Group, Rectangle, Text, Image } from 'src'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -36,6 +36,22 @@ const App: Component = () => {
         fill="yellow"
         // origin={origin()}
       >
+        <Rectangle
+          shadow={{
+            offset: {
+              x: 10,
+              y: 10,
+            },
+            blur: 10,
+            color: 'red',
+          }}
+          dimensions={{ width: 500, height: 500 }}
+          fill="black"
+          stroke="transparent"
+          lineWidth={20}
+          skewY={-20}
+          draggable
+        />
         <Group
           position={{ x: 100, y: 100 }}
           clip={
@@ -45,43 +61,22 @@ const App: Component = () => {
             </>
           }
         >
-          {/* <Text
-            onMouseDown={() => {
-              console.log('CLICKED!')
-              setSelected(true)
+          <Image
+            image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBSFirstScanImage.jpg/840px-NBSFirstScanImage.jpg"
+            dimensions={{
+              width: 100,
+              height: 100,
             }}
-            text="hallo"
-            stroke="black"
-            background="red"
-          /> */}
+            onMouseDown={() => console.log('clicked')}
+            draggable
+          />
+
           <Rectangle
             // onMouseDown={() => setSelected(true)}
             dimensions={{ width: 500, height: 500 }}
             lineWidth={20}
             draggable
-            stroke={
-              <Gradient
-                type="linear"
-                start={{ x: window.innerWidth, y: 0 }}
-                end={{ x: 0, y: window.innerHeight }}
-                stops={[
-                  { offset: 0, color: 'red' },
-                  { offset: 1, color: 'blue' },
-                ]}
-              />
-            }
-            fill={
-              <Gradient
-                type="conic"
-                center={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
-                startAngle={10}
-                end={{ x: window.innerWidth / 2, y: window.innerHeight / 2 }}
-                stops={[
-                  { offset: 0, color: 'red' },
-                  { offset: 1, color: 'blue' },
-                ]}
-              />
-            }
+            fill="blue"
             skewY={10}
           />
         </Group>
