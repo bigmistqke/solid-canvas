@@ -14,6 +14,7 @@ import { Color, Position } from 'src'
 import { CanvasContext } from 'src/context'
 import { CanvasMouseEvent, CanvasToken, parser, Path2DToken } from 'src/parser'
 import { getColor, getExtendedColor } from 'src/utils/getColor'
+import revEach from 'src/utils/revEach'
 
 export const Canvas: Component<{
   children: JSX.Element
@@ -74,19 +75,12 @@ export const Canvas: Component<{
       target: [],
       type,
     }
-    let i = stack().length - 1
-    let token: CanvasToken | undefined
-    while ((token = stack()[i])) {
-      // if (token.type === 'Path2D') {
+
+    revEach(stack(), token => {
       if ('hitTest' in token) {
         token.hitTest(event)
-        /* const inBounds = isPointInShape(token, event)
-        if (inBounds) callback(event, token)
-        if (inBounds) event.target.push(token)
-        if (inBounds && stop) break */
       }
-      i--
-    }
+    })
 
     if (!stop) final(event)
 

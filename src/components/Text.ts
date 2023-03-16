@@ -2,15 +2,13 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createSignal, mergeProps } from 'solid-js'
 
 import { ExtendedColor, Position, useCanvas } from 'src'
-import { CanvasToken, parser } from 'src/parser'
+import { CanvasToken, parser, Path2DToken } from 'src/parser'
 import { getExtendedColor } from 'src/utils/getColor'
-import {
-  defaultPath2DProps,
-  filterPath2DProps,
-  isPointInShape,
-  Path2DProps,
-  transformPath,
-} from './Path2D'
+import hitTest from 'src/utils/hitTest'
+import { isPointInShape } from 'src/utils/isPointInShape'
+import transformPath from 'src/utils/transformPath'
+import useDraggable from 'src/utils/useDraggable'
+import { defaultPath2DProps, filterPath2DProps, Path2DProps } from './Path2D'
 
 const Text = createToken(
   parser,
@@ -23,6 +21,7 @@ const Text = createToken(
     },
   ) => {
     const context = useCanvas()
+    const [dragPosition, dragEventHandler] = useDraggable()
 
     const merged = mergeProps(
       { ...defaultPath2DProps, close: true, fontFamily: 'arial', size: 10 },
@@ -32,7 +31,7 @@ const Text = createToken(
 
     const [textMetrics, setTextMetrics] = createSignal<TextMetrics>()
 
-    const path = transformPath(merged, () => {
+    const path = transformPath(merged, dragPosition, () => {
       const metrics = textMetrics()
       if (!metrics) return new Path2D()
       const {
@@ -61,6 +60,7 @@ const Text = createToken(
         ctx.stroke(path())
       }
       ctx.fillStyle = 'black'
+      // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
       ctx.fillText(merged.text, merged.position.x + offset.x, merged.position.y + offset.y)
     }
 
@@ -69,10 +69,8 @@ const Text = createToken(
       type: 'Path2D',
       render,
       hitTest: function (event) {
-        const hit = isPointInShape(event, path())
-        if (hit) props[event.type]?.(event)
-        if (hit) event.target.push(this as CanvasToken)
-        return hit
+        const token: Path2DToken = this
+        return hitTest(token, event, merged, dragEventHandler)
       },
       clip: ctx => ctx.clip(path()),
       path,

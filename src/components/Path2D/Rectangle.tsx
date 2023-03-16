@@ -3,14 +3,11 @@ import { mergeProps } from 'solid-js'
 
 import { Dimensions } from 'src'
 import { parser, Path2DToken } from 'src/parser'
-import {
-  defaultPath2DProps,
-  hitTest,
-  Path2DProps,
-  renderPath,
-  transformPath,
-  useDraggable,
-} from '.'
+import hitTest from 'src/utils/hitTest'
+import renderPath from 'src/utils/renderPath'
+import transformPath from 'src/utils/transformPath'
+import useDraggable from 'src/utils/useDraggable'
+import { defaultPath2DProps, Path2DProps } from '.'
 
 const Rectangle = createToken(
   parser,
@@ -34,8 +31,8 @@ const Rectangle = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        const self: Path2DToken = this
-        return hitTest(self, event, merged, dragEventHandler)
+        const token: Path2DToken = this
+        return hitTest(token, event, merged, dragEventHandler)
       },
     }
   },

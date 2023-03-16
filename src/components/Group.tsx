@@ -1,11 +1,12 @@
-import { createToken, resolveTokens, TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, JSX, createMemo, mergeProps } from 'solid-js'
+import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
+import { JSX, mergeProps } from 'solid-js'
 import { Position, useCanvas } from 'src'
 import { CanvasContext } from 'src/context'
 
-import { CanvasMouseEvent, CanvasToken, parser } from 'src/parser'
+import { CanvasMouseEvent, parser } from 'src/parser'
+import { isPointInShape } from 'src/utils/isPointInShape'
+import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
-import { isPointInShape } from './Path2D'
 
 const Group = createToken(
   parser,
@@ -15,6 +16,7 @@ const Group = createToken(
     clip?: JSX.Element | JSX.Element[]
   }) => {
     const context = useCanvas()
+    if (!context) throw 'CanvasTokens need to be included in Canvas'
     const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
     const clipTokens = resolveTokens(parser, () => props.clip)
@@ -22,7 +24,7 @@ const Group = createToken(
     const tokens = resolveTokens(
       parser,
       withContext(() => props.children, CanvasContext, {
-        ...context!,
+        ...context,
         get origin() {
           return context
             ? {
@@ -34,41 +36,39 @@ const Group = createToken(
       }),
     )
 
-    const reversedTokens = createMemo(() => {
-      const t = tokens()
-      return Array.isArray(t) ? t.reverse() : t
-    })
-
     const render = (ctx: CanvasRenderingContext2D) => {
       if (props.clip) {
         const path = new Path2D()
         clipTokens().forEach(({ data }) => {
           if ('clip' in data) {
-            // data.clip(ctx)
             path.addPath(data.path())
           }
         })
         ctx.clip(path)
       }
-      reversedTokens().forEach(({ data }) => {
+      revEach(tokens(), ({ data }) => {
         if ('render' in data) {
           data.render(ctx)
         }
       })
     }
+
+    const hitTestClip = (event: CanvasMouseEvent) => {
+      const path = new Path2D()
+      clipTokens().forEach(({ data }) => {
+        if ('path' in data) {
+          path.addPath(data.path())
+        }
+      })
+      return isPointInShape(event, path)
+    }
+
     const hitTest = (event: CanvasMouseEvent) => {
       if (clipTokens().length > 0) {
-        const path = new Path2D()
-        clipTokens().forEach(({ data }) => {
-          if ('path' in data) {
-            path.addPath(data.path())
-          }
-        })
-        const result = isPointInShape(event, path)
-        if (!result) return false
+        if (!hitTestClip(event)) return false
       }
       let result = false
-      reversedTokens().forEach(({ data }) => {
+      revEach(tokens(), ({ data }) => {
         if ('hitTest' in data) {
           const hit = data.hitTest(event)
           if (hit) result = true
