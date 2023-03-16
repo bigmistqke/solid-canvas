@@ -1,13 +1,14 @@
 import { defineConfig } from 'vite'
 import solidPlugin from 'vite-plugin-solid'
-import devtools from 'solid-devtools/vite'
+import path from 'path'
 
 export default defineConfig({
+  resolve: {
+    alias: {
+      src: path.resolve(__dirname, '../src'),
+    },
+  },
   plugins: [
-    devtools({
-      /* additional options */
-      autoname: true, // e.g. enable autoname
-    }),
     solidPlugin(),
     {
       name: 'Reaplace env variables',

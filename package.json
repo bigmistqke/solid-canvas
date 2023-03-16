@@ -23,6 +23,9 @@
   "module": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "browser": {},
+  "imports": {
+    "@src/*": "./src/*"
+  },
   "exports": {
     "solid": {
       "development": "./dist/dev.jsx",
@@ -76,6 +79,6 @@
   ],
   "packageManager": "pnpm@7.22.0",
   "dependencies": {
-    "@solid-primitives/jsx-parser": "^0.2.0"
+    "@solid-primitives/jsx-tokenizer": "^1.0.0"
   }
 }

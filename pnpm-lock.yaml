@@ -1,7 +1,7 @@
 lockfileVersion: 5.4
 
 specifiers:
-  '@solid-primitives/jsx-parser': ^0.2.0
+  '@solid-primitives/jsx-tokenizer': ^1.0.0
   concurrently: ^7.6.0
   esbuild: ^0.17.4
   esbuild-plugin-solid: ^0.5.0
@@ -17,7 +17,7 @@ specifiers:
   vitest: ^0.28.2
 
 dependencies:
-  '@solid-primitives/jsx-parser': 0.2.0_solid-js@1.6.9
+  '@solid-primitives/jsx-tokenizer': 1.0.0_solid-js@1.6.9
 
 devDependencies:
   concurrently: 7.6.0
@@ -1029,7 +1029,7 @@ packages:
     dependencies:
       '@babel/core': 7.20.12
       '@babel/helper-hoist-variables': 7.18.6
-      '@babel/helper-module-transforms': 7.20.11
+      '@babel/helper-module-transforms': 7.21.2
       '@babel/helper-plugin-utils': 7.20.2
       '@babel/helper-validator-identifier': 7.19.1
     transitivePeerDependencies:
@@ -2042,8 +2042,8 @@ packages:
       solid-js: 1.6.9
     dev: true
 
-  /@solid-primitives/jsx-parser/0.2.0_solid-js@1.6.9:
-    resolution: {integrity: sha512-9xB4sBGudGHgAhEBPOmFq8iupZJxKXlmixxxJzv3AqzgM3VGRLAfyjPW73pYgswxrHldzt4fc2AdT/ZUje75zg==}
+  /@solid-primitives/jsx-tokenizer/1.0.0_solid-js@1.6.9:
+    resolution: {integrity: sha512-qsZryoB9sxMqX2SwtNC8enRJ9exfBzyzTFwgUqYldArN2wLKN6Zjd8zJ72qEVeUJ4m9vT9clwW+p+0PKR17Igw==}
     peerDependencies:
       solid-js: ^1.6.0
     dependencies:
@@ -2162,7 +2162,7 @@ packages:
   /@types/babel__core/7.20.0:
     resolution: {integrity: sha512-+n8dL/9GWblDO0iU6eZAwEIJVr5DWigtle+Q6HLOrh/pdbXOhOtqzq8VPPE2zvNJzSKY4vH/z3iT3tn0A3ypiQ==}
     dependencies:
-      '@babel/parser': 7.20.13
+      '@babel/parser': 7.21.3
       '@babel/types': 7.21.3
       '@types/babel__generator': 7.6.4
       '@types/babel__template': 7.4.1
@@ -2180,7 +2180,7 @@ packages:
   /@types/babel__template/7.4.1:
     resolution: {integrity: sha512-azBFKemX6kMg5Io+/rdGT0dkGreboUVR0Cdm3fz9QJWpaQGJRQXl7C+6hOTCZcMll7KFyEQpgbYI2lHdsS4U7g==}
     dependencies:
-      '@babel/parser': 7.20.13
+      '@babel/parser': 7.21.3
       '@babel/types': 7.21.3
     dev: true
     optional: true
@@ -4541,7 +4541,7 @@ packages:
       terser: 5.16.6
       undici: 5.21.0
       vite: 4.0.4
-      vite-plugin-inspect: 0.7.16_rollup@3.11.0+vite@4.0.4
+      vite-plugin-inspect: 0.7.17_rollup@3.11.0+vite@4.0.4
       vite-plugin-solid: 2.6.1_solid-js@1.6.9+vite@4.0.4
       wait-on: 6.0.1_debug@4.3.4
     transitivePeerDependencies:
@@ -4990,8 +4990,8 @@ packages:
       - terser
     dev: true
 
-  /vite-plugin-inspect/0.7.16_rollup@3.11.0+vite@4.0.4:
-    resolution: {integrity: sha512-WnyoicZ+mSQgrWoQdwrGydvlbfmlTKDVlMtub8RYCld3oXbC5kset3WmtgisrLmiDPobDvx2v7zUtPNQSySWXA==}
+  /vite-plugin-inspect/0.7.17_rollup@3.11.0+vite@4.0.4:
+    resolution: {integrity: sha512-0z33Z7ap6DOzOO3iulGROWZq9oUbarmMKHtdVbCMJ3OL0JOd8UvEqnTazU/2Y8Y2WpOyaZuEV6USJ9KHoZ7f+A==}
     engines: {node: '>=14'}
     peerDependencies:
       vite: ^3.1.0 || ^4.0.0
