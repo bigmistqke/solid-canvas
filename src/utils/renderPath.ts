@@ -1,8 +1,8 @@
-import { ResolvedShapeProps } from 'src/components/Shape'
+import { ResolvedShapeProps } from 'src/types'
 import { resolveColor, resolveExtendedColor } from './resolveColor'
 
 export default (ctx: CanvasRenderingContext2D, props: ResolvedShapeProps, path: Path2D) => {
-  ctx.setLineDash(props.dash)
+  ctx.setLineDash(props.lineDash)
   if (props.shadow) {
     ctx.shadowBlur = props.shadow.blur ?? 0
     ctx.shadowOffsetX = props.shadow.offset?.x ?? 0

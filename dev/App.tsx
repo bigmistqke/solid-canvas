@@ -40,7 +40,7 @@ const App: Component = () => {
           position={{ x: 100, y: 100 }}
           clip={
             <>
-              <Rectangle dimensions={{ width: 500, height: 500 }} />
+              <Rectangle position={{ x: 0, y: 0 }} dimensions={{ width: 500, height: 500 }} />
               <Rectangle dimensions={{ width: 500, height: 500 }} skewX={20} />
             </>
           }
