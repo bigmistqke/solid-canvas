@@ -82,7 +82,6 @@ export const Canvas: Component<{
       },
     }),
   )
-  // TODO: bookkeep z-index
   const map = mapArray(tokens, (token, i) => {
     const index = stack().length - i()
 
@@ -96,7 +95,7 @@ export const Canvas: Component<{
 
   const render = () => {
     startRenderTime = performance.now()
-    // console.time('render')
+
     ctx.save()
     ctx.beginPath()
     ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
@@ -110,23 +109,22 @@ export const Canvas: Component<{
       if ('render' in token) token.render(ctx)
       ctx.restore()
     })
-    // console.timeEnd('render')
-
     if (props.stats) {
       setStats({
         fps: Math.floor(1000 / (performance.now() - startRenderTime)),
         memory:
           'memory' in performance
             ? {
-                used: Math.floor(performance.memory.usedJSHeapSize / 1048576),
-                total: Math.floor(performance.memory.jsHeapSizeLimit / 1048576),
+                // NOTE: performance.memory is chrome-only
+                used: Math.floor((performance.memory as any).usedJSHeapSize / 1048576),
+                total: Math.floor((performance.memory as any).jsHeapSizeLimit / 1048576),
               }
             : undefined,
       })
     }
   }
 
-  createEffect(() => render())
+  createEffect(render)
 
   const [eventListeners, setEventListeners] = createStore<{
     onMouseDown: ((event: CanvasMouseEvent) => void)[]
