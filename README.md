@@ -2,11 +2,16 @@
   <img width="100%" src="https://assets.solidjs.com/banner?type=solid-canvas&background=tiles&project=%20" alt="solid-canvas">
 </p>
 
-# solid-canvas
+# 🎨 solid-canvas
 
 [![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-cc00ff.svg?style=for-the-badge&logo=pnpm)](https://pnpm.io/)
 
 a solid wrapper around the `Canvas` API
+
+
+https://user-images.githubusercontent.com/10504064/226027716-6c1653bb-9db9-43ef-9da5-43452530c495.mp4
+
+
 
 ## Quick start
 
