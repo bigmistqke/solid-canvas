@@ -16,6 +16,7 @@ import { CanvasToken, parser } from 'src/parser'
 import { Color, Position, CanvasMouseEvent } from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
+import withContext from 'src/utils/withContext'
 
 /**
  * All `solid-canvas`-components have to be inside a `Canvas`
@@ -37,10 +38,12 @@ export const Canvas: Component<{
     width: window.innerWidth,
     height: window.innerHeight,
   })
-
   const [stats, setStats] = createStore<{ fps?: number; memory?: { used: number; total: number } }>(
     {},
   )
+
+  let lastCursorPosition: Position | undefined
+  let startRenderTime: number
 
   const canvas = (
     <canvas
@@ -54,7 +57,76 @@ export const Canvas: Component<{
   ) as HTMLCanvasElement
   const ctx = canvas.getContext('2d', { alpha: props.alpha })!
 
-  let lastPosition: Position | undefined
+  const tokens = resolveTokens(
+    parser,
+    withContext(() => props.children, CanvasContext, {
+      ctx,
+      get origin() {
+        return props.origin ?? { x: 0, y: 0 }
+      },
+      addEventListener: (
+        type: CanvasMouseEvent['type'],
+        callback: (event: CanvasMouseEvent) => void,
+      ) => {
+        setEventListeners(type, listeners => [...listeners, callback])
+      },
+      removeEventListener: (
+        type: CanvasMouseEvent['type'],
+        callback: (event: CanvasMouseEvent) => void,
+      ) => {
+        setEventListeners(type, listeners => {
+          const index = listeners.indexOf(callback)
+          const result = [...listeners.slice(0, index), ...listeners.slice(index + 1)]
+          return result
+        })
+      },
+    }),
+  )
+  // TODO: bookkeep z-index
+  const map = mapArray(tokens, (token, i) => {
+    const index = stack().length - i()
+
+    setStack(stack => [...stack.slice(0, index), token.data, ...stack.slice(index)])
+    onCleanup(() => {
+      const index = stack().length - i()
+      setStack(stack => [...stack.slice(0, index - 1), ...stack.slice(index)])
+    })
+  })
+  createEffect(map)
+
+  const render = () => {
+    startRenderTime = performance.now()
+    // console.time('render')
+    ctx.save()
+    ctx.beginPath()
+    ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
+    if (props.fill) {
+      ctx.fillStyle = resolveColor(props.fill) ?? 'white'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+    ctx.restore()
+    stack().forEach(token => {
+      ctx.save()
+      if ('render' in token) token.render(ctx)
+      ctx.restore()
+    })
+    // console.timeEnd('render')
+
+    if (props.stats) {
+      setStats({
+        fps: Math.floor(1000 / (performance.now() - startRenderTime)),
+        memory:
+          'memory' in performance
+            ? {
+                used: Math.floor(performance.memory.usedJSHeapSize / 1048576),
+                total: Math.floor(performance.memory.jsHeapSizeLimit / 1048576),
+              }
+            : undefined,
+      })
+    }
+  }
+
+  createEffect(() => render())
 
   const [eventListeners, setEventListeners] = createStore<{
     onMouseDown: ((event: CanvasMouseEvent) => void)[]
@@ -72,10 +144,10 @@ export const Canvas: Component<{
     final: (event: CanvasMouseEvent) => void,
   ) => {
     const position = { x: e.clientX, y: e.clientY }
-    const delta = lastPosition
-      ? { x: position.x - lastPosition.x, y: position.y - lastPosition.y }
+    const delta = lastCursorPosition
+      ? { x: position.x - lastCursorPosition.x, y: position.y - lastCursorPosition.y }
       : { x: 0, y: 0 }
-    lastPosition = position
+    lastCursorPosition = position
     let stop = false
     const event: CanvasMouseEvent = {
       ctx,
@@ -109,7 +181,7 @@ export const Canvas: Component<{
   }
   const mouseUpHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseUp', event => props.onMouseUp?.(event))
-    lastPosition = undefined
+    lastCursorPosition = undefined
   }
 
   onMount(() => {
@@ -146,82 +218,6 @@ export const Canvas: Component<{
         </div>
       </Show>
       {canvas}
-      <CanvasContext.Provider
-        value={{
-          ctx,
-          get origin() {
-            return props.origin ?? { x: 0, y: 0 }
-          },
-          addEventListener: (
-            type: CanvasMouseEvent['type'],
-            callback: (event: CanvasMouseEvent) => void,
-          ) => {
-            setEventListeners(type, listeners => [...listeners, callback])
-          },
-          removeEventListener: (
-            type: CanvasMouseEvent['type'],
-            callback: (event: CanvasMouseEvent) => void,
-          ) => {
-            setEventListeners(type, listeners => {
-              const index = listeners.indexOf(callback)
-              const result = [...listeners.slice(0, index), ...listeners.slice(index + 1)]
-              return result
-            })
-          },
-        }}
-      >
-        {untrack(() => {
-          const tokens = resolveTokens(parser, () => props.children)
-          // TODO: bookkeep z-index
-          const map = mapArray(tokens, (token, i) => {
-            const index = stack().length - i()
-
-            setStack(stack => [...stack.slice(0, index), token.data, ...stack.slice(index)])
-            onCleanup(() => {
-              const index = stack().length - i()
-              setStack(stack => [...stack.slice(0, index - 1), ...stack.slice(index)])
-            })
-          })
-          createEffect(map)
-
-          let start: number
-          const render = () => {
-            start = performance.now()
-            // console.time('render')
-            ctx.save()
-            ctx.beginPath()
-            ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
-            if (props.fill) {
-              ctx.fillStyle = resolveColor(props.fill) ?? 'white'
-              ctx.fillRect(0, 0, canvas.width, canvas.height)
-            }
-            ctx.restore()
-            stack().forEach(token => {
-              ctx.save()
-              if ('render' in token) token.render(ctx)
-              ctx.restore()
-            })
-            // console.timeEnd('render')
-
-            if (props.stats) {
-              setStats({
-                fps: Math.floor(1000 / (performance.now() - start)),
-                memory:
-                  'memory' in performance
-                    ? {
-                        used: Math.floor(performance.memory.usedJSHeapSize / 1048576),
-                        total: Math.floor(performance.memory.jsHeapSizeLimit / 1048576),
-                      }
-                    : undefined,
-              })
-            }
-          }
-
-          createEffect(() => render())
-
-          return ''
-        })}
-      </CanvasContext.Provider>
     </>
   )
 }
