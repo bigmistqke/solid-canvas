@@ -7,6 +7,7 @@ import {
   mapArray,
   onCleanup,
   onMount,
+  Show,
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
@@ -26,6 +27,7 @@ export const Canvas: Component<{
   fill?: Color
   origin?: Position
   alpha?: boolean
+  stats?: boolean
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -35,6 +37,10 @@ export const Canvas: Component<{
     width: window.innerWidth,
     height: window.innerHeight,
   })
+
+  const [stats, setStats] = createStore<{ fps?: number; memory?: { used: number; total: number } }>(
+    {},
+  )
 
   const canvas = (
     <canvas
@@ -121,6 +127,24 @@ export const Canvas: Component<{
 
   return (
     <>
+      <Show when={props.stats}>
+        <div
+          style={{
+            background: 'white',
+            margin: '5px',
+            padding: '5px',
+            position: 'absolute',
+            bottom: '0px',
+            left: '0px',
+            'font-family': 'monospace',
+            'user-select': 'none',
+          }}
+        >
+          fps: {stats.fps}
+          <br />
+          mem: {stats.memory?.used} / {stats.memory?.total}
+        </div>
+      </Show>
       {canvas}
       <CanvasContext.Provider
         value={{
@@ -160,7 +184,10 @@ export const Canvas: Component<{
           })
           createEffect(map)
 
+          let start: number
           const render = () => {
+            start = performance.now()
+            // console.time('render')
             ctx.save()
             ctx.beginPath()
             ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
@@ -174,6 +201,20 @@ export const Canvas: Component<{
               if ('render' in token) token.render(ctx)
               ctx.restore()
             })
+            // console.timeEnd('render')
+
+            if (props.stats) {
+              setStats({
+                fps: Math.floor(1000 / (performance.now() - start)),
+                memory:
+                  'memory' in performance
+                    ? {
+                        used: Math.floor(performance.memory.usedJSHeapSize / 1048576),
+                        total: Math.floor(performance.memory.jsHeapSizeLimit / 1048576),
+                      }
+                    : undefined,
+              })
+            }
           }
 
           createEffect(() => render())
