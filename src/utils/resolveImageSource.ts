@@ -1,5 +1,5 @@
-import { Accessor, createMemo, createResource, on } from 'solid-js'
-import { ImageSource } from 'src'
+import { Accessor, createResource } from 'solid-js'
+import { ImageSource } from 'src/types'
 
 const loadImageSource = (media: ImageSource) =>
   new Promise<Exclude<ImageSource, string>>(resolve => {

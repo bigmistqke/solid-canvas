@@ -1,4 +1,4 @@
-import { CanvasMouseEvent } from 'src/parser'
+import { CanvasMouseEvent } from 'src/types'
 
 const isPointInPath = (event: CanvasMouseEvent, path: Path2D) => {
   // TODO:  can not check for token.props.fill as it would re-mount ColorTokens

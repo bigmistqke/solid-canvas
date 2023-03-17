@@ -1,6 +1,6 @@
 import { Accessor, createMemo } from 'solid-js'
-import { Position, useCanvas } from 'src'
-import { ShapeProps } from 'src/components/Shape'
+import { useCanvas } from 'src'
+import { ShapeProps, Position } from 'src/types'
 
 export default (
   props: ShapeProps,

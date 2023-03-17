@@ -1,5 +1,5 @@
-import { ShapeProps } from 'src/components/Shape'
-import { ShapeToken, CanvasMouseEvent } from 'src/parser'
+import { ShapeToken } from 'src/parser'
+import { CanvasMouseEvent, ShapeProps } from 'src/types'
 import { isPointInShape } from './isPointInShape'
 
 export default (

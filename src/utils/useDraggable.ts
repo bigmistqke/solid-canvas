@@ -1,6 +1,6 @@
 import { createSignal, createEffect, onCleanup } from 'solid-js'
 import { useCanvas } from 'src'
-import { CanvasMouseEvent } from 'src/parser'
+import { CanvasMouseEvent } from 'src/types'
 
 export default () => {
   const context = useCanvas()
