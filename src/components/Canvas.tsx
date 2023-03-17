@@ -55,7 +55,10 @@ export const Canvas: Component<{
       onMouseUp={e => mouseUpHandler(e)}
     />
   ) as HTMLCanvasElement
-  const ctx = canvas.getContext('2d', { alpha: props.alpha })!
+  const ctx = canvas.getContext('2d', {
+    alpha: props.alpha,
+    willReadFrequently: true,
+  })!
 
   const tokens = resolveTokens(
     parser,
