@@ -1,5 +1,5 @@
 import { Component, createSignal, For } from 'solid-js'
-import { Canvas, Gradient, Group, Rectangle, Text, Image } from 'src'
+import { Canvas, Rectangle } from 'src'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -34,28 +34,7 @@ const App: Component = () => {
         }}
         alpha
         stats
-        // fill="yellow"
-        // origin={origin()}
       >
-        {/* <Group
-          position={{ x: 100, y: 100 }}
-          clip={
-            <>
-              <Rectangle position={{ x: 0, y: 0 }} dimensions={{ width: 500, height: 500 }} />
-              <Rectangle dimensions={{ width: 500, height: 500 }} skewX={20} />
-            </>
-          }
-          composite="color-burn"
-        > */}
-        {/* <Image
-          image="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1a/NBSFirstScanImage.jpg/840px-NBSFirstScanImage.jpg"
-          dimensions={{
-            width: 100,
-            height: 100,
-          }}
-          onMouseDown={() => console.log('clicked')}
-          draggable
-        /> */}
         <For
           each={new Array(500).fill('').map(v => ({
             position: {
@@ -68,7 +47,6 @@ const App: Component = () => {
         >
           {data => (
             <Rectangle
-              // onMouseDown={() => setSelected(true)}
               {...data}
               dimensions={{ width: 100, height: 100 }}
               lineWidth={20}
@@ -78,18 +56,6 @@ const App: Component = () => {
             />
           )}
         </For>
-
-        {/* </Group> */}
-        {/* <Rectangle
-          dimensions={{ width: 500, height: 500 }}
-          fill={{ r: 50, g: 200, b: 100 }}
-          stroke="transparent"
-          position={{ x: Math.random() * 200, y: Math.random() * 200 }}
-          lineWidth={20}
-          skewY={-20}
-          // composite="difference"
-          draggable
-        /> */}
       </Canvas>
     </>
   )
