@@ -29,6 +29,7 @@ export const Canvas: Component<{
   origin?: Position
   alpha?: boolean
   stats?: boolean
+  draggable?: boolean
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -41,6 +42,18 @@ export const Canvas: Component<{
   const [stats, setStats] = createStore<{ fps?: number; memory?: { used: number; total: number } }>(
     {},
   )
+
+  const [eventListeners, setEventListeners] = createStore<{
+    onMouseDown: ((event: CanvasMouseEvent) => void)[]
+    onMouseMove: ((event: CanvasMouseEvent) => void)[]
+    onMouseUp: ((event: CanvasMouseEvent) => void)[]
+  }>({
+    onMouseDown: [],
+    onMouseMove: [],
+    onMouseUp: [],
+  })
+
+  const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
 
   let lastCursorPosition: Position | undefined
   let startRenderTime: number
@@ -65,7 +78,9 @@ export const Canvas: Component<{
     withContext(() => props.children, CanvasContext, {
       ctx,
       get origin() {
-        return props.origin ?? { x: 0, y: 0 }
+        return props.origin
+          ? { x: origin().x + props.origin.x, y: origin().y + props.origin.y }
+          : origin()
       },
       addEventListener: (
         type: CanvasMouseEvent['type'],
@@ -129,16 +144,6 @@ export const Canvas: Component<{
 
   createEffect(render)
 
-  const [eventListeners, setEventListeners] = createStore<{
-    onMouseDown: ((event: CanvasMouseEvent) => void)[]
-    onMouseMove: ((event: CanvasMouseEvent) => void)[]
-    onMouseUp: ((event: CanvasMouseEvent) => void)[]
-  }>({
-    onMouseDown: [],
-    onMouseMove: [],
-    onMouseUp: [],
-  })
-
   const mouseEventHandler = (
     e: MouseEvent,
     type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
@@ -172,8 +177,29 @@ export const Canvas: Component<{
     return event
   }
 
+  const initPan = () => {
+    const handleMouseMove = (event: MouseEvent) => {
+      setOrigin(position => ({
+        x: position.x + event.movementX,
+        y: position.y + event.movementY,
+      }))
+    }
+    const handleMouseUp = (event: MouseEvent) => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+    }
+
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+  }
+
   const mouseDownHandler = (e: MouseEvent) => {
-    mouseEventHandler(e, 'onMouseDown', event => props.onMouseDown?.(event))
+    mouseEventHandler(e, 'onMouseDown', event => {
+      if (props.draggable) {
+        initPan()
+      }
+      props.onMouseDown?.(event)
+    })
   }
   const mouseMoveHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseMove', event => {

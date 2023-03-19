@@ -32,6 +32,7 @@ export default () => {
   const dragEventHandler = (event: CanvasMouseEvent) => {
     if (event.target.length === 1 && event.type === 'onMouseDown') {
       setSelected(true)
+      event.stopPropagation()
     }
   }
 
