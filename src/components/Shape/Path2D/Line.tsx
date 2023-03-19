@@ -3,7 +3,7 @@ import { mergeProps } from 'solid-js'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
-import defaultShapeProps from 'src/utils/defaultShapeProps'
+import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import getBounds from 'src/utils/getBounds'
 import getMatrix from 'src/utils/getMatrix'
 import hitTest from 'src/utils/hitTest'
@@ -49,7 +49,7 @@ const Line = createToken(
       type: 'Shape',
       id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
-      renderBounds: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, bounds()),
+      debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds()),
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (this: ShapeToken, event) {

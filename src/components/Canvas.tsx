@@ -78,6 +78,9 @@ export const Canvas: Component<{
     parser,
     withContext(() => props.children, CanvasContext, {
       ctx,
+      get debug() {
+        return !!props.debug
+      },
       get origin() {
         return props.origin
           ? { x: origin().x + props.origin.x, y: origin().y + props.origin.y }
@@ -113,7 +116,6 @@ export const Canvas: Component<{
   createEffect(map)
 
   const render = () => {
-    console.log('RENDER!!!!')
     startRenderTime = performance.now()
 
     ctx.save()
@@ -127,7 +129,7 @@ export const Canvas: Component<{
     stack().forEach(token => {
       ctx.save()
       if ('render' in token) token.render(ctx)
-      if ('renderBounds' in token) token.renderBounds(ctx)
+      if ('debug' in token) token.debug(ctx)
       ctx.restore()
     })
     if (props.stats) {

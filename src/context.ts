@@ -4,6 +4,7 @@ import { Position, CanvasMouseEvent } from './types'
 export const CanvasContext = createContext<{
   ctx: CanvasRenderingContext2D
   origin: Position
+  debug: boolean
   addEventListener: (
     type: CanvasMouseEvent['type'],
     callback: (event: CanvasMouseEvent) => void,

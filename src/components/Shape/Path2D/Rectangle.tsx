@@ -3,7 +3,7 @@ import { createEffect, mergeProps } from 'solid-js'
 
 import { parser, ShapeToken } from 'src/parser'
 import { ShapeProps, Dimensions, Normalize } from 'src/types'
-import defaultShapeProps from 'src/utils/defaultShapeProps'
+import { defaultShapeProps } from 'src/utils/defaultProps'
 import getBounds from 'src/utils/getBounds'
 import getMatrix from 'src/utils/getMatrix'
 import hitTest from 'src/utils/hitTest'
@@ -39,7 +39,7 @@ const Rectangle = createToken(
     return {
       id: 'Rectangle',
       type: 'Shape',
-      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path(), path()),
+      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {

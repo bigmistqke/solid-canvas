@@ -23,7 +23,7 @@ export type CanvasToken =
   | {
       type: 'Group'
       render: (ctx: CanvasRenderingContext2D) => void
-      renderBounds: (ctx: CanvasRenderingContext2D) => void
+      debug: (ctx: CanvasRenderingContext2D) => void
       hitTest: (event: CanvasMouseEvent) => boolean
     }
 

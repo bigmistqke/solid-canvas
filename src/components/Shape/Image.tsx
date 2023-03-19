@@ -4,7 +4,7 @@ import { useCanvas } from 'src'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Normalize, ShapeProps, ImageSource, Dimensions, ExtendedColor } from 'src/types'
-import defaultShapeProps from 'src/utils/defaultShapeProps'
+import { defaultShapeProps } from 'src/utils/defaultProps'
 import filterShapeProps from 'src/utils/filterShapeProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'

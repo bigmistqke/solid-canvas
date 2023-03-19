@@ -61,8 +61,11 @@ const Group = createToken(
         ctx.globalCompositeOperation = merged.composite
       }
       revEach(tokens(), ({ data }) => {
+        context?.ctx.save()
         if ('render' in data) data.render(ctx)
-        if ('renderBounds' in data) data.renderBounds(ctx)
+        context?.ctx.restore()
+        if ('debug' in data && context.debug) data.debug(ctx)
+        context?.ctx.restore()
       })
     }
 
