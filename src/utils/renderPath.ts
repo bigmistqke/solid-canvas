@@ -17,5 +17,6 @@ export default (ctx: CanvasRenderingContext2D, props: ResolvedShapeProps, path: 
   ctx.lineWidth = props.lineWidth
   ctx.fill(path)
   ctx.stroke(path)
+
   ctx.setLineDash([])
 }

@@ -30,6 +30,7 @@ export const Canvas: Component<{
   alpha?: boolean
   stats?: boolean
   draggable?: boolean
+  debug?: boolean
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -112,6 +113,7 @@ export const Canvas: Component<{
   createEffect(map)
 
   const render = () => {
+    console.log('RENDER!!!!')
     startRenderTime = performance.now()
 
     ctx.save()
@@ -125,6 +127,7 @@ export const Canvas: Component<{
     stack().forEach(token => {
       ctx.save()
       if ('render' in token) token.render(ctx)
+      if ('renderBounds' in token) token.renderBounds(ctx)
       ctx.restore()
     })
     if (props.stats) {
