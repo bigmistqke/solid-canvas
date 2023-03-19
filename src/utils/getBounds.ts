@@ -23,14 +23,23 @@ const getBounds = (points: Accessor<{ x: number; y: number }[]>, matrix: Accesso
       if (y > bounds.y.max) bounds.y.max = y
     })
 
-    const width = bounds.x.max - bounds.x.min
-    const height = bounds.y.max - bounds.y.min
-    const position = { x: bounds.x.min, y: bounds.y.min }
+    const dimensions = {
+      width: bounds.x.max - bounds.x.min,
+      height: bounds.y.max - bounds.y.min,
+    }
+    const position = {
+      x: bounds.x.min,
+      y: bounds.y.min,
+    }
 
     const path = new Path2D()
-    path.rect(position.x, position.y, width, height)
+    path.rect(position.x, position.y, dimensions.width, dimensions.height)
 
-    return path
+    return {
+      path,
+      position,
+      dimensions,
+    }
   })
 
 export default getBounds

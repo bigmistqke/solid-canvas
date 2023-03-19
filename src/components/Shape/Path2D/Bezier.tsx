@@ -80,6 +80,7 @@ const Bezier = createToken(
       if (!context) return
       context.ctx.beginPath()
       context.ctx.arc(position.x, position.y, 5, 0, 360)
+      context.ctx.fillStyle = 'black'
       context.ctx.fill()
       context.ctx.closePath()
     }
@@ -112,7 +113,7 @@ const Bezier = createToken(
     const debug = (ctx: CanvasRenderingContext2D) => {
       if (!context) return
       context.ctx.save()
-      renderPath(ctx, defaultBoundsProps, bounds())
+      renderPath(ctx, defaultBoundsProps, bounds().path)
       context.ctx.restore()
       renderHandles()
       context.ctx.restore()

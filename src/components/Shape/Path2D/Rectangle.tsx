@@ -3,7 +3,7 @@ import { createEffect, mergeProps } from 'solid-js'
 
 import { parser, ShapeToken } from 'src/parser'
 import { ShapeProps, Dimensions, Normalize } from 'src/types'
-import { defaultShapeProps } from 'src/utils/defaultProps'
+import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import getBounds from 'src/utils/getBounds'
 import getMatrix from 'src/utils/getMatrix'
 import hitTest from 'src/utils/hitTest'
@@ -30,16 +30,41 @@ const Rectangle = createToken(
 
     const matrix = getMatrix(merged, dragPosition)
 
-    const path = transformPath(() => {
+    const getPath = () => {
       const path = new Path2D()
       path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
       return path
-    }, matrix)
+    }
+
+    const path = transformPath(getPath, matrix)
+
+    const bounds = getBounds(
+      () => [
+        {
+          x: 0,
+          y: 0,
+        },
+        {
+          x: props.dimensions.width,
+          y: 0,
+        },
+        {
+          x: props.dimensions.width,
+          y: props.dimensions.height,
+        },
+        {
+          x: 0,
+          y: props.dimensions.height,
+        },
+      ],
+      matrix,
+    )
 
     return {
       id: 'Rectangle',
       type: 'Shape',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
+      debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {

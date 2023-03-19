@@ -49,7 +49,7 @@ const Line = createToken(
       type: 'Shape',
       id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
-      debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds()),
+      debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (this: ShapeToken, event) {
