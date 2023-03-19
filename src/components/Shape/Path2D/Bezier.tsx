@@ -14,8 +14,8 @@ import transformPoint from 'src/utils/transformPoint'
 import useDraggable from 'src/utils/useDraggable'
 
 /**
- * Paints a straight line to the canvas
- * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
+ * Paints a cubic bezier to the canvas
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo)
  */
 
 const Bezier = createToken(
