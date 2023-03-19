@@ -53,6 +53,7 @@ const App: Component = () => {
             stroke="red"
             fill="blue"
             rotation={5}
+            draggable
           />
           <Line
             points={[
@@ -61,6 +62,10 @@ const App: Component = () => {
               { x: 150, y: 250 },
               { x: 50, y: 150 },
             ]}
+            position={{
+              x: 200,
+              y: 200,
+            }}
             skewY={10}
             rotation={10}
             lineWidth={1}
