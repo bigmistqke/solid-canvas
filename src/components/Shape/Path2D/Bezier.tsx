@@ -31,8 +31,27 @@ const Bezier = createToken(
     const [dragPosition, dragEventHandler] = useDraggable()
 
     const matrix = getMatrix(merged, dragPosition)
+
+    const getOppositeControl = (point: Position, control: Position) => {
+      const delta = {
+        x: control.x - point.x,
+        y: control.y - point.y,
+      }
+      return {
+        x: point.x + delta.x * -1,
+        y: point.y + delta.y * -1,
+      }
+    }
+
     const bounds = getBounds(
-      () => props.points.map(({ point, control }) => [control, point]).flat(),
+      () =>
+        props.points
+          .map(({ point, control }, i) =>
+            i === 0 || i === props.points.length - 1
+              ? [control, point]
+              : [control, point, getOppositeControl(point, control)],
+          )
+          .flat(),
       matrix,
     )
 
@@ -43,6 +62,7 @@ const Bezier = createToken(
 
       let i = 1
       while ((point = props.points[i])) {
+        if (i === 2) svgString += 'S'
         svgString += `${point?.control.x},${point?.control.y} ${point?.point.x},${point?.point.y} `
         i++
       }
@@ -52,6 +72,7 @@ const Bezier = createToken(
         context.ctx.strokeStyle = 'black'
         context.ctx.stroke(path2D)
       }
+
       return path2D
     }, matrix)
 
@@ -74,7 +95,12 @@ const Bezier = createToken(
 
     const renderHandles = () => {
       if (!context) return
-      props.points.forEach(({ control, point }) => {
+      props.points.forEach(({ control, point }, i) => {
+        if (i !== 0 && i !== props.points.length - 1) {
+          const oppositeControl = transformPoint(getOppositeControl(point, control), matrix())
+          renderPoint(oppositeControl)
+        }
+
         point = transformPoint(point, matrix())
         control = transformPoint(control, matrix())
         renderLine(point, control)
