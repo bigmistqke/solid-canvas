@@ -34,9 +34,10 @@ const App: Component = () => {
         }}
         alpha
         stats
+        draggable
       >
         <For
-          each={new Array(500).fill('').map(v => ({
+          each={new Array(100).fill('').map(v => ({
             position: {
               x: Math.random() * (window.innerWidth + 200) - 100,
               y: Math.random() * (window.innerHeight + 200) - 100,
