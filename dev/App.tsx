@@ -1,5 +1,5 @@
 import { Component, createSignal, For } from 'solid-js'
-import { Canvas, Rectangle } from 'src'
+import { Bezier, Canvas, Group, Line, Rectangle } from 'src'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -35,28 +35,66 @@ const App: Component = () => {
         alpha
         stats
         draggable
+        debug
       >
-        <For
-          each={new Array(100).fill('').map(v => ({
-            position: {
-              x: Math.random() * (window.innerWidth + 200) - 100,
-              y: Math.random() * (window.innerHeight + 200) - 100,
-            },
-            fill: { r: Math.random() * 215, g: Math.random() * 215, b: Math.random() * 215 },
-            skewY: Math.random() * 90,
-          }))}
-        >
-          {data => (
-            <Rectangle
-              {...data}
-              dimensions={{ width: 100, height: 100 }}
-              lineWidth={20}
-              stroke="transparent"
-              draggable
-              composite="hard-light"
-            />
-          )}
-        </For>
+        <Group position={{ x: 100, y: 100 }}>
+          <Bezier
+            points={[
+              {
+                point: { x: 100, y: 250 },
+                control: { x: 100, y: 100 },
+              },
+              {
+                point: { x: 400, y: 250 },
+                control: { x: 432, y: 102 },
+              },
+            ]}
+            lineWidth={2}
+            stroke="red"
+            fill="blue"
+            rotation={5}
+          />
+          <Line
+            points={[
+              { x: 50, y: 100 },
+              { x: 200, y: 0 },
+              { x: 150, y: 250 },
+              { x: 50, y: 150 },
+            ]}
+            skewY={10}
+            rotation={10}
+            lineWidth={1}
+            stroke="red"
+          />
+          {/* <Line
+            points={[
+              { x: 50, y: 100 },
+              { x: 200, y: 0 },
+              { x: 150, y: 250 },
+              { x: 50, y: 150 },
+            ]}
+            skewY={10}
+            rotation={10}
+            lineWidth={1}
+            stroke="red"
+          /> */}
+          {/*
+          <Line
+            points={[
+              { x: 50, y: 100 },
+              { x: 200, y: 0 },
+              { x: 150, y: 250 },
+              { x: 50, y: 150 },
+            ]}
+            lineWidth={1}
+          />
+          <Rectangle
+            stroke="yellow"
+            dimensions={{ width: 100, height: 100 }}
+            lineWidth={20}
+            draggable
+          /> */}
+        </Group>
       </Canvas>
     </>
   )
