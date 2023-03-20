@@ -159,3 +159,17 @@ const App: Component = () => {
 - [ ] Controller-prop: callback which can control the props
 - [ ] Editable-prop for Path2D: handles to manipulate the path
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
+
+## Overal Ambitions / Roadmap
+
+- Cover the whole Canvas-API
+- Provide tools to simplify common canvas operations:
+  - [ ] Navigation
+    - [x] Pan 👉 `Canvas.draggable`
+    - [ ] Zoom
+  - [x] MouseEvents for `Shape` 👉 `Shape.onMouseDown`, `Shape.onMouseMove` and `Shape.onMouseUp`
+  - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
+  - [x] Draggable `Shape` 👉 `Shape.draggable`
+  - [ ] Editable `Path2D` with handlers
+  - [ ] Possibility to add behaviors to `Shapes` in a composable way (character-controllers)
+- After the initial exploration in the feature-set, I want to explore tactics to improve treeshakeability of the library: a simple static visualization should be able to have a minimal bundle.
