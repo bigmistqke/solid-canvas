@@ -99,8 +99,10 @@ const Bezier = createToken(
       debug,
       clip: ctx => ctx.clip(path()),
       path,
-      hitTest: function (this: ShapeToken, event) {
-        return hitTest(this, event, merged, dragEventHandler)
+      hitTest: function (event) {
+        if (!context) return
+        const token: ShapeToken = this
+        return hitTest(token, event, context.ctx, merged, dragEventHandler)
       },
     }
   },

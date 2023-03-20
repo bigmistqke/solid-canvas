@@ -76,7 +76,7 @@ const Group = createToken(
           path.addPath(data.path())
         }
       })
-      return isPointInShape(event, path)
+      return isPointInShape(event, context.ctx, merged, path)
     }
 
     const hitTest = (event: CanvasMouseEvent) => {

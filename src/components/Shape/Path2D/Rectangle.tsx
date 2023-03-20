@@ -10,6 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
+import { useCanvas } from 'src/context'
 
 /**
  * Paints a rectangle to the canvas
@@ -25,6 +26,7 @@ const Rectangle = createToken(
       }
     >,
   ) => {
+    const context = useCanvas()
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -68,8 +70,9 @@ const Rectangle = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
+        if (!context) return false
         const token: ShapeToken = this
-        return hitTest(token, event, merged, dragEventHandler)
+        return hitTest(token, event, context.ctx, merged, dragEventHandler)
       },
     }
   },

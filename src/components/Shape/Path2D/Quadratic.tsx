@@ -72,6 +72,7 @@ const Quadratic = createToken(
 
         i++
       }
+      console.log(svgString)
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
       if (context) {
@@ -98,8 +99,10 @@ const Quadratic = createToken(
       debug,
       clip: ctx => ctx.clip(path()),
       path,
-      hitTest: function (this: ShapeToken, event) {
-        return hitTest(this, event, merged, dragEventHandler)
+      hitTest: function (event) {
+        if (!context) return false
+        const token: ShapeToken = this
+        return hitTest(token, event, context.ctx, merged, dragEventHandler)
       },
     }
   },

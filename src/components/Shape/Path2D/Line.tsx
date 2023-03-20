@@ -10,6 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
+import { useCanvas } from 'src/context'
 
 /**
  * Paints a straight line to the canvas
@@ -24,6 +25,7 @@ const Line = createToken(
       close?: boolean
     },
   ) => {
+    const context = useCanvas()
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -52,8 +54,10 @@ const Line = createToken(
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       clip: ctx => ctx.clip(path()),
       path,
-      hitTest: function (this: ShapeToken, event) {
-        return hitTest(this, event, merged, dragEventHandler)
+      hitTest: function (event) {
+        if (!context) return false
+        const token: ShapeToken = this
+        return hitTest(token, event, context.ctx, merged, dragEventHandler)
       },
     }
   },
