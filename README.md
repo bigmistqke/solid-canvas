@@ -155,5 +155,6 @@ const App: Component = () => {
 ## additional API
 
 - [ ] Layer: component to divide scene up into multiple canvases for optimization
+- [x] Draggable-prop for Shape
 - [ ] Controller-prop: callback which can control the props
 - [ ] Editable-prop for Path2D: handles to manipulate the path
