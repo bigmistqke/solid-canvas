@@ -2,11 +2,7 @@ import { Accessor, createMemo } from 'solid-js'
 import { useCanvas } from 'src'
 import { ShapeProps, Position } from 'src/types'
 
-export default (
-  props: ShapeProps,
-  // NOTE: has to be an accessor else it will not trigger an update
-  dragPosition: Accessor<Position>,
-) => {
+export default (props: ShapeProps, dragPosition: Accessor<Position>) => {
   const context = useCanvas()
 
   return createMemo(() => {
@@ -17,15 +13,16 @@ export default (
 
     const matrix = new DOMMatrix()
 
-    matrix.rotateSelf(props.rotation)
-
     matrix.skewXSelf(props.skewX)
     matrix.skewYSelf(props.skewY)
 
-    // NOTE:  these lines are necessary because skewing causes horizontal/vertical offset
+    // NOTE:  skewing causes a horizontal/vertical offset
     const point = new DOMPoint(position.x, position.y)
     const offset = point.matrixTransform(matrix)
     matrix.translateSelf(position.x + point.x - offset.x, position.y + point.y - offset.y)
+
+    // NOTE:  the rotation should not be included in this offset-calculation
+    matrix.rotateSelf(props.rotation)
 
     return matrix
   })
