@@ -1,5 +1,5 @@
 import { Component, createSignal, For } from 'solid-js'
-import { Arc, Bezier, Canvas, Group, Line, Rectangle } from 'src'
+import { Arc, Bezier, Canvas, Group, Line, Quadratic, Rectangle } from 'src'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -39,6 +39,30 @@ const App: Component = () => {
       >
         <Group position={{ x: 100, y: 100 }}>
           <Arc stroke="yellow" draggable position={{ x: 100, y: 100 }} radius={20} fill="red" />
+
+          <Quadratic
+            points={[
+              {
+                point: { x: 100, y: 250 },
+              },
+              {
+                point: { x: 400, y: 250 },
+                control: { x: 432, y: 102 },
+              },
+              {
+                point: { x: 500, y: 350 },
+                control: { x: 550, y: 500 },
+              },
+              {
+                point: { x: 100, y: 450 },
+              },
+            ]}
+            position={{ x: 300, y: 0 }}
+            lineWidth={20}
+            stroke="red"
+            rotation={5}
+            draggable
+          />
 
           <Bezier
             points={[
