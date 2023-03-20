@@ -4,8 +4,8 @@ import { createEffect, mergeProps } from 'solid-js'
 import { parser, ShapeToken } from 'src/parser'
 import { ShapeProps, Dimensions, Normalize } from 'src/types'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
-import getBounds from 'src/utils/getBounds'
-import getMatrix from 'src/utils/getMatrix'
+import useBounds from 'src/utils/useBounds'
+import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
@@ -28,7 +28,7 @@ const Rectangle = createToken(
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
-    const matrix = getMatrix(merged, dragPosition)
+    const matrix = useMatrix(merged, dragPosition)
 
     const getPath = () => {
       const path = new Path2D()
@@ -38,7 +38,7 @@ const Rectangle = createToken(
 
     const path = transformPath(getPath, matrix)
 
-    const bounds = getBounds(
+    const bounds = useBounds(
       () => [
         {
           x: 0,

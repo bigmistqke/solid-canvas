@@ -4,8 +4,8 @@ import { mergeProps } from 'solid-js'
 import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
-import getBounds from 'src/utils/getBounds'
-import getMatrix from 'src/utils/getMatrix'
+import useBounds from 'src/utils/useBounds'
+import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
@@ -27,8 +27,8 @@ const Line = createToken(
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
-    const matrix = getMatrix(merged, dragPosition)
-    const bounds = getBounds(() => props.points, matrix)
+    const matrix = useMatrix(merged, dragPosition)
+    const bounds = useBounds(() => props.points, matrix)
 
     const path = transformPath(() => {
       // calculate path
