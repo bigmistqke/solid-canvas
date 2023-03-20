@@ -1,5 +1,5 @@
 import { Component, createSignal, For } from 'solid-js'
-import { Bezier, Canvas, Group, Line, Rectangle } from 'src'
+import { Arc, Bezier, Canvas, Group, Line, Rectangle } from 'src'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -38,18 +38,28 @@ const App: Component = () => {
         debug
       >
         <Group position={{ x: 100, y: 100 }}>
+          <Arc stroke="yellow" draggable position={{ x: 100, y: 100 }} radius={20} fill="red" />
+
           <Bezier
             points={[
               {
                 point: { x: 100, y: 250 },
-                control: { x: 100, y: 100 },
+                control: { x: 150, y: -20 },
               },
               {
                 point: { x: 400, y: 250 },
                 control: { x: 432, y: 102 },
               },
+              {
+                point: { x: 500, y: 350 },
+                control: { x: 450, y: 102 },
+              },
+              {
+                point: { x: 100, y: 450 },
+                control: { x: 150, y: 300 },
+              },
             ]}
-            lineWidth={2}
+            lineWidth={20}
             stroke="red"
             fill="blue"
             rotation={5}
@@ -71,34 +81,13 @@ const App: Component = () => {
             lineWidth={1}
             stroke="red"
           />
-          {/* <Line
-            points={[
-              { x: 50, y: 100 },
-              { x: 200, y: 0 },
-              { x: 150, y: 250 },
-              { x: 50, y: 150 },
-            ]}
-            skewY={10}
-            rotation={10}
-            lineWidth={1}
-            stroke="red"
-          /> */}
-          {/*
-          <Line
-            points={[
-              { x: 50, y: 100 },
-              { x: 200, y: 0 },
-              { x: 150, y: 250 },
-              { x: 50, y: 150 },
-            ]}
-            lineWidth={1}
-          />
           <Rectangle
             stroke="yellow"
             dimensions={{ width: 100, height: 100 }}
             lineWidth={20}
             draggable
-          /> */}
+            rotation={20}
+          />
         </Group>
       </Canvas>
     </>
