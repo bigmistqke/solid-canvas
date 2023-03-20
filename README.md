@@ -158,3 +158,4 @@ const App: Component = () => {
 - [x] Draggable-prop for Shape
 - [ ] Controller-prop: callback which can control the props
 - [ ] Editable-prop for Path2D: handles to manipulate the path
+- [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
