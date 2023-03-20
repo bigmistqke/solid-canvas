@@ -135,12 +135,12 @@ const App: Component = () => {
 
 ## Canvas API-coverage
 
-- [ ] Path2D
+- [x] Path2D
   - [x] Rectangle
-  - [ ] Line
-  - [ ] Arc
-  - [ ] Bezier
-  - [ ] Quadratic
+  - [x] Line
+  - [x] Arc
+  - [x] Bezier
+  - [x] Quadratic
 - [x] Text
 - [x] Group (with `clip`-prop)
 - [x] Image
