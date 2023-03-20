@@ -98,6 +98,7 @@ const Group = createToken(
 
     return {
       type: 'Group',
+      debug: () => {},
       hitTest,
       render,
     }

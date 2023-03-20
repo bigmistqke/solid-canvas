@@ -10,6 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
+import useMatrix from 'src/utils/useMatrix'
 
 /**
  * Paints an image to the canvas
@@ -45,11 +46,13 @@ const Image = createToken(
 
     const image = resolveImage(() => props.image)
 
-    const path = transformPath(merged, dragPosition, () => {
+    const matrix = useMatrix(merged, dragPosition)
+
+    const path = transformPath(() => {
       const path = new Path2D()
       path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
       return path
-    })
+    }, matrix)
 
     const render = (ctx: CanvasRenderingContext2D) => {
       const img = image()

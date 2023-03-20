@@ -10,6 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
+import useMatrix from 'src/utils/useMatrix'
 
 /**
  * Paints a text to the canvas
@@ -38,8 +39,9 @@ const Text = createToken(
     const [dragPosition, dragEventHandler] = useDraggable()
 
     const [textMetrics, setTextMetrics] = createSignal<TextMetrics>()
+    const matrix = useMatrix(merged, dragPosition)
 
-    const path = transformPath(merged, dragPosition, () => {
+    const path = transformPath(() => {
       const metrics = textMetrics()
       if (!metrics) return new Path2D()
       const {
@@ -53,7 +55,7 @@ const Text = createToken(
 
       path.rect(left * -1, (height + descent) * -1, width + left, height)
       return path
-    })
+    }, matrix)
 
     const render = (ctx: CanvasRenderingContext2D) => {
       const offset = context?.origin ?? { x: 0, y: 0 }
