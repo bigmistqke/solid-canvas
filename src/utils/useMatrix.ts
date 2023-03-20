@@ -3,12 +3,12 @@ import { useCanvas } from 'src'
 import { ShapeProps, Position } from 'src/types'
 
 export default (props: ShapeProps, dragPosition: Accessor<Position>) => {
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   return createMemo(() => {
     const position = {
-      x: (props.position?.x ?? 0) + dragPosition().x + (context?.origin.x ?? 0),
-      y: (props.position?.y ?? 0) + dragPosition().y + (context?.origin.y ?? 0),
+      x: (props.position?.x ?? 0) + dragPosition().x + (canvas?.origin.x ?? 0),
+      y: (props.position?.y ?? 0) + dragPosition().y + (canvas?.origin.y ?? 0),
     }
 
     const matrix = new DOMMatrix()

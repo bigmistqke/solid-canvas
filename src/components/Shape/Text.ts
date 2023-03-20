@@ -29,7 +29,7 @@ const Text = createToken(
       }
     >,
   ) => {
-    const context = useCanvas()
+    const canvas = useCanvas()
     const merged = mergeProps(
       { ...defaultShapeProps, close: true, fontFamily: 'arial', size: 10 },
       props,
@@ -58,7 +58,7 @@ const Text = createToken(
     }, matrix)
 
     const render = (ctx: CanvasRenderingContext2D) => {
-      const offset = context?.origin ?? { x: 0, y: 0 }
+      const offset = canvas?.origin ?? { x: 0, y: 0 }
       ctx.font = '30px Arial'
       setTextMetrics(ctx.measureText(merged.text))
       if (merged.background) {

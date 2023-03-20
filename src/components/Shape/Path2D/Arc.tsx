@@ -30,7 +30,7 @@ const Arc = createToken(
       }
     >,
   ) => {
-    const context = useCanvas()
+    const canvas = useCanvas()
     const merged = mergeProps(
       { ...defaultShapeProps, close: true, radius: 10, angle: { start: 0, end: 2 * Math.PI } },
       props,
@@ -77,9 +77,9 @@ const Arc = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        if (!context) return false
+        if (!canvas) return false
         const token: ShapeToken = this
-        return hitTest(token, event, context.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas.ctx, merged, dragEventHandler)
       },
     }
   },

@@ -7,24 +7,24 @@ const useHandle = (
   points: Accessor<{ point: Position; control: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   const renderPoint = (position: Position) => {
-    if (!context) return
-    context.ctx.beginPath()
-    context.ctx.arc(position.x, position.y, 5, 0, 360)
-    context.ctx.fillStyle = 'black'
-    context.ctx.fill()
-    context.ctx.closePath()
+    if (!canvas) return
+    canvas.ctx.beginPath()
+    canvas.ctx.arc(position.x, position.y, 5, 0, 360)
+    canvas.ctx.fillStyle = 'black'
+    canvas.ctx.fill()
+    canvas.ctx.closePath()
   }
 
   const renderLine = (start: Position, end: Position) => {
-    if (!context) return
-    context.ctx.beginPath()
-    context.ctx.moveTo(start.x, start.y)
-    context.ctx.lineTo(end.x, end.y)
-    context.ctx.stroke()
-    context.ctx.closePath()
+    if (!canvas) return
+    canvas.ctx.beginPath()
+    canvas.ctx.moveTo(start.x, start.y)
+    canvas.ctx.lineTo(end.x, end.y)
+    canvas.ctx.stroke()
+    canvas.ctx.closePath()
   }
 
   const getOppositeControl = (point: Position, control: Position) => {
@@ -39,7 +39,7 @@ const useHandle = (
   }
 
   const renderHandles = () => {
-    if (!context) return
+    if (!canvas) return
     points().forEach(({ control, point }, i) => {
       let oppositeControl
       if (i !== 0 && i !== points.length - 1) {

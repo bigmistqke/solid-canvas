@@ -30,11 +30,11 @@ type GradientProps = { stops: { offset: number; color: Color }[] } & (
 const Gradient = createToken(parser, (props: GradientProps) => {
   const merged = mergeProps({}, props)
 
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   const getGradient = () => {
-    if (!context) return
-    const { ctx } = context
+    if (!canvas) return
+    const { ctx } = canvas
     switch (props.type) {
       case 'linear':
         return ctx.createLinearGradient(props.start.x, props.start.y, props.end.x, props.end.y)

@@ -24,8 +24,8 @@ const Group = createToken(
     clip?: JSX.Element | JSX.Element[]
     composite?: Composite
   }) => {
-    const context = useCanvas()
-    if (!context) throw 'CanvasTokens need to be included in Canvas'
+    const canvas = useCanvas()
+    if (!canvas) throw 'CanvasTokens need to be included in Canvas'
     const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
     const clipTokens = resolveTokens(parser, () => props.clip)
@@ -33,12 +33,12 @@ const Group = createToken(
     const tokens = resolveTokens(
       parser,
       withContext(() => props.children, CanvasContext, {
-        ...context,
+        ...canvas,
         get origin() {
-          return context
+          return canvas
             ? {
-                x: merged.position.x + context.origin.x,
-                y: merged.position.y + context.origin.y,
+                x: merged.position.x + canvas.origin.x,
+                y: merged.position.y + canvas.origin.y,
               }
             : merged.position
         },
@@ -61,11 +61,11 @@ const Group = createToken(
         ctx.globalCompositeOperation = merged.composite
       }
       revEach(tokens(), ({ data }) => {
-        context?.ctx.save()
+        canvas?.ctx.save()
         if ('render' in data) data.render(ctx)
-        context?.ctx.restore()
-        if ('debug' in data && context.debug) data.debug(ctx)
-        context?.ctx.restore()
+        canvas?.ctx.restore()
+        if ('debug' in data && canvas.debug) data.debug(ctx)
+        canvas?.ctx.restore()
       })
     }
 
@@ -76,7 +76,7 @@ const Group = createToken(
           path.addPath(data.path())
         }
       })
-      return isPointInShape(event, context.ctx, merged, path)
+      return isPointInShape(event, canvas.ctx, merged, path)
     }
 
     const hitTest = (event: CanvasMouseEvent) => {

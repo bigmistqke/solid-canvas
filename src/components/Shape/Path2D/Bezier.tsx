@@ -25,7 +25,7 @@ const Bezier = createToken(
       close?: boolean
     },
   ) => {
-    const context = useCanvas()
+    const canvas = useCanvas()
     const merged = mergeProps({ ...defaultShapeProps, close: false }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -75,21 +75,21 @@ const Bezier = createToken(
       }
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
-      if (context) {
-        context.ctx.strokeStyle = 'black'
-        context.ctx.stroke(path2D)
+      if (canvas) {
+        canvas.ctx.strokeStyle = 'black'
+        canvas.ctx.stroke(path2D)
       }
 
       return path2D
     }, matrix)
 
     const debug = (ctx: CanvasRenderingContext2D) => {
-      if (!context) return
-      context.ctx.save()
+      if (!canvas) return
+      canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
-      context.ctx.restore()
+      canvas.ctx.restore()
       handles.render()
-      context.ctx.restore()
+      canvas.ctx.restore()
     }
 
     return {
@@ -100,9 +100,9 @@ const Bezier = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        if (!context) return
+        if (!canvas) return false
         const token: ShapeToken = this
-        return hitTest(token, event, context.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas.ctx, merged, dragEventHandler)
       },
     }
   },

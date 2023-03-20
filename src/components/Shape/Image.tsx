@@ -29,7 +29,7 @@ const Image = createToken(
       }
     >,
   ) => {
-    const context = useCanvas()
+    const canvas = useCanvas()
     const merged = mergeProps(
       {
         ...defaultShapeProps,
@@ -58,7 +58,7 @@ const Image = createToken(
       const img = image()
       if (!img) return
 
-      const origin = context?.origin ?? { x: 0, y: 0 }
+      const origin = canvas?.origin ?? { x: 0, y: 0 }
 
       ctx.drawImage(
         img,

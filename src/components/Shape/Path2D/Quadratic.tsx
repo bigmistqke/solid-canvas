@@ -28,7 +28,7 @@ const Quadratic = createToken(
       close?: boolean
     },
   ) => {
-    const context = useCanvas()
+    const canvas = useCanvas()
     const merged = mergeProps({ ...defaultShapeProps, close: false }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -75,21 +75,21 @@ const Quadratic = createToken(
       console.log(svgString)
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
-      if (context) {
-        context.ctx.strokeStyle = 'black'
-        context.ctx.stroke(path2D)
+      if (canvas) {
+        canvas.ctx.strokeStyle = 'black'
+        canvas.ctx.stroke(path2D)
       }
 
       return path2D
     }, matrix)
 
     const debug = (ctx: CanvasRenderingContext2D) => {
-      if (!context) return
-      context.ctx.save()
+      if (!canvas) return
+      canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
-      context.ctx.restore()
+      canvas.ctx.restore()
       handles.render()
-      context.ctx.restore()
+      canvas.ctx.restore()
     }
 
     return {
@@ -100,9 +100,9 @@ const Quadratic = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        if (!context) return false
+        if (!canvas) return false
         const token: ShapeToken = this
-        return hitTest(token, event, context.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas.ctx, merged, dragEventHandler)
       },
     }
   },
@@ -128,27 +128,27 @@ const useHandle = (
   points: Accessor<{ point: Position; control?: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   const getAllPoints = () =>
     points().map(({ point, control }, i) => (control ? { point, control } : { point }))
 
   const renderPoint = (position: Position) => {
-    if (!context) return
-    context.ctx.beginPath()
-    context.ctx.arc(position.x, position.y, 5, 0, 360)
-    context.ctx.fillStyle = 'black'
-    context.ctx.fill()
-    context.ctx.closePath()
+    if (!canvas) return
+    canvas.ctx.beginPath()
+    canvas.ctx.arc(position.x, position.y, 5, 0, 360)
+    canvas.ctx.fillStyle = 'black'
+    canvas.ctx.fill()
+    canvas.ctx.closePath()
   }
 
   const renderLine = (start: Position, end: Position) => {
-    if (!context) return
-    context.ctx.beginPath()
-    context.ctx.moveTo(start.x, start.y)
-    context.ctx.lineTo(end.x, end.y)
-    context.ctx.stroke()
-    context.ctx.closePath()
+    if (!canvas) return
+    canvas.ctx.beginPath()
+    canvas.ctx.moveTo(start.x, start.y)
+    canvas.ctx.lineTo(end.x, end.y)
+    canvas.ctx.stroke()
+    canvas.ctx.closePath()
   }
 
   const getOppositeControl = (point: Position, control: Position) => {
@@ -163,7 +163,7 @@ const useHandle = (
   }
 
   const renderHandles = () => {
-    if (!context) return
+    if (!canvas) return
     getAllPoints().forEach(({ control, point /* , oppositeControl */ }, i) => {
       /* if (oppositeControl) {
         oppositeControl = transformPoint(oppositeControl, matrix())

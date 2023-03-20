@@ -16,12 +16,12 @@ const HIDE = document.createElement('div')
 const Pattern = createToken(parser, (props: PatternProps) => {
   const merged = mergeProps({ repetition: 'no-repeat' }, props)
 
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   const image = resolveImage(() => props.image)
 
   const color = () => {
-    return context && image() ? context.ctx.createPattern(image()!, merged.repetition) : undefined
+    return canvas && image() ? canvas.ctx.createPattern(image()!, merged.repetition) : undefined
   }
 
   return {

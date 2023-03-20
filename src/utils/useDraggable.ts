@@ -3,13 +3,13 @@ import { useCanvas } from 'src'
 import { CanvasMouseEvent } from 'src/types'
 
 export default () => {
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
 
   createEffect(() => {
-    if (!context) return
+    if (!canvas) return
     if (selected()) {
       const handleMouseMove = (event: CanvasMouseEvent) => {
         setDragPosition(position => ({
@@ -20,11 +20,11 @@ export default () => {
       const handleMouseUp = (event: CanvasMouseEvent) => {
         setSelected(false)
       }
-      context.addEventListener('onMouseMove', handleMouseMove)
-      context.addEventListener('onMouseUp', handleMouseUp)
+      canvas.addEventListener('onMouseMove', handleMouseMove)
+      canvas.addEventListener('onMouseUp', handleMouseUp)
 
       onCleanup(() => {
-        context.removeEventListener('onMouseMove', handleMouseMove)
+        canvas.removeEventListener('onMouseMove', handleMouseMove)
       })
     }
   })

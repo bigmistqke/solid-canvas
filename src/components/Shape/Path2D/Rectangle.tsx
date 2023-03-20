@@ -26,7 +26,7 @@ const Rectangle = createToken(
       }
     >,
   ) => {
-    const context = useCanvas()
+    const canvas = useCanvas()
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -70,9 +70,9 @@ const Rectangle = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        if (!context) return false
+        if (!canvas) return false
         const token: ShapeToken = this
-        return hitTest(token, event, context.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas.ctx, merged, dragEventHandler)
       },
     }
   },
