@@ -14,7 +14,7 @@ import withContext from 'src/utils/withContext'
  */
 
 export type GroupProps = {
-  children: JSX.Element | JSX.Element[]
+  children?: JSX.Element | JSX.Element[]
   /**
    * Defaults to { x: 0, y: 0}
    */
@@ -28,24 +28,30 @@ const Group = createToken(parser, (props: GroupProps) => {
   if (!canvas) throw 'CanvasTokens need to be included in Canvas'
   const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
-  const clipTokens = resolveTokens(parser, () => props.clip)
+  const context = {
+    ...canvas,
+    get origin() {
+      return canvas
+        ? {
+            x: merged.position.x + canvas.origin.x,
+            y: merged.position.y + canvas.origin.y,
+          }
+        : merged.position
+    },
+  }
+
+  const clipTokens = resolveTokens(
+    parser,
+    withContext(() => props.clip, CanvasContext, context),
+  )
 
   const tokens = resolveTokens(
     parser,
-    withContext(() => props.children, CanvasContext, {
-      ...canvas,
-      get origin() {
-        return canvas
-          ? {
-              x: merged.position.x + canvas.origin.x,
-              y: merged.position.y + canvas.origin.y,
-            }
-          : merged.position
-      },
-    }),
+    withContext(() => props.children, CanvasContext, context),
   )
 
   const render = (ctx: CanvasRenderingContext2D) => {
+    console.log('group tokens', tokens())
     if (props.clip) {
       const path = new Path2D()
       clipTokens().forEach(({ data }) => {
@@ -60,13 +66,15 @@ const Group = createToken(parser, (props: GroupProps) => {
       //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
       ctx.globalCompositeOperation = merged.composite
     }
+    canvas?.ctx.save()
     revEach(tokens(), ({ data }) => {
-      canvas?.ctx.save()
       if ('render' in data) data.render(ctx)
-      canvas?.ctx.restore()
-      if ('debug' in data && canvas.debug) data.debug(ctx)
-      canvas?.ctx.restore()
     })
+    canvas?.ctx.restore()
+    revEach(tokens(), ({ data }) => {
+      if ('debug' in data && canvas.debug) data.debug(ctx)
+    })
+    canvas?.ctx.restore()
   }
 
   const hitTestClip = (event: CanvasMouseEvent) => {
