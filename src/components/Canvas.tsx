@@ -128,8 +128,8 @@ export const Canvas: Component<{
     ctx.restore()
     stack().forEach(token => {
       ctx.save()
-      if ('render' in token) token.render(ctx)
       if ('debug' in token) token.debug(ctx)
+      if ('render' in token) token.render(ctx)
       ctx.restore()
     })
     if (props.stats) {
