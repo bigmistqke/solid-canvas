@@ -4,6 +4,7 @@ import { useCanvas } from 'src/context'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
+import addVectors from 'src/utils/addVectors'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
@@ -14,7 +15,7 @@ import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
 
 /**
- * Paints a cubic bezier to the canvas
+ * Paints a quadratic bezier to the canvas
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo)
  */
 
@@ -24,7 +25,7 @@ const Quadratic = createToken(
   parser,
   (
     props: ShapeProps & {
-      points: [Point, ...((Point & { control: Position }) | Point)[], Point]
+      points: [Point, Point & { control: Position }, ...((Point & { control: Position }) | Point)[]]
       close?: boolean
     },
   ) => {
@@ -36,43 +37,39 @@ const Quadratic = createToken(
 
     const handles = useHandle(() => props.points, matrix)
 
-    const bounds = useBounds(
-      () =>
-        handles
-          .points()
-          .map(({ point, control /* , oppositeControl */ }) =>
-            control
-              ? [
-                  {
-                    x: point.x + ((control.x - point.x) * 2) / 3,
-                    y: point.y + ((control.y - point.y) * 2) / 3,
-                  },
-                  point,
-                ]
-              : [point],
-          )
-          .flat(),
-      matrix,
-    )
+    const bounds = useBounds(() => {
+      return handles
+        .points()
+        .map(({ point, control, oppositeControl }, i) => {
+          if (control && oppositeControl) {
+            return [control, oppositeControl]
+          }
+          if (control) {
+            return [point, control]
+          }
+          return [point]
+        })
+        .flat()
+    }, matrix)
 
     const path = transformPath(() => {
-      let point = handles.points()[0]
+      let point: Point | (Point & { control: Position }) | undefined = props.points[0]
 
       let svgString = `M${point?.point.x},${point?.point.y} `
 
       let i = 1
-      while ((point = handles.points()[i])) {
+      while ((point = props.points[i])) {
         if (i === 1) svgString += 'Q'
         if (i === 2) svgString += 'T'
-        if (point.control) {
-          svgString += `${point.control.x},${point.control.y} ${point.point.x},${point.point.y} `
+        if ('control' in point) {
+          const control = addVectors(point.point, point.control)
+          svgString += `${control.x},${control.y} ${point.point.x},${point.point.y} `
         } else {
           svgString += `${point.point.x},${point.point.y} `
         }
-
         i++
       }
-      console.log(svgString)
+
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
       if (canvas) {
@@ -129,57 +126,98 @@ const useHandle = (
   matrix: Accessor<DOMMatrix>,
 ) => {
   const canvas = useCanvas()
-
+  let previousRelativeControl: Position
   const getAllPoints = () =>
-    points().map(({ point, control }, i) => (control ? { point, control } : { point }))
+    points()
+      .map(({ point, control }, i) => {
+        if (i === 0) {
+          return { point }
+        }
+
+        if (!control) {
+          // NOTE:  with the T-command it is possible to create smooth curves without defining control points
+
+          //        from https://www.w3.org/TR/2015/WD-SVG2-20150709/paths.html#PathDataQuadraticBezierCommands
+          //          Note that the control point for the "T" command is computed automatically
+          //          as the reflection of the control point for the previous "Q" command relative
+          //          to the start point of the "T" command.'
+          control = {
+            x: previousRelativeControl.x,
+            y: previousRelativeControl.y * -1,
+          }
+        }
+
+        previousRelativeControl = control
+
+        if (i === points().length - 1) {
+          return { point, control }
+        }
+
+        return {
+          control,
+          point,
+          oppositeControl: {
+            x: control.x * -1,
+            y: control.y * -1,
+          },
+        }
+      })
+      .map(({ control, point, oppositeControl }, i) => ({
+        point: point,
+        control: control ? addVectors(point, control) : undefined,
+        oppositeControl: oppositeControl ? addVectors(point, oppositeControl) : undefined,
+      }))
 
   const renderPoint = (position: Position) => {
     if (!canvas) return
+    canvas.ctx.save()
     canvas.ctx.beginPath()
     canvas.ctx.arc(position.x, position.y, 5, 0, 360)
     canvas.ctx.fillStyle = 'black'
     canvas.ctx.fill()
     canvas.ctx.closePath()
+    canvas.ctx.restore()
   }
 
   const renderLine = (start: Position, end: Position) => {
     if (!canvas) return
+    canvas.ctx.save()
     canvas.ctx.beginPath()
+    canvas.ctx.strokeStyle = 'grey'
+
     canvas.ctx.moveTo(start.x, start.y)
     canvas.ctx.lineTo(end.x, end.y)
     canvas.ctx.stroke()
     canvas.ctx.closePath()
-  }
-
-  const getOppositeControl = (point: Position, control: Position) => {
-    const delta = {
-      x: control.x - point.x,
-      y: control.y - point.y,
-    }
-    return {
-      x: point.x + delta.x * -1,
-      y: point.y + delta.y * -1,
-    }
+    canvas.ctx.restore()
   }
 
   const renderHandles = () => {
     if (!canvas) return
-    getAllPoints().forEach(({ control, point /* , oppositeControl */ }, i) => {
-      /* if (oppositeControl) {
-        oppositeControl = transformPoint(oppositeControl, matrix())
-        renderPoint(oppositeControl)
-      } */
+    let firstPoint: Position
 
-      point = transformPoint(point, matrix())
-      renderPoint(point)
+    getAllPoints()
+      .map(({ control, point, oppositeControl }, i) => ({
+        point: transformPoint(point, matrix()),
+        control: control ? transformPoint(control, matrix()) : undefined,
+        oppositeControl: oppositeControl ? transformPoint(oppositeControl, matrix()) : undefined,
+      }))
+      .forEach(({ control, point, oppositeControl }, i) => {
+        renderPoint(point)
 
-      if (control) {
-        control = transformPoint(control, matrix())
-        renderLine(point, control)
-        renderPoint(control)
-      }
-      // if (oppositeControl) renderLine(point, oppositeControl)
-    })
+        if (!firstPoint) firstPoint = point
+        if (control) {
+          if (i === 1) {
+            renderLine(firstPoint, control)
+          }
+          renderLine(point, control)
+          renderPoint(control)
+        }
+        if (oppositeControl) {
+          renderPoint(oppositeControl)
+          renderLine(point, oppositeControl)
+        }
+      })
   }
 
   return {
