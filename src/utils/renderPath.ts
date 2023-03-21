@@ -2,6 +2,7 @@ import { ResolvedShapeProps } from 'src/types'
 import { resolveColor, resolveExtendedColor } from './resolveColor'
 
 export default (ctx: CanvasRenderingContext2D, props: ResolvedShapeProps, path: Path2D) => {
+  ctx.save()
   ctx.setLineDash(props.lineDash)
   if (props.shadow) {
     ctx.shadowBlur = props.shadow.blur ?? 0
@@ -19,4 +20,5 @@ export default (ctx: CanvasRenderingContext2D, props: ResolvedShapeProps, path: 
   ctx.stroke(path)
 
   ctx.setLineDash([])
+  ctx.restore()
 }
