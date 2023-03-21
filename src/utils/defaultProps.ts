@@ -15,7 +15,7 @@ const defaultShapeProps: ResolvedShapeProps = {
 
 const defaultBoundsProps: ResolvedShapeProps = {
   position: { x: 0, y: 0 },
-  stroke: 'black',
+  stroke: 'grey',
   rotation: 0,
   fill: 'transparent',
   lineDash: [],
