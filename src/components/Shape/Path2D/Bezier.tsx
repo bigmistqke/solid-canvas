@@ -6,7 +6,9 @@ import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import hitTest from 'src/utils/hitTest'
+import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
+import renderPoint from 'src/utils/renderPoint'
 import transformPath from 'src/utils/transformPath'
 import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
@@ -33,34 +35,7 @@ const Bezier = createToken(
 
     const handles = useHandle(() => props.points, matrix)
 
-    const bounds = useBounds(
-      () =>
-        handles
-          .points()
-          .map(({ point, control, oppositeControl }) =>
-            oppositeControl
-              ? [
-                  {
-                    x: point.x + ((control.x - point.x) * 2) / 3,
-                    y: point.y + ((control.y - point.y) * 2) / 3,
-                  },
-                  point,
-                  {
-                    x: point.x + ((oppositeControl.x - point.x) * 2) / 3,
-                    y: point.y + ((oppositeControl.y - point.y) * 2) / 3,
-                  },
-                ]
-              : [
-                  {
-                    x: point.x + ((control.x - point.x) * 2) / 3,
-                    y: point.y + ((control.y - point.y) * 2) / 3,
-                  },
-                  point,
-                ],
-          )
-          .flat(),
-      matrix,
-    )
+    const bounds = useBounds(() => handles.points().map(Object.values).flat(), matrix)
 
     const path = transformPath(() => {
       let point = handles.points()[0]
@@ -128,7 +103,7 @@ const useHandle = (
   points: Accessor<{ point: Position; control: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const context = useCanvas()
+  const canvas = useCanvas()
 
   const getAllPoints = () =>
     points().map(({ point, control }, i) =>
@@ -136,24 +111,6 @@ const useHandle = (
         ? { control, point }
         : { control, point, oppositeControl: getOppositeControl(point, control) },
     )
-
-  const renderPoint = (position: Position) => {
-    if (!context) return
-    context.ctx.beginPath()
-    context.ctx.arc(position.x, position.y, 5, 0, 360)
-    context.ctx.fillStyle = 'black'
-    context.ctx.fill()
-    context.ctx.closePath()
-  }
-
-  const renderLine = (start: Position, end: Position) => {
-    if (!context) return
-    context.ctx.beginPath()
-    context.ctx.moveTo(start.x, start.y)
-    context.ctx.lineTo(end.x, end.y)
-    context.ctx.stroke()
-    context.ctx.closePath()
-  }
 
   const getOppositeControl = (point: Position, control: Position) => {
     const delta = {
@@ -167,20 +124,20 @@ const useHandle = (
   }
 
   const renderHandles = () => {
-    if (!context) return
+    if (!canvas) return
     getAllPoints().forEach(({ control, point, oppositeControl }, i) => {
       if (oppositeControl) {
         oppositeControl = transformPoint(oppositeControl, matrix())
-        renderPoint(oppositeControl)
+        renderPoint(canvas.ctx, oppositeControl)
       }
 
       point = transformPoint(point, matrix())
       control = transformPoint(control, matrix())
-      if (oppositeControl) renderLine(point, oppositeControl)
+      if (oppositeControl) renderLine(canvas.ctx, point, oppositeControl)
 
-      renderLine(point, control)
-      renderPoint(point)
-      renderPoint(control)
+      renderLine(canvas.ctx, point, control)
+      renderPoint(canvas.ctx, point)
+      renderPoint(canvas.ctx, control)
     })
   }
 
