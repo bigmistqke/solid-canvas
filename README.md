@@ -137,21 +137,21 @@ const App: Component = () => {
 
 - [ ] Shape
   - [x] Path2D
-    - [x] Rectangle
-    - [x] Line
-    - [x] Arc
-    - [x] Bezier
-    - [x] Quadratic
-  - [x] Text
-  - [x] Image
-  - [ ] ImageData
-- [x] Group (with `clip`-prop)
+    - [x] `<Rectangle/>`
+    - [x] `<Line/>`
+    - [x] `<Arc/>`
+    - [x] `<Bezier/>`
+    - [x] `<Quadratic/>`
+  - [x] `<Text/>`
+  - [x] `<Image/>`
+  - [ ] `<ImageData/>`
+- [x] `<Group/>` (with `clip`-prop)
 - [ ] Compositing
-  - [x] Path2D
-  - [ ] Group
+  - [x] `<Path2D/>`
+  - [ ] `<Group/>`
 - [x] Color (for fill/stroke)
-  - [x] Gradient
-  - [x] Pattern
+  - [x] `<Gradient/>`
+  - [x] `<Pattern/>`
 
 ## additional API
 
@@ -160,6 +160,7 @@ const App: Component = () => {
 - [ ] Controller-prop: callback which can control the props
 - [ ] Editable-prop for Path2D: handles to manipulate the path
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
+- [ ] `SVG`
 
 ## Overal Ambitions / Roadmap
 
@@ -173,4 +174,7 @@ const App: Component = () => {
   - [x] Draggable `Shape` 👉 `Shape.draggable`
   - [ ] Editable `Path2D` with handlers
   - [ ] Possibility to add behaviors to `Shapes` in a composable way (character-controllers)
+- explore render-optimizations:
+  - only render what is in viewport
+  - only render the bounds of Shapes that has changed
 - After the initial exploration in the feature-set, I want to explore tactics to improve treeshakeability of the library: a simple static visualization should be able to have a minimal bundle.
