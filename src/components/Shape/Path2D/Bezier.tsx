@@ -4,6 +4,7 @@ import { useCanvas } from 'src/context'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
+import addVectors from 'src/utils/addVectors'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import hitTest from 'src/utils/hitTest'
 import renderLine from 'src/utils/renderLine'
@@ -39,13 +40,14 @@ const Bezier = createToken(
 
     const path = transformPath(() => {
       let point = handles.points()[0]
+      if (!point) return new Path2D()
 
-      let svgString = `M${point?.point.x},${point?.point.y} C${point?.control.x},${point?.control.y} `
+      let svgString = `M${point.point.x},${point.point.y} C${point.control.x},${point.control.y} `
 
       let i = 1
       while ((point = handles.points()[i])) {
         if (i === 2) svgString += 'S'
-        svgString += `${point?.control.x},${point?.control.y} ${point?.point.x},${point?.point.y} `
+        svgString += `${point.control.x},${point.control.y} ${point?.point.x},${point?.point.y} `
         i++
       }
       const path2D = new Path2D(svgString)
@@ -107,18 +109,18 @@ const useHandle = (
   const getAllPoints = () =>
     points().map(({ point, control }, i) =>
       i === 0 || i === points().length - 1
-        ? { control, point }
-        : { control, point, oppositeControl: getOppositeControl(point, control) },
+        ? { control: addVectors(control, point), point }
+        : {
+            control: addVectors(control, point),
+            point,
+            oppositeControl: getOppositeControl(point, control),
+          },
     )
 
   const getOppositeControl = (point: Position, control: Position) => {
-    const delta = {
-      x: control.x - point.x,
-      y: control.y - point.y,
-    }
     return {
-      x: point.x + delta.x * -1,
-      y: point.y + delta.y * -1,
+      x: point.x + control.x * -1,
+      y: point.y + control.y * -1,
     }
   }
 
