@@ -10,8 +10,11 @@ a solid wrapper around the `Canvas` API
 
 https://user-images.githubusercontent.com/10504064/226027716-6c1653bb-9db9-43ef-9da5-43452530c495.mp4
 
+[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/rectangles.tsx)
+
 https://user-images.githubusercontent.com/10504064/226694280-f2a2976a-ddc5-4025-9e5e-f82ee2ec6622.mp4
 
+[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Cubics.tsx)
 
 ```tsx
 import { Canvas, Text, Rectangle } from 'solid-canvas'
