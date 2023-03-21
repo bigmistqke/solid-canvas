@@ -1,11 +1,20 @@
+import { GroupProps } from 'src/components/Group'
 import { CanvasMouseEvent, ResolvedShapeProps } from 'src/types'
 
-const isPointInPath = (event: CanvasMouseEvent, props: ResolvedShapeProps, path: Path2D) => {
+const isPointInPath = (
+  event: CanvasMouseEvent,
+  props: ResolvedShapeProps | GroupProps,
+  path: Path2D,
+) => {
   // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
   // if (!token.props.fill) return false
   return event.ctx.isPointInPath(path, event.position.x, event.position.y)
 }
-const isPointInStroke = (event: CanvasMouseEvent, props: ResolvedShapeProps, path: Path2D) => {
+const isPointInStroke = (
+  event: CanvasMouseEvent,
+  props: ResolvedShapeProps | GroupProps,
+  path: Path2D,
+) => {
   // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
   // if (!token.props.stroke) return false
 
@@ -15,7 +24,7 @@ const isPointInStroke = (event: CanvasMouseEvent, props: ResolvedShapeProps, pat
 
 export const isPointInShape = (
   event: CanvasMouseEvent,
-  props: ResolvedShapeProps,
+  props: ResolvedShapeProps | GroupProps,
   path: Path2D,
 ) => {
   const result = isPointInPath(event, props, path) || isPointInStroke(event, props, path)

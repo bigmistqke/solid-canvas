@@ -5,10 +5,11 @@ import { isPointInShape } from './isPointInShape'
 export default (
   token: ShapeToken,
   event: CanvasMouseEvent,
-  ctx: CanvasRenderingContext2D,
+  ctx: CanvasRenderingContext2D | undefined,
   props: ResolvedShapeProps,
   dragEventHandler: (event: CanvasMouseEvent) => void,
 ) => {
+  if (!ctx) return false
   if (props.pointerEvents === false) return false
 
   ctx.save()

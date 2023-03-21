@@ -13,96 +13,95 @@ import withContext from 'src/utils/withContext'
  * Groups (and clips) the component's children
  */
 
-const Group = createToken(
-  parser,
-  (props: {
-    children: JSX.Element | JSX.Element[]
-    /**
-     * Defaults to { x: 0, y: 0}
-     */
-    position?: Position
-    clip?: JSX.Element | JSX.Element[]
-    composite?: Composite
-  }) => {
-    const canvas = useCanvas()
-    if (!canvas) throw 'CanvasTokens need to be included in Canvas'
-    const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
+export type GroupProps = {
+  children: JSX.Element | JSX.Element[]
+  /**
+   * Defaults to { x: 0, y: 0}
+   */
+  position?: Position
+  clip?: JSX.Element | JSX.Element[]
+  composite?: Composite
+}
 
-    const clipTokens = resolveTokens(parser, () => props.clip)
+const Group = createToken(parser, (props: GroupProps) => {
+  const canvas = useCanvas()
+  if (!canvas) throw 'CanvasTokens need to be included in Canvas'
+  const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
-    const tokens = resolveTokens(
-      parser,
-      withContext(() => props.children, CanvasContext, {
-        ...canvas,
-        get origin() {
-          return canvas
-            ? {
-                x: merged.position.x + canvas.origin.x,
-                y: merged.position.y + canvas.origin.y,
-              }
-            : merged.position
-        },
-      }),
-    )
+  const clipTokens = resolveTokens(parser, () => props.clip)
 
-    const render = (ctx: CanvasRenderingContext2D) => {
-      if (props.clip) {
-        const path = new Path2D()
-        clipTokens().forEach(({ data }) => {
-          if ('clip' in data) {
-            path.addPath(data.path())
-          }
-        })
-        ctx.clip(path)
-      }
-      if (merged.composite) {
-        // TODO:  to accurately composite `Group` we should render the contents of `Group`
-        //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
-        ctx.globalCompositeOperation = merged.composite
-      }
-      revEach(tokens(), ({ data }) => {
-        canvas?.ctx.save()
-        if ('render' in data) data.render(ctx)
-        canvas?.ctx.restore()
-        if ('debug' in data && canvas.debug) data.debug(ctx)
-        canvas?.ctx.restore()
-      })
-    }
+  const tokens = resolveTokens(
+    parser,
+    withContext(() => props.children, CanvasContext, {
+      ...canvas,
+      get origin() {
+        return canvas
+          ? {
+              x: merged.position.x + canvas.origin.x,
+              y: merged.position.y + canvas.origin.y,
+            }
+          : merged.position
+      },
+    }),
+  )
 
-    const hitTestClip = (event: CanvasMouseEvent) => {
+  const render = (ctx: CanvasRenderingContext2D) => {
+    if (props.clip) {
       const path = new Path2D()
       clipTokens().forEach(({ data }) => {
-        if ('path' in data) {
+        if ('clip' in data) {
           path.addPath(data.path())
         }
       })
-      return isPointInShape(event, canvas.ctx, merged, path)
+      ctx.clip(path)
     }
+    if (merged.composite) {
+      // TODO:  to accurately composite `Group` we should render the contents of `Group`
+      //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
+      ctx.globalCompositeOperation = merged.composite
+    }
+    revEach(tokens(), ({ data }) => {
+      canvas?.ctx.save()
+      if ('render' in data) data.render(ctx)
+      canvas?.ctx.restore()
+      if ('debug' in data && canvas.debug) data.debug(ctx)
+      canvas?.ctx.restore()
+    })
+  }
 
-    const hitTest = (event: CanvasMouseEvent) => {
-      if (clipTokens().length > 0) {
-        if (!hitTestClip(event)) return false
+  const hitTestClip = (event: CanvasMouseEvent) => {
+    const path = new Path2D()
+    clipTokens().forEach(({ data }) => {
+      if ('path' in data) {
+        path.addPath(data.path())
       }
-      let result = false
-      tokens().forEach(({ data }) => {
-        if ('hitTest' in data) {
-          const hit = data.hitTest(event)
+    })
+    return isPointInShape(event, merged, path)
+  }
 
-          if (hit) result = true
-        }
-      })
-      /* revEach(tokens(), ({ data }) => {
+  const hitTest = (event: CanvasMouseEvent) => {
+    if (clipTokens().length > 0) {
+      if (!hitTestClip(event)) return false
+    }
+    let result = false
+    tokens().forEach(({ data }) => {
+      if ('hitTest' in data) {
+        const hit = data.hitTest(event)
+
+        if (hit) result = true
+      }
+    })
+    /* revEach(tokens(), ({ data }) => {
       }) */
-      return result
-    }
+    return result
+  }
 
-    return {
-      type: 'Group',
-      debug: () => {},
-      hitTest,
-      render,
-    }
-  },
-)
+  return {
+    type: 'Group',
+    debug: () => {},
+    hitTest,
+    render,
+  }
+})
 
 export { Group }

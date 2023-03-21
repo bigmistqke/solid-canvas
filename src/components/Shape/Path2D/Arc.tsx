@@ -77,9 +77,8 @@ const Arc = createToken(
       clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
-        if (!canvas) return false
         const token: ShapeToken = this
-        return hitTest(token, event, canvas.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       },
     }
   },

@@ -75,7 +75,7 @@ const Image = createToken(
       id: 'Image',
       render,
       hitTest: function (event) {
-        return hitTest(this as ShapeToken, event, merged, dragEventHandler)
+        return hitTest(this as ShapeToken, event, canvas?.ctx, merged, dragEventHandler)
       },
       clip: ctx => ctx.clip(path()),
       path,

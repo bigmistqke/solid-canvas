@@ -81,7 +81,7 @@ const Text = createToken(
       render,
       hitTest: function (event) {
         const token: ShapeToken = this
-        return hitTest(token, event, merged, dragEventHandler)
+        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       },
       clip: ctx => ctx.clip(path()),
       path,
