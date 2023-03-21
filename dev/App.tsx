@@ -1,5 +1,5 @@
 import { Component, createMemo, createSignal, For, on, Show } from 'solid-js'
-import { Bezier, Canvas, Group, Quadratic, QuadraticPoints } from 'src'
+import { Arc, Bezier, Canvas, Group, Quadratic, QuadraticPoints, Rectangle } from 'src'
 
 const RandomBezier = (props: { counter: number; scale: number }) => {
   const getPoints = () => {
@@ -96,15 +96,18 @@ const App: Component = () => {
       <Canvas
         style={{ width: '100%', height: '100%', background: randomFill() }}
         alpha
-        stats
+        // stats
         onMouseDown={increment}
         debug={debug()}
       >
-        <Group position={{ x: 0, y: 0 }}>
-          <For each={new Array(amount).fill('')}>
-            {(_, i) => <RandomBezier counter={counter()} scale={(amount - i()) / amount} />}
-          </For>
-        </Group>
+        <Rectangle
+          position={{ x: 100, y: 100 }}
+          fill="red"
+          clip={() => <Arc position={{ x: 100, y: 100 }} radius={100} />}
+          dimensions={{ width: 100, height: 200 }}
+        >
+          <Rectangle position={{ x: 50, y: 100 }} dimensions={{ width: 400, height: 10 }} />
+        </Rectangle>
       </Canvas>
     </>
   )
