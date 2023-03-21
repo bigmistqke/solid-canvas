@@ -12,7 +12,8 @@ export default (
   if (props.pointerEvents === false) return false
 
   ctx.save()
-  ctx.lineWidth = props.lineWidth
+  // NOTE:  minimal thickness of 5
+  ctx.lineWidth = props.lineWidth < 20 ? 20 : props.lineWidth
   const hit = isPointInShape(event, props, token.path())
   ctx.restore()
 
