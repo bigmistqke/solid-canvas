@@ -10,7 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
-import { useCanvas } from 'src/context'
+import { useInternalContext } from 'src/context/InternalContext'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -31,7 +31,7 @@ const Arc = createToken(
       }
     >,
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps(
       { ...defaultShapeProps, close: true, radius: 10, angle: { start: 0, end: 2 * Math.PI } },
       props,
@@ -41,7 +41,6 @@ const Arc = createToken(
     const matrix = useMatrix(merged, dragPosition)
 
     const getPath = () => {
-      console.log('ARC get Path')
       const path = new Path2D()
       path.arc(merged.radius, merged.radius, merged.radius, merged.angle.start, merged.angle.end)
       return path
@@ -71,6 +70,7 @@ const Arc = createToken(
       matrix,
     )
 
+    let token: ShapeToken
     return {
       id: 'Arc',
       type: 'Shape',
@@ -78,7 +78,7 @@ const Arc = createToken(
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       path,
       hitTest: function (event) {
-        const token: ShapeToken = this
+        token = this
         return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       },
     }

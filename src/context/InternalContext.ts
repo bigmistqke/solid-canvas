@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'solid-js'
-import { Position, CanvasMouseEvent } from './types'
+import { Position, CanvasMouseEvent } from '../types'
 
-export const CanvasContext = createContext<{
+export const InternalContext = createContext<{
   ctx: CanvasRenderingContext2D
   origin: Position
   debug: boolean
@@ -15,4 +15,4 @@ export const CanvasContext = createContext<{
   ) => void
 }>()
 
-export const useCanvas = () => useContext(CanvasContext)
+export const useInternalContext = () => useContext(InternalContext)

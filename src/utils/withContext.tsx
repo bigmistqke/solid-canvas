@@ -38,21 +38,26 @@ function withContext<T>(
 ): Accessor<JSX.Element | JSX.Element[]>
 function withContext<T extends [...any[]]>(
   children: Accessor<JSX.Element | JSX.Element[]>,
-  contextOrContexts: Context<T> | CheckContexts<T>,
+  ContextOrContexts: Context<T> | CheckContexts<T>,
   value?: T,
 ) {
   let result: JSX.Element | JSX.Element[]
 
-  if (Array.isArray(contextOrContexts)) {
-    nestContexts(contextOrContexts, 0, () => (result = children()))
-  } else if (typeof contextOrContexts === 'object' && value) {
-    contextOrContexts.Provider({
+  if (Array.isArray(ContextOrContexts)) {
+    nestContexts(ContextOrContexts, 0, () => (result = children()))
+  } else if (typeof ContextOrContexts === 'object' && value) {
+    ContextOrContexts.Provider({
       value: untrack(() => value),
       children: () => {
         result = children()
         return ''
       },
     })
+    /* const provider = (
+      <ContextOrContexts.Provider value={untrack(() => value)}>
+        {() => children}
+      </ContextOrContexts.Provider>
+    ) */
   }
 
   return () => result

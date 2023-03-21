@@ -1,6 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, mergeProps } from 'solid-js'
-import { useCanvas } from 'src/context'
+import { useInternalContext } from 'src/context/InternalContext'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
@@ -38,7 +38,7 @@ const Quadratic = createToken(
       close?: boolean
     },
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShapeProps, close: false }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -134,7 +134,7 @@ const useHandle = (
   points: Accessor<{ point: Position; control?: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
   let previousControl: Position
   const getAllPoints = () =>
     points().map(({ point, control }, i) => {

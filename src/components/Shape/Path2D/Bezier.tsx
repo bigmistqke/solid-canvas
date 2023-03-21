@@ -1,6 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, mergeProps } from 'solid-js'
-import { useCanvas } from 'src/context'
+import { useInternalContext } from 'src/context/InternalContext'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Position, ShapeProps } from 'src/types'
@@ -29,7 +29,7 @@ const Bezier = createToken(
       close?: boolean
     },
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShapeProps, close: false }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -62,6 +62,7 @@ const Bezier = createToken(
     }, matrix)
 
     const debug = (ctx: CanvasRenderingContext2D) => {
+      console.log('debug')
       if (!canvas) return
       canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
@@ -69,15 +70,20 @@ const Bezier = createToken(
       handles.render()
       canvas.ctx.restore()
     }
+    console.log('Bezier')
 
+    let token: ShapeToken
     return {
       type: 'Shape',
       id: 'Bezier',
-      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
+      render: (ctx: CanvasRenderingContext2D) => {
+        console.log('rendering!')
+        renderPath(ctx, merged, path())
+      },
       debug,
       path,
       hitTest: function (event) {
-        const token: ShapeToken = this
+        token = this
         return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       },
     }
@@ -104,7 +110,7 @@ const useHandle = (
   points: Accessor<{ point: Position; control: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
 
   const getAllPoints = () =>
     points().map(({ point, control }, i) =>
@@ -150,4 +156,4 @@ const useHandle = (
 
 const GroupedBezier = withGroup(Bezier)
 
-export { GroupedBezier as Bezier }
+export { /* GroupedBezier as */ Bezier }

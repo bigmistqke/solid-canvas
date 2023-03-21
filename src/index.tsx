@@ -1,4 +1,4 @@
-export { useCanvas } from './context'
+export { useUserContext as useCanvas } from './context/UserContext'
 export { Canvas } from './components/Canvas'
 
 export { Group } from './components/Group'
@@ -16,3 +16,5 @@ export { Text } from './components/Shape/Text'
 
 export { Gradient } from './components/Color/Gradient'
 export { Pattern } from './components/Color/Pattern'
+
+export { useClock } from './utils/useClock'

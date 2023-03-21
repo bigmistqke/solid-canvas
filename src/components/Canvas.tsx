@@ -5,15 +5,18 @@ import {
   createSignal,
   JSX,
   mapArray,
+  on,
   onCleanup,
   onMount,
   Show,
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
-import { CanvasContext } from 'src/context'
+import { InternalContext } from 'src/context/InternalContext'
+import { UserContext } from 'src/context/UserContext'
+
 import { CanvasToken, parser } from 'src/parser'
-import { Color, Position, CanvasMouseEvent } from 'src/types'
+import { CanvasMouseEvent, Color, Position } from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
@@ -75,35 +78,54 @@ export const Canvas: Component<{
     willReadFrequently: true,
   })!
 
+  const frameQueue = new Set<(args: { clock: number }) => void>()
+
   const tokens = resolveTokens(
     parser,
-    withContext(() => props.children, CanvasContext, {
-      ctx,
-      get debug() {
-        return !!props.debug
-      },
-      get origin() {
-        return props.origin
-          ? { x: origin().x + props.origin.x, y: origin().y + props.origin.y }
-          : origin()
-      },
-      addEventListener: (
-        type: CanvasMouseEvent['type'],
-        callback: (event: CanvasMouseEvent) => void,
-      ) => {
-        setEventListeners(type, listeners => [...listeners, callback])
-      },
-      removeEventListener: (
-        type: CanvasMouseEvent['type'],
-        callback: (event: CanvasMouseEvent) => void,
-      ) => {
-        setEventListeners(type, listeners => {
-          const index = listeners.indexOf(callback)
-          const result = [...listeners.slice(0, index), ...listeners.slice(index + 1)]
-          return result
-        })
-      },
-    }),
+    withContext(
+      () => props.children,
+      [
+        {
+          context: InternalContext,
+          value: {
+            ctx,
+            get debug() {
+              return !!props.debug
+            },
+            get origin() {
+              return props.origin
+                ? { x: origin().x + props.origin.x, y: origin().y + props.origin.y }
+                : origin()
+            },
+            addEventListener: (
+              type: CanvasMouseEvent['type'],
+              callback: (event: CanvasMouseEvent) => void,
+            ) => {
+              setEventListeners(type, listeners => [...listeners, callback])
+            },
+            removeEventListener: (
+              type: CanvasMouseEvent['type'],
+              callback: (event: CanvasMouseEvent) => void,
+            ) => {
+              setEventListeners(type, listeners => {
+                const index = listeners.indexOf(callback)
+                const result = [...listeners.slice(0, index), ...listeners.slice(index + 1)]
+                return result
+              })
+            },
+          },
+        },
+        {
+          context: UserContext,
+          value: {
+            onFrame: (callback: (args: { clock: number }) => void) => {
+              frameQueue.add(callback)
+              onCleanup(() => frameQueue.delete(callback))
+            },
+          },
+        },
+      ],
+    ),
   )
   const map = mapArray(tokens, (token, i) => {
     const index = stack().length - i()
@@ -118,6 +140,12 @@ export const Canvas: Component<{
 
   const render = () => {
     startRenderTime = performance.now()
+
+    untrack(() => {
+      frameQueue.forEach(frame => {
+        frame({ clock: props.clock ?? 0 })
+      })
+    })
 
     ctx.save()
     ctx.beginPath()

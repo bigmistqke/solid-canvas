@@ -10,7 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
-import { useCanvas } from 'src/context'
+import { useInternalContext } from 'src/context/InternalContext'
 import { Group, GroupProps } from 'src/components/Group'
 import withGroup from 'src/utils/withGroup'
 
@@ -28,7 +28,7 @@ const Rectangle = createToken(
       }
     >,
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -68,7 +68,6 @@ const Rectangle = createToken(
       id: 'Rectangle',
       type: 'Shape',
       render: (ctx: CanvasRenderingContext2D) => {
-        console.log('RENDER RECTANGLE')
         renderPath(ctx, merged, path())
       },
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),

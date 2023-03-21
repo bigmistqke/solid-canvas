@@ -1,6 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
-import { useCanvas } from 'src'
+import { useInternalContext } from 'src/context/InternalContext'
 
 import { parser, ShapeToken } from 'src/parser'
 import { Normalize, ShapeProps, ImageSource, Dimensions, ExtendedColor } from 'src/types'
@@ -30,7 +30,7 @@ const Image = createToken(
       }
     >,
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps(
       {
         ...defaultShapeProps,

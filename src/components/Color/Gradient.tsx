@@ -2,7 +2,7 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 import { resolveColor } from 'src/utils/resolveColor'
 
-import { useCanvas } from 'src'
+import { useInternalContext } from 'src/context/InternalContext'
 import { parser } from 'src/parser'
 import { Color, Position } from 'src/types'
 
@@ -30,7 +30,7 @@ type GradientProps = { stops: { offset: number; color: Color }[] } & (
 const Gradient = createToken(parser, (props: GradientProps) => {
   const merged = mergeProps({}, props)
 
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
 
   const getGradient = () => {
     if (!canvas) return

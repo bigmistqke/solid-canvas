@@ -16,6 +16,10 @@ https://user-images.githubusercontent.com/10504064/226694280-f2a2976a-ddc5-4025-
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Cubics.tsx)
 
+https://user-images.githubusercontent.com/10504064/226762226-f6dc3759-1cc0-4b8f-9e1a-30aba76aa13f.mp4
+
+[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Smileys.tsx)
+
 - Simple example
 
 ```tsx

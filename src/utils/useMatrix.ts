@@ -1,9 +1,9 @@
 import { Accessor, createMemo } from 'solid-js'
-import { useCanvas } from 'src'
+import { useInternalContext } from 'src/context/InternalContext'
 import { ShapeProps, Position } from 'src/types'
 
 export default (props: ShapeProps, dragPosition: Accessor<Position>) => {
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
 
   return createMemo(() => {
     const position = {

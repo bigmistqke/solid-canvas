@@ -1,7 +1,7 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createSignal, mergeProps } from 'solid-js'
 
-import { useCanvas } from 'src'
+import { useInternalContext } from 'src/context/InternalContext'
 import { parser, ShapeToken } from 'src/parser'
 import { ExtendedColor, Normalize, ShapeProps } from 'src/types'
 import { defaultShapeProps } from 'src/utils/defaultProps'
@@ -30,7 +30,7 @@ const Text = createToken(
       }
     >,
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps(
       { ...defaultShapeProps, close: true, fontFamily: 'arial', size: 10 },
       props,

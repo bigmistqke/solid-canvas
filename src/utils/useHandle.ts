@@ -1,5 +1,5 @@
 import { Accessor } from 'solid-js'
-import { useCanvas } from 'src/context'
+import { useInternalContext } from 'src/context/InternalContext'
 import { Position } from 'src/types'
 import transformPoint from 'src/utils/transformPoint'
 
@@ -7,7 +7,7 @@ const useHandle = (
   points: Accessor<{ point: Position; control: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
 
   const renderPoint = (position: Position) => {
     if (!canvas) return

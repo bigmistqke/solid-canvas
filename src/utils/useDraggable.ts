@@ -1,9 +1,9 @@
 import { createSignal, createEffect, onCleanup } from 'solid-js'
-import { useCanvas } from 'src'
+import { useInternalContext } from 'src/context/InternalContext'
 import { CanvasMouseEvent } from 'src/types'
 
 export default () => {
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
 
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)

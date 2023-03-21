@@ -1,7 +1,7 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { useCanvas } from 'src'
+import { useInternalContext } from 'src/context/InternalContext'
 import { parser } from 'src/parser'
 import { ImageSource } from 'src/types'
 import resolveImage from 'src/utils/resolveImageSource'
@@ -16,7 +16,7 @@ const HIDE = document.createElement('div')
 const Pattern = createToken(parser, (props: PatternProps) => {
   const merged = mergeProps({ repetition: 'no-repeat' }, props)
 
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
 
   const image = resolveImage(() => props.image)
 

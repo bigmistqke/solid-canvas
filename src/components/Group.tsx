@@ -1,7 +1,6 @@
 import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, JSX, mergeProps } from 'solid-js'
-import { useCanvas } from 'src'
-import { CanvasContext } from 'src/context'
+import { useInternalContext, InternalContext } from 'src/context/InternalContext'
 
 import { CanvasToken, parser } from 'src/parser'
 import { Position, Composite, CanvasMouseEvent } from 'src/types'
@@ -24,7 +23,7 @@ export type GroupProps = {
 }
 
 const Group = createToken(parser, (props: GroupProps) => {
-  const canvas = useCanvas()
+  const canvas = useInternalContext()
   if (!canvas) throw 'CanvasTokens need to be included in Canvas'
   const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
@@ -40,16 +39,14 @@ const Group = createToken(parser, (props: GroupProps) => {
     },
   }
 
-  console.log('props.clip is ', props.clip)
-
   const clipTokens = resolveTokens(
     parser,
-    withContext(() => props.clip, CanvasContext, context),
+    withContext(() => props.clip, InternalContext, context),
   )
 
   const tokens = resolveTokens(
     parser,
-    withContext(() => props.children, CanvasContext, context),
+    withContext(() => props.children, InternalContext, context),
   )
 
   const render = (ctx: CanvasRenderingContext2D) => {
@@ -61,7 +58,6 @@ const Group = createToken(parser, (props: GroupProps) => {
         }
         if ('paths' in data) {
           data.paths().forEach(p => {
-            console.log('paths', p)
             path.addPath(p)
           })
         }
@@ -74,9 +70,9 @@ const Group = createToken(parser, (props: GroupProps) => {
       ctx.globalCompositeOperation = merged.composite
     }
     canvas?.ctx.save()
-    revEach(tokens(), ({ data }) => {
+    /* revEach(tokens(), ({ data }) => {
       if ('render' in data) data.render(ctx)
-    })
+    }) */
     canvas?.ctx.restore()
     revEach(tokens(), ({ data }) => {
       if ('debug' in data && canvas.debug) data.debug(ctx)

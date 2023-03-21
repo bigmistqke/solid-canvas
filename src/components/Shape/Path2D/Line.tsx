@@ -10,7 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
-import { useCanvas } from 'src/context'
+import { useInternalContext } from 'src/context/InternalContext'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -26,7 +26,7 @@ const Line = createToken(
       close?: boolean
     },
   ) => {
-    const canvas = useCanvas()
+    const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
