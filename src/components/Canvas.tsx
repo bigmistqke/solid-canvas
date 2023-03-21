@@ -55,6 +55,7 @@ export const Canvas: Component<{
   })
 
   const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
+  const [cursorStyle, setCursorStyle] = createSignal<'pointer' | 'move' | 'default'>('default')
 
   let lastCursorPosition: Position | undefined
   let startRenderTime: number
@@ -63,7 +64,7 @@ export const Canvas: Component<{
     <canvas
       width={canvasDimensions().width}
       height={canvasDimensions().height}
-      style={props.style}
+      style={{ cursor: cursorStyle(), ...props.style }}
       onMouseDown={e => mouseDownHandler(e)}
       onMouseMove={e => mouseMoveHandler(e)}
       onMouseUp={e => mouseUpHandler(e)}
@@ -190,6 +191,8 @@ export const Canvas: Component<{
       }))
     }
     const handleMouseUp = (event: MouseEvent) => {
+      setCursorStyle('default')
+
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
@@ -208,6 +211,9 @@ export const Canvas: Component<{
   }
   const mouseMoveHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseMove', event => {
+      if (event.target.length === 0 && props.draggable) setCursorStyle('move')
+      else setCursorStyle('pointer')
+
       props.onMouseMove?.(event)
     })
   }
