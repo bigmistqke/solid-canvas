@@ -41,7 +41,7 @@ const Arc = createToken(
 
     const getPath = () => {
       const path = new Path2D()
-      path.arc(0, 0, merged.radius, merged.angle.start, merged.angle.end)
+      path.arc(merged.radius, merged.radius, merged.radius, merged.angle.start, merged.angle.end)
       return path
     }
 
