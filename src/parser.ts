@@ -7,8 +7,6 @@ export type ShapeToken = {
   id: string
   hitTest: (event: CanvasMouseEvent) => boolean
   path: Accessor<Path2D>
-
-  clip: (ctx: CanvasRenderingContext2D) => void
   render: (ctx: CanvasRenderingContext2D) => void
 }
 
@@ -17,14 +15,15 @@ export type ColorToken = {
   color: Accessor<CanvasGradient | CanvasPattern | null | undefined>
 }
 
-export type CanvasToken =
-  | ShapeToken
-  | ColorToken
-  | {
-      type: 'Group'
-      render: (ctx: CanvasRenderingContext2D) => void
-      debug: (ctx: CanvasRenderingContext2D) => void
-      hitTest: (event: CanvasMouseEvent) => boolean
-    }
+export type GroupToken = {
+  type: 'Group'
+  render: (ctx: CanvasRenderingContext2D) => void
+  debug: (ctx: CanvasRenderingContext2D) => void
+  hitTest: (event: CanvasMouseEvent) => boolean
+  paths: Accessor<Path2D[]>
+  // clip: Accessor<(ctx: CanvasRenderingContext2D) => void>
+}
+
+export type CanvasToken = ShapeToken | ColorToken | GroupToken
 
 export const parser = createTokenizer<CanvasToken>({ name: 'solid-canvas' })
