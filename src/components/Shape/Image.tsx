@@ -11,6 +11,7 @@ import resolveImage from 'src/utils/resolveImageSource'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints an image to the canvas
@@ -77,10 +78,11 @@ const Image = createToken(
       hitTest: function (event) {
         return hitTest(this as ShapeToken, event, canvas?.ctx, merged, dragEventHandler)
       },
-      clip: ctx => ctx.clip(path()),
       path,
     }
   },
 )
 
-export { Image }
+const GroupedImage = withGroup(Image)
+
+export { GroupedImage as Image }

@@ -1,7 +1,7 @@
-import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, mergeProps } from 'solid-js'
+import { createToken, TokenElement } from '@solid-primitives/jsx-tokenizer'
+import { createEffect, JSX, mergeProps, splitProps } from 'solid-js'
 
-import { parser, ShapeToken } from 'src/parser'
+import { CanvasToken, GroupToken, parser, ShapeToken } from 'src/parser'
 import { ShapeProps, Dimensions, Normalize } from 'src/types'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import useBounds from 'src/utils/useBounds'
@@ -11,6 +11,8 @@ import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import { useCanvas } from 'src/context'
+import { Group, GroupProps } from 'src/components/Group'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a rectangle to the canvas
@@ -22,7 +24,7 @@ const Rectangle = createToken(
   (
     props: Normalize<
       ShapeProps & {
-        dimensions: Dimensions
+        // dimensions: Dimensions
       }
     >,
   ) => {
@@ -65,9 +67,11 @@ const Rectangle = createToken(
     return {
       id: 'Rectangle',
       type: 'Shape',
-      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
+      render: (ctx: CanvasRenderingContext2D) => {
+        console.log('RENDER RECTANGLE')
+        renderPath(ctx, merged, path())
+      },
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
-      clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
         const token: ShapeToken = this
@@ -77,4 +81,6 @@ const Rectangle = createToken(
   },
 )
 
-export { Rectangle }
+const GroupedRectangle = withGroup(Rectangle)
+
+export { GroupedRectangle as Rectangle }

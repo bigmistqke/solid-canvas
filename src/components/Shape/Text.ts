@@ -11,6 +11,7 @@ import { resolveExtendedColor } from 'src/utils/resolveColor'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a text to the canvas
@@ -83,10 +84,11 @@ const Text = createToken(
         const token: ShapeToken = this
         return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       },
-      clip: ctx => ctx.clip(path()),
       path,
     }
   },
 )
 
-export { Text }
+const GroupedText = withGroup(Text)
+
+export { GroupedText as Text }

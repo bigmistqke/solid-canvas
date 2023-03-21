@@ -11,6 +11,7 @@ import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import { useCanvas } from 'src/context'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a straight line to the canvas
@@ -62,4 +63,6 @@ const Line = createToken(
   },
 )
 
-export { Line }
+const GroupedLine = withGroup(Line)
+
+export { GroupedLine as Line }

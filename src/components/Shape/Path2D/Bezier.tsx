@@ -15,6 +15,7 @@ import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a cubic bezier to the canvas
@@ -74,7 +75,6 @@ const Bezier = createToken(
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       debug,
-      clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
         const token: ShapeToken = this
@@ -148,4 +148,6 @@ const useHandle = (
   }
 }
 
-export { Bezier }
+const GroupedBezier = withGroup(Bezier)
+
+export { GroupedBezier as Bezier }

@@ -15,6 +15,7 @@ import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a quadratic bezier to the canvas
@@ -102,7 +103,6 @@ const Quadratic = createToken(
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       debug,
-      clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
         const token: ShapeToken = this
@@ -111,6 +111,8 @@ const Quadratic = createToken(
     }
   },
 )
+
+const GroupedQuadratic = withGroup(Quadratic)
 
 // NOTE:  I was exploring to use a hook for (editable) handles
 //        but I am not sure if this is the right approach.
@@ -205,4 +207,4 @@ const useHandle = (
   }
 }
 
-export { Quadratic, type QuadraticPoints }
+export { GroupedQuadratic as Quadratic, type QuadraticPoints }

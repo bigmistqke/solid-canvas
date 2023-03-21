@@ -11,6 +11,7 @@ import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import { useCanvas } from 'src/context'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a rectangle to the canvas
@@ -40,6 +41,7 @@ const Arc = createToken(
     const matrix = useMatrix(merged, dragPosition)
 
     const getPath = () => {
+      console.log('ARC get Path')
       const path = new Path2D()
       path.arc(merged.radius, merged.radius, merged.radius, merged.angle.start, merged.angle.end)
       return path
@@ -74,7 +76,6 @@ const Arc = createToken(
       type: 'Shape',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
-      clip: ctx => ctx.clip(path()),
       path,
       hitTest: function (event) {
         const token: ShapeToken = this
@@ -83,5 +84,6 @@ const Arc = createToken(
     }
   },
 )
+const GroupedArc = withGroup(Arc)
 
-export { Arc }
+export { GroupedArc as Arc }

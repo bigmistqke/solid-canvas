@@ -1,9 +1,9 @@
 import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
-import { JSX, mergeProps } from 'solid-js'
+import { Accessor, JSX, mergeProps } from 'solid-js'
 import { useCanvas } from 'src'
 import { CanvasContext } from 'src/context'
 
-import { parser } from 'src/parser'
+import { CanvasToken, parser } from 'src/parser'
 import { Position, Composite, CanvasMouseEvent } from 'src/types'
 import { isPointInShape } from 'src/utils/isPointInShape'
 import revEach from 'src/utils/revEach'
@@ -19,7 +19,7 @@ export type GroupProps = {
    * Defaults to { x: 0, y: 0}
    */
   position?: Position
-  clip?: JSX.Element | JSX.Element[]
+  clip?: Accessor<JSX.Element | JSX.Element[]>
   composite?: Composite
 }
 
@@ -40,6 +40,8 @@ const Group = createToken(parser, (props: GroupProps) => {
     },
   }
 
+  console.log('props.clip is ', props.clip)
+
   const clipTokens = resolveTokens(
     parser,
     withContext(() => props.clip, CanvasContext, context),
@@ -51,12 +53,17 @@ const Group = createToken(parser, (props: GroupProps) => {
   )
 
   const render = (ctx: CanvasRenderingContext2D) => {
-    console.log('group tokens', tokens())
     if (props.clip) {
       const path = new Path2D()
       clipTokens().forEach(({ data }) => {
-        if ('clip' in data) {
+        if ('path' in data) {
           path.addPath(data.path())
+        }
+        if ('paths' in data) {
+          data.paths().forEach(p => {
+            console.log('paths', p)
+            path.addPath(p)
+          })
         }
       })
       ctx.clip(path)
@@ -99,8 +106,6 @@ const Group = createToken(parser, (props: GroupProps) => {
         if (hit) result = true
       }
     })
-    /* revEach(tokens(), ({ data }) => {
-      }) */
     return result
   }
 
@@ -108,8 +113,17 @@ const Group = createToken(parser, (props: GroupProps) => {
     type: 'Group',
     debug: () => {},
     hitTest,
+    paths: () => {
+      return tokens()
+        .map(({ data }) => {
+          if ('path' in data) return [data.path()]
+          if ('paths' in data) return data.paths()
+          return []
+        })
+        .flat()
+    },
     render,
-  }
+  } as CanvasToken
 })
 
 export { Group }
