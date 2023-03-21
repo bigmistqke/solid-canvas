@@ -20,7 +20,7 @@ const resolveColor = (color: Color) => {
       return `rgb(${color.r}, ${color.g}, ${color.b})`
     }
     if ('h' in color) {
-      return `hsl(${color.h}, ${color.s}, ${color.l})`
+      return `hsl(${color.h}deg, ${color.s}%, ${color.l}%)`
     }
   }
   if (typeof color === 'string') return color
