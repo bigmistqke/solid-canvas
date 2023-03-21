@@ -7,7 +7,9 @@ import { Position, ShapeProps } from 'src/types'
 import addVectors from 'src/utils/addVectors'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import hitTest from 'src/utils/hitTest'
+import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
+import renderPoint from 'src/utils/renderPoint'
 import transformPath from 'src/utils/transformPath'
 import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
@@ -21,11 +23,17 @@ import useMatrix from 'src/utils/useMatrix'
 
 type Point = { point: Position }
 
+type QuadraticPoints = [
+  Point,
+  Point & { control: Position },
+  ...((Point & { control: Position }) | Point)[],
+]
+
 const Quadratic = createToken(
   parser,
   (
     props: ShapeProps & {
-      points: [Point, Point & { control: Position }, ...((Point & { control: Position }) | Point)[]]
+      points: QuadraticPoints
       close?: boolean
     },
   ) => {
@@ -40,7 +48,7 @@ const Quadratic = createToken(
     const bounds = useBounds(() => {
       return handles
         .points()
-        .map(({ point, control, oppositeControl }, i) => {
+        .map(({ control, point, oppositeControl }) => {
           if (control && oppositeControl) {
             return [control, oppositeControl]
           }
@@ -126,96 +134,68 @@ const useHandle = (
   matrix: Accessor<DOMMatrix>,
 ) => {
   const canvas = useCanvas()
-  let previousRelativeControl: Position
+  let previousControl: Position
   const getAllPoints = () =>
-    points()
-      .map(({ point, control }, i) => {
-        if (i === 0) {
-          return { point }
+    points().map(({ point, control }, i) => {
+      if (i === 0) {
+        return { point }
+      }
+
+      if (!control) {
+        // NOTE:  with the T-command it is possible to create smooth curves without defining control points
+
+        //        from https://www.w3.org/TR/2015/WD-SVG2-20150709/paths.html#PathDataQuadraticBezierCommands
+        //          Note that the control point for the "T" command is computed automatically
+        //          as the reflection of the control point for the previous "Q" command relative
+        //          to the start point of the "T" command.'
+        control = {
+          x: previousControl.x - point.x,
+          y: previousControl.y - point.y,
         }
+      }
 
-        if (!control) {
-          // NOTE:  with the T-command it is possible to create smooth curves without defining control points
+      if (i === points().length - 1) {
+        return { point, control: addVectors(control, point) }
+      }
 
-          //        from https://www.w3.org/TR/2015/WD-SVG2-20150709/paths.html#PathDataQuadraticBezierCommands
-          //          Note that the control point for the "T" command is computed automatically
-          //          as the reflection of the control point for the previous "Q" command relative
-          //          to the start point of the "T" command.'
-          control = {
-            x: previousRelativeControl.x,
-            y: previousRelativeControl.y * -1,
-          }
-        }
+      const oppositeControl = addVectors(
+        {
+          x: control.x * -1,
+          y: control.y * -1,
+        },
+        point,
+      )
 
-        previousRelativeControl = control
+      previousControl = oppositeControl
 
-        if (i === points().length - 1) {
-          return { point, control }
-        }
-
-        return {
-          control,
-          point,
-          oppositeControl: {
-            x: control.x * -1,
-            y: control.y * -1,
-          },
-        }
-      })
-      .map(({ control, point, oppositeControl }, i) => ({
-        point: point,
-        control: control ? addVectors(point, control) : undefined,
-        oppositeControl: oppositeControl ? addVectors(point, oppositeControl) : undefined,
-      }))
-
-  const renderPoint = (position: Position) => {
-    if (!canvas) return
-    canvas.ctx.save()
-    canvas.ctx.beginPath()
-    canvas.ctx.arc(position.x, position.y, 5, 0, 360)
-    canvas.ctx.fillStyle = 'black'
-    canvas.ctx.fill()
-    canvas.ctx.closePath()
-    canvas.ctx.restore()
-  }
-
-  const renderLine = (start: Position, end: Position) => {
-    if (!canvas) return
-    canvas.ctx.save()
-    canvas.ctx.beginPath()
-    canvas.ctx.strokeStyle = 'grey'
-
-    canvas.ctx.moveTo(start.x, start.y)
-    canvas.ctx.lineTo(end.x, end.y)
-    canvas.ctx.stroke()
-    canvas.ctx.closePath()
-    canvas.ctx.restore()
-  }
+      return {
+        point,
+        control: addVectors(control, point),
+        oppositeControl,
+      }
+    })
 
   const renderHandles = () => {
     if (!canvas) return
     let firstPoint: Position
 
     getAllPoints()
-      .map(({ control, point, oppositeControl }, i) => ({
+      .map(({ control, point, oppositeControl }) => ({
         point: transformPoint(point, matrix()),
         control: control ? transformPoint(control, matrix()) : undefined,
         oppositeControl: oppositeControl ? transformPoint(oppositeControl, matrix()) : undefined,
       }))
       .forEach(({ control, point, oppositeControl }, i) => {
-        renderPoint(point)
-
+        renderPoint(canvas.ctx, point)
         if (!firstPoint) firstPoint = point
         if (control) {
-          if (i === 1) {
-            renderLine(firstPoint, control)
-          }
-          renderLine(point, control)
-          renderPoint(control)
+          if (i === 1) renderLine(canvas.ctx, firstPoint, control)
+          renderLine(canvas.ctx, point, control)
+          renderPoint(canvas.ctx, control)
         }
         if (oppositeControl) {
-          renderPoint(oppositeControl)
-          renderLine(point, oppositeControl)
+          renderPoint(canvas.ctx, oppositeControl)
+          renderLine(canvas.ctx, point, oppositeControl)
         }
       })
   }
@@ -226,4 +206,4 @@ const useHandle = (
   }
 }
 
-export { Quadratic }
+export { Quadratic, type QuadraticPoints }
