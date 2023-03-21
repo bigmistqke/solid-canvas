@@ -16,6 +16,8 @@ https://user-images.githubusercontent.com/10504064/226694280-f2a2976a-ddc5-4025-
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Cubics.tsx)
 
+- Simple example
+
 ```tsx
 import { Canvas, Text, Rectangle } from 'solid-canvas'
 
