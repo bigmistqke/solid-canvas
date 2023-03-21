@@ -24,7 +24,7 @@ const Rectangle = createToken(
   (
     props: Normalize<
       ShapeProps & {
-        // dimensions: Dimensions
+        dimensions: Dimensions
       }
     >,
   ) => {
