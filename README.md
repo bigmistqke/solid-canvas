@@ -24,7 +24,7 @@ https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Feedback.tsx)
 
-- Simple example
+### Simple example
 
 ```tsx
 import { Canvas, Text, Rectangle } from 'solid-canvas'
@@ -45,7 +45,7 @@ const App = () => (
 <img width="1440" alt="Screenshot 2023-03-22 at 20 36 47" src="https://user-images.githubusercontent.com/10504064/227017579-117f41a2-be28-4b4b-8f6b-2781855e6d20.png">
 
 
-- MouseEvents: draggable rectangle
+### MouseEvents: draggable `<Rectangle/>`
 
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
@@ -75,7 +75,7 @@ const App: Component = () => {
 }
 ```
 
-Each `Shape` also has a `draggable`-prop:
+> Each `Shape` also has a `draggable`-prop:
 
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
@@ -94,7 +94,7 @@ const App = () => (
 https://user-images.githubusercontent.com/10504064/227018274-0a7fb0a5-2189-4bd3-af8b-491522948631.mp4
 
 
-- Group and Crop
+### `<Group/>` and Clip
 
 ```tsx
 import { Canvas, Rectangle, Group } from 'solid-canvas'
@@ -121,7 +121,7 @@ const App = () => (
 
 > All `Shapes` inherit from `Group`, so you can `clip` and add `children` to any `Shape`
 
-## Canvas API-coverage
+## Canvas API-Coverage
 
 - [ ] Shape
   - [x] Path2D
@@ -144,7 +144,7 @@ const App = () => (
   - [x] `<Gradient/>`
   - [x] `<Pattern/>`
 
-## additional API
+## Additional API
 
 - [ ] nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
 - [x] Draggable-prop for Shape and Canvas
