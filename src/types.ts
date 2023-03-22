@@ -122,9 +122,16 @@ export type ShapeProps = {
   }
 
   /**
-   * Set the ctx.globalCompositeOperation
+   * Set the ctx.globalCompositeOperation. Default: source-over
    */
   composite?: Composite
+
+  /**
+   * Sets ctx.globalAlpha. Default: 1
+   */
+  opacity?: number
+
+  // Mouse-Events
 
   /**
    * Makes shape draggable. Default: false

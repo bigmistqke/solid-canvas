@@ -14,6 +14,7 @@ const defaultShapeProps: ResolvedShapeProps = {
   skewY: 0,
   draggable: false,
   pointerEvents: true,
+  opacity: 1,
 }
 
 const defaultBoundsProps: ResolvedShapeProps = {
@@ -30,6 +31,7 @@ const defaultBoundsProps: ResolvedShapeProps = {
   skewY: 0,
   draggable: false,
   pointerEvents: true,
+  opacity: 1,
 }
 
 export { defaultShapeProps, defaultBoundsProps }

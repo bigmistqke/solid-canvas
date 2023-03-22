@@ -15,6 +15,7 @@ export default (
   }
 
   if (props.composite) ctx.globalCompositeOperation = props.composite
+  if (props.opacity) ctx.globalAlpha = props.opacity
 
   ctx.strokeStyle = resolveExtendedColor(props.stroke) ?? 'black'
   ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'

@@ -60,7 +60,7 @@ const Image = createToken(
       if (!img) return
 
       const origin = canvas?.origin ?? { x: 0, y: 0 }
-
+      if (props.opacity) ctx.globalAlpha = props.opacity
       ctx.drawImage(
         img,
         origin.x + merged.position.x + dragPosition().x,
