@@ -14,6 +14,7 @@ import withContext from 'src/utils/withContext'
 
 export type GroupProps = {
   children?: JSX.Element | JSX.Element[]
+  opacity?: number
   /**
    * Defaults to { x: 0, y: 0}
    */
@@ -74,6 +75,7 @@ const Group = createToken(parser, (props: GroupProps) => {
       ctx.globalCompositeOperation = merged.composite
     }
     canvas?.ctx.save()
+    if (props.opacity) ctx.globalAlpha = props.opacity
     revEach(tokens(), ({ data }) => {
       if ('render' in data) data.render(ctx)
     })

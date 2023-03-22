@@ -7,7 +7,7 @@ import { ExtendedColor, Normalize, ShapeProps } from 'src/types'
 import { defaultShapeProps } from 'src/utils/defaultProps'
 import filterShapeProps from 'src/utils/filterShapeProps'
 import hitTest from 'src/utils/hitTest'
-import { resolveExtendedColor } from 'src/utils/resolveColor'
+import { resolveColor, resolveExtendedColor } from 'src/utils/resolveColor'
 import transformPath from 'src/utils/transformPath'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
@@ -18,6 +18,12 @@ import withGroup from 'src/utils/withGroup'
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/fillText)
  */
 
+type Rounded =
+  | number
+  | [all: number]
+  | [topLeftAndBottomRight: number, topRightAndBottomLeft: number]
+  | [topLeft: number, topRightAndBottomLeft: number, bottomRight: number]
+
 const Text = createToken(
   parser,
   (
@@ -27,12 +33,31 @@ const Text = createToken(
         size?: number
         fontFamily?: string
         background?: ExtendedColor
+        hover?: {
+          background?: ExtendedColor
+          fill?: ExtendedColor
+          padding?: ExtendedColor
+          rounded?: Rounded
+        }
+        padding?: number
+        /**
+         * Currently not yet supported in firefox [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/roundRect#browser_compatibility)
+         */
+        rounded?: Rounded
       }
     >,
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps(
-      { ...defaultShapeProps, close: true, fontFamily: 'arial', size: 10 },
+      {
+        ...defaultShapeProps,
+        close: true,
+        fontFamily: 'arial',
+        size: 10,
+        fill: 'black',
+        stroke: 'transparent',
+        padding: 0,
+      },
       props,
     )
     const filteredProps = filterShapeProps(merged)
@@ -54,7 +79,23 @@ const Text = createToken(
       const height = ascent + descent
       const path = new Path2D()
 
-      path.rect(left * -1, (height + descent) * -1, width + left, height)
+      if (props.rounded && 'roundRect' in path)
+        path.roundRect(
+          left * -1 - merged.padding,
+          (height + descent) * -1 - merged.padding,
+          width + left + merged.padding * 2,
+          height + merged.padding * 2,
+          props.rounded,
+        )
+      else
+        path.rect(
+          left * -1 - merged.padding,
+          (height + descent) * -1 - merged.padding,
+          width + left + merged.padding * 2,
+          height + merged.padding * 2,
+        )
+
+      // path.rect(left * -1, (height + descent) * -1, width + left, height)
       return path
     }, matrix)
 
@@ -63,17 +104,33 @@ const Text = createToken(
       ctx.font = '30px Arial'
       setTextMetrics(ctx.measureText(merged.text))
       if (merged.background) {
-        const color = resolveExtendedColor(merged.background) ?? 'black'
+        const color =
+          (hover()
+            ? resolveExtendedColor(merged.hover?.background ?? 'transparent')
+            : resolveExtendedColor(merged.background) ?? 'transparent') ?? 'transparent'
+
         ctx.fillStyle = color
         ctx.fill(path())
         ctx.strokeStyle = color
         ctx.lineWidth = 5
         ctx.stroke(path())
       }
-      ctx.fillStyle = 'black'
+      if (props.opacity) ctx.globalAlpha = props.opacity
+      ctx.fillStyle =
+        (hover()
+          ? resolveExtendedColor(merged.hover?.fill ?? 'black')
+          : resolveExtendedColor(merged.fill) ?? 'black') ?? 'black'
+
+      // resolveExtendedColor(merged.fill) ?? 'black'
+      ctx.strokeStyle = resolveExtendedColor(merged.stroke) ?? 'transparent'
       // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
-      ctx.fillText(merged.text, merged.position.x + offset.x, merged.position.y + offset.y)
+      if (ctx.fillStyle !== 'transparent')
+        ctx.fillText(merged.text, merged.position.x + offset.x, merged.position.y + offset.y)
+      if (ctx.strokeStyle !== 'transparent')
+        ctx.strokeText(merged.text, merged.position.x + offset.x, merged.position.y + offset.y)
     }
+
+    const [hover, setHover] = createSignal(false)
 
     return {
       props: filteredProps,
@@ -82,7 +139,9 @@ const Text = createToken(
       render,
       hitTest: function (event) {
         const token: ShapeToken = this
-        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+        const hit = hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+        setHover(hit)
+        return hit
       },
       path,
     }

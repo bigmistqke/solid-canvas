@@ -1,17 +1,16 @@
-import { createToken, TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, JSX, mergeProps, splitProps } from 'solid-js'
+import { createToken } from '@solid-primitives/jsx-tokenizer'
+import { mergeProps } from 'solid-js'
 
-import { CanvasToken, GroupToken, parser, ShapeToken } from 'src/parser'
-import { ShapeProps, Dimensions, Normalize } from 'src/types'
+import { useInternalContext } from 'src/context/InternalContext'
+import { parser, ShapeToken } from 'src/parser'
+import { Dimensions, Normalize, ShapeProps } from 'src/types'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
-import useBounds from 'src/utils/useBounds'
-import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import transformPath from 'src/utils/transformPath'
+import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
-import { useInternalContext } from 'src/context/InternalContext'
-import { Group, GroupProps } from 'src/components/Group'
+import useMatrix from 'src/utils/useMatrix'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -25,6 +24,11 @@ const Rectangle = createToken(
     props: Normalize<
       ShapeProps & {
         dimensions: Dimensions
+        rounded?:
+          | number
+          | [all: number]
+          | [topLeftAndBottomRight: number, topRightAndBottomLeft: number]
+          | [topLeft: number, topRightAndBottomLeft: number, bottomRight: number]
       }
     >,
   ) => {
@@ -36,7 +40,9 @@ const Rectangle = createToken(
 
     const getPath = () => {
       const path = new Path2D()
-      path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
+      if (props.rounded)
+        path.roundRect(0, 0, merged.dimensions.width, merged.dimensions.height, props.rounded)
+      else path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
       return path
     }
 
