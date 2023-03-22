@@ -70,9 +70,9 @@ const Group = createToken(parser, (props: GroupProps) => {
       ctx.globalCompositeOperation = merged.composite
     }
     canvas?.ctx.save()
-    /* revEach(tokens(), ({ data }) => {
+    revEach(tokens(), ({ data }) => {
       if ('render' in data) data.render(ctx)
-    }) */
+    })
     canvas?.ctx.restore()
     revEach(tokens(), ({ data }) => {
       if ('debug' in data && canvas.debug) data.debug(ctx)
