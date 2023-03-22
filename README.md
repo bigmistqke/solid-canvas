@@ -210,6 +210,7 @@ const App = () => (
     - [ ] Zoom
   - [x] MouseEvents for `Shape` 👉 `Shape.onMouseDown`, `Shape.onMouseMove` and `Shape.onMouseUp`
   - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
+  - [ ] HoverStyles for `Shape`
   - [x] Draggable `Shape` 👉 `Shape.draggable`
   - [ ] Editable `Path2D` with handlers
   - [ ] Possibility to add behaviors to `Shapes` in a composable way (character-controllers)
