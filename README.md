@@ -42,6 +42,26 @@ const App = () => (
 )
 ```
 
+> You can also compose shapes
+
+
+```tsx
+import { Canvas, Text, Rectangle } from 'solid-canvas'
+
+const App = () => (
+  <Canvas fill="blue">
+    <Rectangle
+      position={{ x: 100, y: 100 }}
+      dimensions={{ width: 250, height: 250 }}
+      fill="purple"
+      stroke="transparent"
+    >
+      <Text text="hallo" fill="white" size={20} />
+    </Rectangle>
+  </Canvas>
+)
+```
+
 <img width="1440" alt="Screenshot 2023-03-22 at 20 36 47" src="https://user-images.githubusercontent.com/10504064/227017579-117f41a2-be28-4b4b-8f6b-2781855e6d20.png">
 
 
