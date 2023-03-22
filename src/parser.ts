@@ -24,6 +24,13 @@ export type GroupToken = {
   // clip: Accessor<(ctx: CanvasRenderingContext2D) => void>
 }
 
-export type CanvasToken = ShapeToken | ColorToken | GroupToken
+export type StaticShape = {
+  props: any
+  type: 'StaticShape'
+  id: string
+  render: (ctx: CanvasRenderingContext2D) => void
+}
+
+export type CanvasToken = ShapeToken | ColorToken | GroupToken | StaticShape
 
 export const parser = createTokenizer<CanvasToken>({ name: 'solid-canvas' })
