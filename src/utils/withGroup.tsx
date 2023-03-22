@@ -5,12 +5,7 @@ import { ShapeProps } from 'src/types'
 
 function withGroup<T extends ShapeProps, U extends unknown>(Component: TokenComponent<T, U>) {
   return (props: T & GroupProps) => {
-    const [groupProps, shapeProps] = splitProps(props, [
-      'children',
-      'clip',
-      'composite',
-      'position',
-    ])
+    const [groupProps, shapeProps] = splitProps(props, ['children', 'clip', 'position'])
     return (
       <Group {...groupProps}>
         {props.children}
