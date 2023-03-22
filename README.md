@@ -121,6 +121,53 @@ const App = () => (
 
 > All `Shapes` inherit from `Group`, so you can `clip` and add `children` to any `Shape`
 
+## Lines: `<Line/>`, `<Bezier/>` and `<Quadratic/>`
+
+```tsx
+import { Bezier, Canvas, Line, Quadratic } from 'solid-canvas'
+
+const App = () => (
+  <Canvas>
+    <Line
+      position={{ x: 100, y: 200 }}
+      points={[
+        { x: 0, y: 100 },
+        { x: 50, y: 200 },
+        { x: 100, y: 100 },
+        { x: 150, y: 200 },
+        { x: 200, y: 100 },
+        { x: 250, y: 200 },
+      ]}
+    />
+    <Bezier
+      position={{ x: 500, y: 200 }}
+      points={[
+        { point: { x: 0, y: 100 }, control: { x: 50, y: 0 } },
+        { point: { x: 50, y: 200 }, control: { x: -50, y: 0 } },
+        { point: { x: 100, y: 100 }, control: { x: -50, y: 0 } },
+        { point: { x: 150, y: 200 }, control: { x: -50, y: 0 } },
+        { point: { x: 200, y: 100 }, control: { x: -50, y: 0 } },
+        { point: { x: 250, y: 200 }, control: { x: -50, y: 0 } },
+      ]}
+    />
+    <Quadratic
+      position={{ x: 900, y: 200 }}
+      points={[
+        { point: { x: 0, y: 100 } },
+        { point: { x: 50, y: 200 }, control: { x: -25, y: 0 } },
+        { point: { x: 100, y: 100 } },
+        { point: { x: 150, y: 200 } },
+        { point: { x: 200, y: 100 } },
+        { point: { x: 250, y: 200 } },
+      ]}
+    />
+  </Canvas>
+)
+```
+
+<img width="1440" alt="Screenshot 2023-03-22 at 21 25 52" src="https://user-images.githubusercontent.com/10504064/227030059-a5b152b8-9d2d-42f8-a894-7e1462624426.png">
+
+
 ## Canvas API-Coverage
 
 - [ ] Shape
