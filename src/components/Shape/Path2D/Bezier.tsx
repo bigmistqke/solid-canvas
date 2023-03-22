@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, mergeProps } from 'solid-js'
+import { Accessor, createEffect, mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { parser, ShapeToken } from 'src/parser'
@@ -37,7 +37,9 @@ const Bezier = createToken(
 
     const handles = useHandle(() => props.points, matrix)
 
-    const bounds = useBounds(() => handles.points().map(Object.values).flat(), matrix)
+    const bounds = useBounds(() => {
+      return handles.points().map(Object.values).flat()
+    }, matrix)
 
     const path = transformPath(() => {
       let point = handles.points()[0]
@@ -58,7 +60,6 @@ const Bezier = createToken(
     }, matrix)
 
     const debug = (ctx: CanvasRenderingContext2D) => {
-      console.log('debug')
       if (!canvas) return
       canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
@@ -66,14 +67,12 @@ const Bezier = createToken(
       handles.render()
       canvas.ctx.restore()
     }
-    console.log('Bezier')
 
     let token: ShapeToken
     return {
       type: 'Shape',
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
-        console.log('rendering!')
         renderPath(ctx, merged, path())
       },
       debug,
@@ -152,4 +151,4 @@ const useHandle = (
 
 const GroupedBezier = withGroup(Bezier)
 
-export { /* GroupedBezier as */ Bezier }
+export { GroupedBezier as Bezier }
