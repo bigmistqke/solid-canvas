@@ -3,8 +3,9 @@ import { Accessor, JSX, mergeProps } from 'solid-js'
 import { InternalContext, useInternalContext } from 'src/context/InternalContext'
 
 import { CanvasToken, parser } from 'src/parser'
-import { CanvasMouseEvent, Composite, Position } from 'src/types'
+import { CanvasMouseEvent, Composite, ExtendedColor, Position } from 'src/types'
 import { isPointInShape } from 'src/utils/isPointInShape'
+import { resolveExtendedColor } from 'src/utils/resolveColor'
 import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
 
@@ -15,6 +16,7 @@ import withContext from 'src/utils/withContext'
 export type GroupProps = {
   children?: JSX.Element | JSX.Element[]
   opacity?: number
+  fill?: ExtendedColor
   /**
    * Defaults to { x: 0, y: 0}
    */
@@ -76,6 +78,10 @@ const Group = createToken(parser, (props: GroupProps) => {
     }
     canvas?.ctx.save()
     if (props.opacity) ctx.globalAlpha = props.opacity
+    if (props.fill) {
+      ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'
+      ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
+    }
     revEach(tokens(), ({ data }) => {
       if ('render' in data) data.render(ctx)
     })
