@@ -18,8 +18,6 @@ const getBounds = (points: Accessor<{ x: number; y: number }[]>, matrix: Accesso
     },
   }
   return createMemo(() => {
-    if (!canvas?.debug) return
-
     bounds = {
       x: {
         min: Infinity,
