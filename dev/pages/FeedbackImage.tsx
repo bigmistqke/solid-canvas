@@ -124,11 +124,11 @@ const App: Component = () => {
       >
         <Text
           text="link"
-          // composite="exclusion"
           rounded={5}
-          padding={5}
+          padding={10}
           fill={{ r: 0, g: 0, b: 250 }}
           background="white"
+          size={15}
           hover={{ background: 'black', fill: 'white' }}
           position={{ x: position().x, y: position().y + 300 }}
           onMouseDown={() =>
