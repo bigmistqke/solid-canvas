@@ -20,7 +20,7 @@ https://user-images.githubusercontent.com/10504064/226762226-f6dc3759-1cc0-4b8f-
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Smileys.tsx)
 
-https://user-images.githubusercontent.com/10504064/226958984-28140404-32e3-4c1d-88b6-d26b1a5a845b.mp4
+https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-84db-ee2d45adf939.mp4
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Feedback.tsx)
 
