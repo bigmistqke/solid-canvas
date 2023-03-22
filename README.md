@@ -161,22 +161,25 @@ const App: Component = () => {
   - [x] `<Text/>`
   - [x] `<Image/>`
   - [ ] `<ImageData/>`
-- [x] `<Group/>` (with `clip`-prop)
+- [x] `<Group/>`
 - [ ] Compositing
-  - [x] `<Path2D/>`
   - [ ] `<Group/>`
+  - [x] Shape
+- [x] Clipping
+  - [x] `<Group/>`
+  - [x] Shape (Shape inherits from `Group`)
 - [x] Color (for fill/stroke)
   - [x] `<Gradient/>`
   - [x] `<Pattern/>`
 
 ## additional API
 
-- [ ] Layer: component to divide scene up into multiple canvases for optimization
-- [x] Draggable-prop for Shape
+- [ ] nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
+- [x] Draggable-prop for Shape and Canvas
 - [ ] Controller-prop: callback which can control the props
 - [ ] Editable-prop for Path2D: handles to manipulate the path
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
-- [ ] `SVG`
+- [ ] `SVG` component: render svg path-strings (path's `d`-attribute)
 
 ## Overal Ambitions / Roadmap
 
