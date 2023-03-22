@@ -29,20 +29,22 @@ https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-
 ```tsx
 import { Canvas, Text, Rectangle } from 'solid-canvas'
 
-const App: Component = () => {
-  return (
-    <Canvas fill="yellow">
-      <Text position={{ x: 100, y: 100 }} text="hallo" fill="white" />
-      <Rectangle
-        position={{ x: 100, y: 100 }}
-        dimensions={{ width: 50, height: 50 }}
-        stroke="black"
-        lineWidth={10}
-      />
-    </Canvas>
-  )
-}
+const App = () => (
+  <Canvas fill="blue">
+    <Text position={{ x: 100, y: 100 }} text="hallo" fill="white" size={20} />
+    <Rectangle
+      position={{ x: 100, y: 100 }}
+      dimensions={{ width: 250, height: 250 }}
+      fill="purple"
+      stroke="transparent"
+      lineWidth={10}
+    />
+  </Canvas>
+)
 ```
+
+<img width="1440" alt="Screenshot 2023-03-22 at 20 36 47" src="https://user-images.githubusercontent.com/10504064/227017579-117f41a2-be28-4b4b-8f6b-2781855e6d20.png">
+
 
 - MouseEvents: draggable rectangle
 
@@ -51,7 +53,7 @@ import { Canvas, Rectangle } from 'solid-canvas'
 
 const App: Component = () => {
   const [selected, setSelected] = createSignal(false)
-  const [position, setPosition] = createSignal({ width: 100, height: 100 })
+  const [position, setPosition] = createSignal({ x: 100, y: 100 })
 
   return (
     <Canvas
@@ -79,75 +81,42 @@ Each `Shape` also has a `draggable`-prop:
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
 
-const App: Component = () => {
-  return (
-    <Canvas>
-      <Rectangle dimensions={{ width: 50, height: 50 }} draggable />
-    </Canvas>
-  )
-}
+const App = () => (
+  <Canvas>
+    <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 50, height: 50 }} draggable />
+  </Canvas>
+)
 ```
+
+https://user-images.githubusercontent.com/10504064/227018274-0a7fb0a5-2189-4bd3-af8b-491522948631.mp4
+
 
 - Group and Crop
 
 ```tsx
 import { Canvas, Rectangle, Group } from 'solid-canvas'
 
-const App: Component = () => {
-  return (
-    <Canvas>
-      <Group
-        position={{ x: 100, y: 100 }}
-        clip={
-          <>
-            <Rectangle
-              position={{ x: 0, y: 25 }}
-              dimensions={{ width: 100, height: 50 }}
-              onMouseDown={() => setSelected(true)}
-            />
-            <Rectangle
-              position={{ x: 25, y: 0 }}
-              dimensions={{ width: 50, height: 100 }}
-              onMouseDown={() => setSelected(true)}
-            />
-          </>
-        }
-      >
-        <Text text="hallo" />
-      </Group>
-    </Canvas>
-  )
-}
+const App = () => (
+  <Canvas>
+    <Group
+      position={{ x: 100, y: 100 }}
+      clip={() => (
+        <>
+          <Rectangle position={{ x: 0, y: 0 }} dimensions={{ width: 100, height: 50 }} />
+          <Rectangle position={{ x: 0, y: 0 }} dimensions={{ width: 50, height: 100 }} />
+        </>
+      )}
+      fill="blue"
+    >
+      <Text text="hallo" size={50} />
+    </Group>
+  </Canvas>
+)
 ```
 
-- Gradient
+<img width="1440" alt="Screenshot 2023-03-22 at 20 46 40" src="https://user-images.githubusercontent.com/10504064/227019371-6bf31873-a312-4d02-8f3d-2205cd9f024c.png">
 
-```tsx
-import { Canvas, Rectangle, Gradient } from 'solid-canvas'
-
-const App: Component = () => {
-  return (
-    <Canvas>
-      <Rectangle
-        position={{ x:0, y: 25 }}
-        dimensions={{ width: 100, height: 50 }}
-        onMouseDown={() => setSelected(true)}
-        fill={
-          <Gradient
-            type="conic"
-            start={{ x: 0, y: 0 }}
-            end={{ x: 100, y: 100 }}
-            stops={[
-              { offset: 0, color: "white" },
-              { offset: 1, color: "black" }
-            ]}
-          >
-        }
-      />
-    </Canvas>
-  )
-}
-```
+> All `Shapes` inherit from `Group`, so you can `clip` and add `children` to any `Shape`
 
 ## Canvas API-coverage
 
