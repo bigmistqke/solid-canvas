@@ -16,8 +16,14 @@ const resolveExtendedColor = (color: ExtendedColor) => {
 const resolveColor = (color: Color) => {
   if (!color) return
   if (typeof color === 'object') {
+    if ('r' in color && 'a' in color) {
+      return `rgb(${color.r}, ${color.g}, ${color.b}, ${color.a})`
+    }
     if ('r' in color) {
       return `rgb(${color.r}, ${color.g}, ${color.b})`
+    }
+    if ('h' in color && 'a' in color) {
+      return `hsl(${color.h}deg, ${color.s}%, ${color.l}%, ${color.a})`
     }
     if ('h' in color) {
       return `hsl(${color.h}deg, ${color.s}%, ${color.l}%)`

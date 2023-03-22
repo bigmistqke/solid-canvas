@@ -14,13 +14,25 @@ export type RGB = {
   g: number
   b: number
 }
+export type RGBA = {
+  r: number
+  g: number
+  b: number
+  a: number
+}
 export type HSL = {
   h: number
   s: number
   l: number
 }
+export type HSLA = {
+  h: number
+  s: number
+  l: number
+  a: number
+}
 
-export type Color = RGB | HSL | string
+export type Color = RGB | RGBA | HSL | HSLA | string
 export type ExtendedColor = Color | CanvasGradient | CanvasPattern | JSX.Element | null
 
 export type ImageSource =
@@ -57,6 +69,10 @@ export type Composite =
 
 export type ShapeProps = {
   /**
+   * Default: 'transparent'
+   */
+  fill?: ExtendedColor
+  /**
    * Default: 'black'.
    */
   stroke?: ExtendedColor
@@ -65,13 +81,21 @@ export type ShapeProps = {
    */
   lineWidth?: number
   /**
-   * Default: 'transparent'
-   */
-  fill?: ExtendedColor
-  /**
    * Default: []
    */
   lineDash?: number[]
+  /**
+   * Default: 'butt'
+   */
+  lineCap?: 'butt' | 'round' | 'square'
+  /**
+   * Default: 'butt'
+   */
+  lineJoin?: 'round' | 'bevel' | 'miter'
+  /**
+   * Default: 'butt'
+   */
+  miterLimit?: number
 
   /**
    * Default: 0
