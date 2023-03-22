@@ -38,7 +38,7 @@ export const Canvas: Component<{
   debug?: boolean
   clock?: number
   cursor?: CursorStyle
-  feedback?: (ctx: CanvasRenderingContext2D) => void
+  feedback?: ((ctx: CanvasRenderingContext2D) => void) | true | number
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -156,13 +156,16 @@ export const Canvas: Component<{
 
     ctx.save()
     ctx.beginPath()
-    if (props.feedback) {
-      props.feedback(ctx)
+    if (typeof props.feedback === 'number' || props.feedback) {
+      if (typeof props.feedback === 'function') props.feedback(ctx)
+      else if (typeof props.feedback === 'number') {
+        // TODO: implement feedback with alpha = props.feedback
+      }
     } else {
       ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
     }
     if (props.fill) {
-      ctx.globalCompositeOperation = 'destination-over'
+      ctx.globalCompositeOperation = 'destination-atop'
       ctx.fillStyle = resolveColor(props.fill) ?? 'white'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
