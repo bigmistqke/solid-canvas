@@ -81,10 +81,6 @@ const Quadratic = createToken(
 
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
-      if (canvas) {
-        canvas.ctx.strokeStyle = 'black'
-        canvas.ctx.stroke(path2D)
-      }
 
       return path2D
     }, matrix)
