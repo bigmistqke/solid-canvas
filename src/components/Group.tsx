@@ -1,9 +1,9 @@
 import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, JSX, mergeProps } from 'solid-js'
-import { useInternalContext, InternalContext } from 'src/context/InternalContext'
+import { InternalContext, useInternalContext } from 'src/context/InternalContext'
 
 import { CanvasToken, parser } from 'src/parser'
-import { Position, Composite, CanvasMouseEvent } from 'src/types'
+import { CanvasMouseEvent, Composite, Position } from 'src/types'
 import { isPointInShape } from 'src/utils/isPointInShape'
 import revEach from 'src/utils/revEach'
 import withContext from 'src/utils/withContext'
@@ -41,7 +41,11 @@ const Group = createToken(parser, (props: GroupProps) => {
 
   const clipTokens = resolveTokens(
     parser,
-    withContext(() => props.clip, InternalContext, context),
+    withContext(
+      () => (typeof props.clip === 'function' ? props.clip() : props.clip),
+      InternalContext,
+      context,
+    ),
   )
 
   const tokens = resolveTokens(
