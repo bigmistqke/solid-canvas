@@ -180,6 +180,7 @@ const App: Component = () => {
 - [ ] Editable-prop for Path2D: handles to manipulate the path
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
 - [ ] `SVG` component: render svg path-strings (path's `d`-attribute)
+- [ ] masking with `destination-in` [see](https://stackoverflow.com/a/25531787/4366929)
 
 ## Overal Ambitions / Roadmap
 
