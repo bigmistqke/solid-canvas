@@ -81,7 +81,7 @@ const Text = createToken(parser, (props: TextProps) => {
 
   return {
     props: filteredProps,
-    type: 'Shape',
+    type: 'StaticShape',
     id: 'Text',
     render,
   }
@@ -107,6 +107,8 @@ function withRectangle<T extends TextProps, U extends unknown>(Component: TokenC
       'onMouseUp',
     ])
 
+    const mergedRectangleProps = mergeProps({ stroke: 'transparent' }, rectangleProps)
+
     const [dimensions, setDimensions] = createSignal<Dimensions>()
 
     createEffect(() => {
@@ -129,7 +131,7 @@ function withRectangle<T extends TextProps, U extends unknown>(Component: TokenC
     return (
       <Show when={dimensions()}>
         <Rectangle
-          {...rectangleProps}
+          {...mergedRectangleProps}
           position={rectangleProps.position}
           lineWidth={textProps.padding}
           fill={textPropsWithHover().background}
