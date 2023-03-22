@@ -37,7 +37,6 @@ const App = () => (
       dimensions={{ width: 250, height: 250 }}
       fill="purple"
       stroke="transparent"
-      lineWidth={10}
     />
   </Canvas>
 )
@@ -83,7 +82,11 @@ import { Canvas, Rectangle } from 'solid-canvas'
 
 const App = () => (
   <Canvas>
-    <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 50, height: 50 }} draggable />
+    <Rectangle 
+      position={{ x: 100, y: 100 }} 
+      dimensions={{ width: 50, height: 50 }} 
+      draggable 
+    />
   </Canvas>
 )
 ```
