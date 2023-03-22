@@ -25,7 +25,24 @@ import withContext from 'src/utils/withContext'
  * All `solid-canvas`-components have to be inside a `Canvas`
  */
 
-type CursorStyle = 'pointer' | 'move' | 'default' | 'crosshair'
+type CursorStyle =
+  | 'auto'
+  | 'default'
+  | 'crosshair'
+  | 'help'
+  | 'move'
+  | 'progress'
+  | 'text'
+  | 'wait'
+  | 'e-resize'
+  | 'ne-resize'
+  | 'nw-resize'
+  | 'n-resize'
+  | 'se-resize'
+  | 'sw-resize'
+  | 's-resize'
+  | 'pointer'
+  | 'none'
 
 export const Canvas: Component<{
   children: JSX.Element
