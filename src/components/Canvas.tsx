@@ -25,6 +25,8 @@ import withContext from 'src/utils/withContext'
  * All `solid-canvas`-components have to be inside a `Canvas`
  */
 
+type CursorStyle = 'pointer' | 'move' | 'default' | 'crosshair'
+
 export const Canvas: Component<{
   children: JSX.Element
   style: JSX.CSSProperties
@@ -35,9 +37,12 @@ export const Canvas: Component<{
   draggable?: boolean
   debug?: boolean
   clock?: number
+  cursor?: CursorStyle
+  feedback?: (ctx: CanvasRenderingContext2D) => void
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
+  onFrame?: (args: { clock: number }) => void
 }> = props => {
   const [stack, setStack] = createSignal<CanvasToken[]>([])
   const [canvasDimensions, setCanvasDimensions] = createSignal({
@@ -59,7 +64,7 @@ export const Canvas: Component<{
   })
 
   const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
-  const [cursorStyle, setCursorStyle] = createSignal<'pointer' | 'move' | 'default'>('default')
+  const [cursorStyle, setCursorStyle] = createSignal<CursorStyle>('default')
 
   let lastCursorPosition: Position | undefined
   let startRenderTime: number
@@ -143,6 +148,7 @@ export const Canvas: Component<{
     startRenderTime = performance.now()
 
     untrack(() => {
+      props.onFrame?.({ clock: props.clock ?? 0 })
       frameQueue.forEach(frame => {
         frame({ clock: props.clock ?? 0 })
       })
@@ -150,30 +156,44 @@ export const Canvas: Component<{
 
     ctx.save()
     ctx.beginPath()
-    ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
+    if (props.feedback) {
+      props.feedback(ctx)
+    } else {
+      ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
+    }
     if (props.fill) {
+      ctx.globalCompositeOperation = 'destination-over'
       ctx.fillStyle = resolveColor(props.fill) ?? 'white'
       ctx.fillRect(0, 0, canvas.width, canvas.height)
     }
     ctx.restore()
-    stack().forEach(token => {
+
+    let token
+    for (token of stack()) {
       ctx.save()
       if ('debug' in token) token.debug(ctx)
       if ('render' in token) token.render(ctx)
       ctx.restore()
-    })
+    }
+
+    /* stack().forEach(token => {
+      ctx.save()
+      if ('debug' in token) token.debug(ctx)
+      if ('render' in token) token.render(ctx)
+      ctx.restore()
+    }) */
     if (props.stats) {
-      setStats({
-        fps: Math.floor(1000 / (performance.now() - startRenderTime)),
-        memory:
-          'memory' in performance
-            ? {
-                // NOTE: performance.memory is chrome-only
-                used: Math.floor((performance.memory as any).usedJSHeapSize / 1048576),
-                total: Math.floor((performance.memory as any).jsHeapSizeLimit / 1048576),
-              }
-            : undefined,
-      })
+      setStats('fps', Math.floor(1000 / (performance.now() - startRenderTime)))
+      setStats(
+        'memory',
+        'memory' in performance
+          ? {
+              // NOTE: performance.memory is chrome-only
+              used: Math.floor((performance.memory as any).usedJSHeapSize / 1048576),
+              total: Math.floor((performance.memory as any).jsHeapSizeLimit / 1048576),
+            }
+          : undefined,
+      )
     }
   }
 
@@ -244,9 +264,11 @@ export const Canvas: Component<{
   }
   const mouseMoveHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseMove', event => {
+      console.log('event.target.length', event.target.length)
       if (event.target.length === 0 && props.draggable) setCursorStyle('move')
-      else setCursorStyle('pointer')
-
+      else if (event.target.length === 0) {
+        setCursorStyle(props.cursor ?? 'default')
+      } else setCursorStyle('pointer')
       props.onMouseMove?.(event)
     })
   }
@@ -257,7 +279,7 @@ export const Canvas: Component<{
 
   onMount(() => {
     const updateDimensions = () => {
-      const { width, height } = canvas.getBoundingClientRect()
+      const { width, height } = document.body.getBoundingClientRect()
       setCanvasDimensions({
         width,
         height,
