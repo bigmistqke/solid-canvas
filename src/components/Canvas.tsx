@@ -46,7 +46,7 @@ type CursorStyle =
 
 export const Canvas: Component<{
   children: JSX.Element
-  style: JSX.CSSProperties
+  style?: JSX.CSSProperties
   fill?: Color
   origin?: Position
   alpha?: boolean
