@@ -7,7 +7,7 @@ const useClock = () => {
     setClock(c => c + 1)
     last = performance.now()
   }
-  let interval: NodeJS.Timer
+  let interval: ReturnType<typeof setInterval>
   return {
     clock,
     start: (fps?: number) => {
