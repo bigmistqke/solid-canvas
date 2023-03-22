@@ -1,113 +1,70 @@
-import { Component, createMemo, createSignal, For, on, Show } from 'solid-js'
-import { Arc, Bezier, Canvas, Group, Quadratic, QuadraticPoints, Rectangle } from 'src'
+import { Component, createEffect, createMemo, createSignal, For, on } from 'solid-js'
+import { Arc, Bezier, Canvas, Group, useCanvas, useClock } from 'src'
 
-const RandomBezier = (props: { counter: number; scale: number }) => {
-  const getPoints = () => {
-    const points = []
-    let i = 0
-    const amount = 10
-    const variation = 500
-    while (i <= amount) {
-      const point =
-        i === 0 || i === amount
-          ? {
-              x: (i * window.innerWidth) / amount,
-              y: window.innerHeight,
-            }
-          : {
-              x: (i * window.innerWidth) / amount,
-              y:
-                i % 2 === 0
-                  ? window.innerHeight / 2 + Math.random() * variation - variation / 2
-                  : window.innerHeight / 3 -
-                    (window.innerHeight / 3) * props.scale +
-                    Math.random() * variation,
-            }
-      const control =
-        i === 0 || i === amount
-          ? {
-              x: 0,
-              y: -50,
-            }
-          : {
-              x: -50,
-              y: 0,
-            }
-      points.push({
-        point,
-        control,
-      })
-      i++
-    }
-    return points
+const Smiley = () => {
+  const context = useCanvas()
+  const [position, setPosition] = createSignal({ x: 0, y: 0 })
+  const randomPosition = {
+    x: Math.random() * (window.innerWidth + 100) - 50,
+    y: Math.random() * (window.innerHeight + 100) - 50,
   }
+  const delta = Math.random() * 10 + 20
 
-  const points = createMemo(
-    on(
-      () => props.counter,
-      () => getPoints(),
-    ),
-  )
+  const color = createMemo(() => ({ h: Math.random() * 360, s: 50, l: 50 }))
 
-  const randomFill = createMemo(
-    on(
-      () => props.counter,
-      () => {
-        return {
-          r: Math.random() * 200,
-          g: Math.random() * 200,
-          b: Math.random() * 200,
-        }
-      },
-    ),
-  )
-
+  context?.onFrame(() => {
+    setPosition({
+      x: randomPosition.x + Math.sin(performance.now() / (20 * delta) + delta) * 20,
+      y: randomPosition.y + Math.cos(performance.now() / (20 * delta) + delta) * 20,
+    })
+  })
   return (
-    <Bezier
-      points={points()!}
-      lineWidth={2}
+    <Arc
+      position={{ x: position().x, y: position().y }}
+      radius={50}
+      fill={color()}
       stroke="transparent"
-      fill={randomFill()}
-      close
-      composite={'hard-light'}
-    />
+      draggable
+    >
+      <Group position={{ x: 0, y: 25 }}>
+        <Arc position={{ x: 20, y: 0 }} radius={5} fill="black" />
+        <Arc position={{ x: 70, y: 0 }} radius={5} fill="black" />
+      </Group>
+      <Group position={{ x: 0, y: 60 }}>
+        <Bezier
+          lineWidth={5}
+          // shadow={{ blur: 0, offset: { x: 5, y: 5 }, color: 'black' }}
+          points={[
+            { point: { x: 25, y: 0 }, control: { x: 0, y: 15 } },
+            { point: { x: 50, y: 25 }, control: { x: -15, y: 0 } },
+            { point: { x: 75, y: 0 }, control: { x: 0, y: 15 } },
+          ]}
+        />
+      </Group>
+    </Arc>
   )
 }
 
 const App: Component = () => {
-  const [counter, setCounter] = createSignal(0)
-  const [debug, setDebug] = createSignal(false)
-  const increment = () => setCounter(c => c + 1)
-  window.addEventListener('keydown', event => {
-    if (event.code === 'Space') increment()
-  })
-  window.addEventListener('resize', event => {
-    increment()
-  })
-  const amount = 20
+  const fill = `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${Math.random() * 200})`
 
-  const randomFill = createMemo(
-    on(counter, () => {
-      return `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${Math.random() * 200})`
-    }),
-  )
+  const clock = useClock()
+  clock.start()
   return (
     <>
-      <Canvas
-        style={{ width: '100%', height: '100%', background: randomFill() }}
-        alpha
-        // stats
-        onMouseDown={increment}
-        debug={debug()}
-      >
-        <Rectangle
-          position={{ x: 100, y: 100 }}
-          fill="red"
-          clip={() => <Arc position={{ x: 100, y: 100 }} radius={100} />}
-          dimensions={{ width: 100, height: 200 }}
-        >
-          <Rectangle position={{ x: 50, y: 100 }} dimensions={{ width: 400, height: 10 }} />
-        </Rectangle>
+      <Canvas clock={clock.clock()} style={{ width: '100%', height: '100%', fill }} alpha stats>
+        {/* <For each={new Array(10).fill('')}>{() => <Smiley />}</For> */}
+        <Smiley />
+        {/* <Bezier
+          lineWidth={5}
+
+          // shadow={{ blur: 0, offset: { x: 5, y: 5 }, color: 'black' }}
+          points={[
+            { point: { x: 25, y: 0 }, control: { x: 0, y: 15 } },
+            { point: { x: 50, y: 25 }, control: { x: -15, y: 0 } },
+            { point: { x: 75, y: 0 }, control: { x: 0, y: 15 } },
+          ]}
+        /> */}
       </Canvas>
     </>
   )
