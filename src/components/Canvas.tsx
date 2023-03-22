@@ -34,6 +34,7 @@ export const Canvas: Component<{
   stats?: boolean
   draggable?: boolean
   debug?: boolean
+  clock?: number
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -176,7 +177,11 @@ export const Canvas: Component<{
     }
   }
 
-  createEffect(render)
+  createEffect(() => {
+    if (props.clock) return
+    render()
+  })
+  createEffect(on(() => props.clock, render))
 
   const mouseEventHandler = (
     e: MouseEvent,
