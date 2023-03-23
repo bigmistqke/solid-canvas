@@ -24,7 +24,7 @@ https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Feedback.tsx)
 
-- Simple example
+### Simple example
 
 ```tsx
 import { Canvas, Text, Rectangle } from 'solid-canvas'
@@ -37,8 +37,27 @@ const App = () => (
       dimensions={{ width: 250, height: 250 }}
       fill="purple"
       stroke="transparent"
-      lineWidth={10}
     />
+  </Canvas>
+)
+```
+
+> You can also compose shapes
+
+
+```tsx
+import { Canvas, Text, Rectangle } from 'solid-canvas'
+
+const App = () => (
+  <Canvas fill="blue">
+    <Rectangle
+      position={{ x: 100, y: 100 }}
+      dimensions={{ width: 250, height: 250 }}
+      fill="purple"
+      stroke="transparent"
+    >
+      <Text text="hallo" fill="white" size={20} />
+    </Rectangle>
   </Canvas>
 )
 ```
@@ -46,7 +65,7 @@ const App = () => (
 <img width="1440" alt="Screenshot 2023-03-22 at 20 36 47" src="https://user-images.githubusercontent.com/10504064/227017579-117f41a2-be28-4b4b-8f6b-2781855e6d20.png">
 
 
-- MouseEvents: draggable rectangle
+### MouseEvents: draggable `<Rectangle/>`
 
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
@@ -76,14 +95,18 @@ const App: Component = () => {
 }
 ```
 
-Each `Shape` also has a `draggable`-prop:
+> Each `Shape` also has a `draggable`-prop:
 
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
 
 const App = () => (
   <Canvas>
-    <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 50, height: 50 }} draggable />
+    <Rectangle 
+      position={{ x: 100, y: 100 }} 
+      dimensions={{ width: 50, height: 50 }} 
+      draggable 
+    />
   </Canvas>
 )
 ```
@@ -91,7 +114,7 @@ const App = () => (
 https://user-images.githubusercontent.com/10504064/227018274-0a7fb0a5-2189-4bd3-af8b-491522948631.mp4
 
 
-- Group and Crop
+### `<Group/>` and Clip
 
 ```tsx
 import { Canvas, Rectangle, Group } from 'solid-canvas'
@@ -118,9 +141,56 @@ const App = () => (
 
 > All `Shapes` inherit from `Group`, so you can `clip` and add `children` to any `Shape`
 
-## Canvas API-coverage
+## Lines: `<Line/>`, `<Bezier/>` and `<Quadratic/>`
 
-- [ ] Shape
+```tsx
+import { Bezier, Canvas, Line, Quadratic } from 'solid-canvas'
+
+const App = () => (
+  <Canvas>
+    <Line
+      position={{ x: 100, y: 200 }}
+      points={[
+        { x: 0, y: 100 },
+        { x: 50, y: 200 },
+        { x: 100, y: 100 },
+        { x: 150, y: 200 },
+        { x: 200, y: 100 },
+        { x: 250, y: 200 },
+      ]}
+    />
+    <Bezier
+      position={{ x: 500, y: 200 }}
+      points={[
+        { point: { x: 0, y: 100 }, control: { x: 50, y: 0 } },
+        { point: { x: 50, y: 200 }, control: { x: -50, y: 0 } },
+        { point: { x: 100, y: 100 }, control: { x: -50, y: 0 } },
+        { point: { x: 150, y: 200 }, control: { x: -50, y: 0 } },
+        { point: { x: 200, y: 100 }, control: { x: -50, y: 0 } },
+        { point: { x: 250, y: 200 }, control: { x: -50, y: 0 } },
+      ]}
+    />
+    <Quadratic
+      position={{ x: 900, y: 200 }}
+      points={[
+        { point: { x: 0, y: 100 } },
+        { point: { x: 50, y: 200 }, control: { x: -25, y: 0 } },
+        { point: { x: 100, y: 100 } },
+        { point: { x: 150, y: 200 } },
+        { point: { x: 200, y: 100 } },
+        { point: { x: 250, y: 200 } },
+      ]}
+    />
+  </Canvas>
+)
+```
+
+<img width="1440" alt="Screenshot 2023-03-22 at 21 25 52" src="https://user-images.githubusercontent.com/10504064/227030059-a5b152b8-9d2d-42f8-a894-7e1462624426.png">
+
+
+## Canvas API-Coverage
+
+- [x] Shape
   - [x] Path2D
     - [x] `<Rectangle/>`
     - [x] `<Line/>`
@@ -129,7 +199,6 @@ const App = () => (
     - [x] `<Quadratic/>`
   - [x] `<Text/>`
   - [x] `<Image/>`
-  - [ ] `<ImageData/>`
 - [x] `<Group/>`
 - [ ] Compositing
   - [ ] `<Group/>`
@@ -141,7 +210,7 @@ const App = () => (
   - [x] `<Gradient/>`
   - [x] `<Pattern/>`
 
-## additional API
+## Additional API
 
 - [ ] nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
 - [x] Draggable-prop for Shape and Canvas
@@ -160,6 +229,7 @@ const App = () => (
     - [ ] Zoom
   - [x] MouseEvents for `Shape` 👉 `Shape.onMouseDown`, `Shape.onMouseMove` and `Shape.onMouseUp`
   - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
+  - [ ] HoverStyles for `Shape`
   - [x] Draggable `Shape` 👉 `Shape.draggable`
   - [ ] Editable `Path2D` with handlers
   - [ ] Possibility to add behaviors to `Shapes` in a composable way (character-controllers)
