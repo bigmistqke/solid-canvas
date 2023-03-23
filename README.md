@@ -44,7 +44,6 @@ const App = () => (
 
 > You can also compose shapes
 
-
 ```tsx
 import { Canvas, Text, Rectangle } from 'solid-canvas'
 
@@ -63,7 +62,6 @@ const App = () => (
 ```
 
 <img width="1440" alt="Screenshot 2023-03-22 at 20 36 47" src="https://user-images.githubusercontent.com/10504064/227017579-117f41a2-be28-4b4b-8f6b-2781855e6d20.png">
-
 
 ### MouseEvents: draggable `<Rectangle/>`
 
@@ -95,24 +93,19 @@ const App: Component = () => {
 }
 ```
 
-> Each `Shape` also has a `draggable`-prop:
+> Each `Shape2D` also has a `draggable`-prop:
 
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
 
 const App = () => (
   <Canvas>
-    <Rectangle 
-      position={{ x: 100, y: 100 }} 
-      dimensions={{ width: 50, height: 50 }} 
-      draggable 
-    />
+    <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 50, height: 50 }} draggable />
   </Canvas>
 )
 ```
 
 https://user-images.githubusercontent.com/10504064/227018274-0a7fb0a5-2189-4bd3-af8b-491522948631.mp4
-
 
 ### `<Group/>` and Clip
 
@@ -139,7 +132,7 @@ const App = () => (
 
 <img width="1440" alt="Screenshot 2023-03-22 at 20 46 40" src="https://user-images.githubusercontent.com/10504064/227019371-6bf31873-a312-4d02-8f3d-2205cd9f024c.png">
 
-> All `Shapes` inherit from `Group`, so you can `clip` and add `children` to any `Shape`
+> All `Shape2Ds` inherit from `Group`, so you can `clip` and add `children` to any `Shape2D`
 
 ## Lines: `<Line/>`, `<Bezier/>` and `<Quadratic/>`
 
@@ -187,25 +180,25 @@ const App = () => (
 
 <img width="1440" alt="Screenshot 2023-03-22 at 21 25 52" src="https://user-images.githubusercontent.com/10504064/227030059-a5b152b8-9d2d-42f8-a894-7e1462624426.png">
 
-
 ## Canvas API-Coverage
 
-- [x] Shape
-  - [x] Path2D
-    - [x] `<Rectangle/>`
-    - [x] `<Line/>`
-    - [x] `<Arc/>`
-    - [x] `<Bezier/>`
-    - [x] `<Quadratic/>`
-  - [x] `<Text/>`
-  - [x] `<Image/>`
-- [x] `<Group/>`
+- [x] Object2D
+  - [x] `<Group/>`
+  - [x] Shape2D
+    - [x] `<Text/>`
+    - [x] `<Image/>`
+    - [x] Path2D
+      - [x] `<Rectangle/>`
+      - [x] `<Line/>`
+      - [x] `<Arc/>`
+      - [x] `<Bezier/>`
+      - [x] `<Quadratic/>`
 - [ ] Compositing
-  - [ ] `<Group/>`
-  - [x] Shape
+  - [ ] `<Group/>` (to 'properly' composite groups we should render to offscreencanvas first)
+  - [x] Shape2D
 - [x] Clipping
   - [x] `<Group/>`
-  - [x] Shape (Shape inherits from `Group`)
+  - [x] Shape2D (Shape2D inherits from `Group`)
 - [x] Color (for fill/stroke)
   - [x] `<Gradient/>`
   - [x] `<Pattern/>`
@@ -213,7 +206,7 @@ const App = () => (
 ## Additional API
 
 - [ ] nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
-- [x] Draggable-prop for Shape and Canvas
+- [x] Draggable-prop for Shape2D and Canvas
 - [ ] Controller-prop: callback which can control the props
 - [ ] Editable-prop for Path2D: handles to manipulate the path
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
@@ -227,13 +220,14 @@ const App = () => (
   - [ ] Navigation
     - [x] Pan 👉 `Canvas.draggable`
     - [ ] Zoom
-  - [x] MouseEvents for `Shape` 👉 `Shape.onMouseDown`, `Shape.onMouseMove` and `Shape.onMouseUp`
+  - [x] MouseEvents for `Shape2D` 👉 `Shape2D.onMouseDown`, `Shape2D.onMouseMove` and `Shape2D.onMouseUp`
   - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
-  - [ ] HoverStyles for `Shape`
-  - [x] Draggable `Shape` 👉 `Shape.draggable`
+  - [ ] HoverStyles for `Shape2D`
+  - [x] Draggable `Shape2D` 👉 `Shape2D.draggable`
   - [ ] Editable `Path2D` with handlers
-  - [ ] Possibility to add behaviors to `Shapes` in a composable way (character-controllers)
-- explore render-optimizations:
-  - only render what is in viewport
-  - only render the bounds of Shapes that has changed
+  - [ ] Possibility to add behaviors to `Shape2Ds` in a composable way (character-controllers)
+  - [ ] Caching any `Object2D` by rendering result to `OffscreenCanvas`
+- Explore render-optimizations:
+  - Only render what is in viewport
+  - Only render the bounds of Shape2Ds that has changed
 - After the initial exploration in the feature-set, I want to explore tactics to improve treeshakeability of the library: a simple static visualization should be able to have a minimal bundle.
