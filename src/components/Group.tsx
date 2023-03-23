@@ -6,7 +6,7 @@ import { CanvasToken, parser } from 'src/parser'
 import { CanvasMouseEvent, Composite, ExtendedColor, Position } from 'src/types'
 import { isPointInShape } from 'src/utils/isPointInShape'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
-import revEach from 'src/utils/revEach'
+import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
 
 /**
@@ -82,11 +82,11 @@ const Group = createToken(parser, (props: GroupProps) => {
       ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'
       ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
     }
-    revEach(tokens(), ({ data }) => {
+    forEachReversed(tokens(), ({ data }) => {
       if ('render' in data) data.render(ctx)
     })
     canvas?.ctx.restore()
-    revEach(tokens(), ({ data }) => {
+    forEachReversed(tokens(), ({ data }) => {
       if ('debug' in data && canvas.debug) data.debug(ctx)
     })
     canvas?.ctx.restore()

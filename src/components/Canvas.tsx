@@ -18,7 +18,7 @@ import { UserContext } from 'src/context/UserContext'
 import { CanvasToken, parser } from 'src/parser'
 import { CanvasMouseEvent, Color, Position } from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
-import revEach from 'src/utils/revEach'
+import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
 
 /**
@@ -243,7 +243,7 @@ export const Canvas: Component<{
       type,
     }
 
-    revEach(stack(), token => {
+    forEachReversed(stack(), token => {
       if ('hitTest' in token) {
         token.hitTest(event)
       }
