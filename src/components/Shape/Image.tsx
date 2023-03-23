@@ -8,7 +8,7 @@ import { defaultShapeProps } from 'src/utils/defaultProps'
 import filterShapeProps from 'src/utils/filterShapeProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
-import transformPath from 'src/utils/transformPath'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
 import withGroup from 'src/utils/withGroup'
@@ -49,7 +49,7 @@ const Image = createToken(
 
     const matrix = useMatrix(merged, dragPosition)
 
-    const path = transformPath(() => {
+    const path = useTransformedPath(() => {
       const path = new Path2D()
       path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
       return path

@@ -10,7 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
 import renderPoint from 'src/utils/renderPoint'
-import transformPath from 'src/utils/transformPath'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
@@ -41,7 +41,7 @@ const Bezier = createToken(
       return handles.points().map(Object.values).flat()
     }, matrix)
 
-    const path = transformPath(() => {
+    const path = useTransformedPath(() => {
       let point = handles.points()[0]
       if (!point) return new Path2D()
 
@@ -63,7 +63,6 @@ const Bezier = createToken(
       if (!canvas) return
       canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
-      canvas.ctx.restore()
       handles.render()
       canvas.ctx.restore()
     }

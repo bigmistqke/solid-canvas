@@ -10,7 +10,7 @@ import hitTest from 'src/utils/hitTest'
 import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
 import renderPoint from 'src/utils/renderPoint'
-import transformPath from 'src/utils/transformPath'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
@@ -61,7 +61,7 @@ const Quadratic = createToken(
         .flat()
     }, matrix)
 
-    const path = transformPath(() => {
+    const path = useTransformedPath(() => {
       let point: Point | (Point & { control: Position }) | undefined = props.points[0]
 
       let svgString = `M${point?.point.x},${point?.point.y} `

@@ -8,7 +8,7 @@ import useBounds from 'src/utils/useBounds'
 import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import transformPath from 'src/utils/transformPath'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import useDraggable from 'src/utils/useDraggable'
 import { useInternalContext } from 'src/context/InternalContext'
 import withGroup from 'src/utils/withGroup'
@@ -46,7 +46,7 @@ const Arc = createToken(
       return path
     }
 
-    const path = transformPath(getPath, matrix)
+    const path = useTransformedPath(getPath, matrix)
 
     const bounds = useBounds(
       () => [

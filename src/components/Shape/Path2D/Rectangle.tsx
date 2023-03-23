@@ -7,24 +7,22 @@ import { Dimensions, Normalize, ShapeProps } from 'src/types'
 import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import transformPath from 'src/utils/transformPath'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
 import withGroup from 'src/utils/withGroup'
 
-export type RectangleProps = Normalize<
-  ShapeProps & {
-    dimensions: Dimensions
-    onMouseEnter?: () => void
-    onMouseLeave?: () => void
-    rounded?:
-      | number
-      | [all: number]
-      | [topLeftAndBottomRight: number, topRightAndBottomLeft: number]
-      | [topLeft: number, topRightAndBottomLeft: number, bottomRight: number]
-  }
->
+export type RectangleProps = ShapeProps & {
+  dimensions: Dimensions
+  onMouseEnter?: () => void
+  onMouseLeave?: () => void
+  rounded?:
+    | number
+    | [all: number]
+    | [topLeftAndBottomRight: number, topRightAndBottomLeft: number]
+    | [topLeft: number, topRightAndBottomLeft: number, bottomRight: number]
+}
 
 /**
  * Paints a rectangle to the canvas
@@ -46,7 +44,7 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     return path
   }
 
-  const path = transformPath(getPath, matrix)
+  const path = useTransformedPath(getPath, matrix)
 
   const bounds = useBounds(
     () => [

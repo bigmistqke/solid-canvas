@@ -8,7 +8,7 @@ import useBounds from 'src/utils/useBounds'
 import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import transformPath from 'src/utils/transformPath'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import useDraggable from 'src/utils/useDraggable'
 import { useInternalContext } from 'src/context/InternalContext'
 import withGroup from 'src/utils/withGroup'
@@ -27,13 +27,13 @@ const Line = createToken(
     },
   ) => {
     const canvas = useInternalContext()
-    const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
+    const merged = mergeProps({ ...defaultShapeProps, close: false }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
     const matrix = useMatrix(merged, dragPosition)
     const bounds = useBounds(() => props.points, matrix)
 
-    const path = transformPath(() => {
+    const path = useTransformedPath(() => {
       // calculate path
       const path2D = new Path2D()
       let point = props.points[0]
