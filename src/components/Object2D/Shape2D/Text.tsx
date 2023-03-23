@@ -3,10 +3,10 @@ import { createEffect, createMemo, createSignal, mergeProps, Show, splitProps } 
 import { Rectangle } from 'src'
 
 import { useInternalContext } from 'src/context/InternalContext'
-import { parser } from 'src/parser'
-import { Dimensions, ExtendedColor, Normalize, ShapeProps } from 'src/types'
-import { defaultShapeProps } from 'src/utils/defaultProps'
-import filterShapeProps from 'src/utils/filterShapeProps'
+import { CanvasToken, parser } from 'src/parser'
+import { Dimensions, ExtendedColor, Normalize, Shape2DProps } from 'src/types'
+import { defaultShape2DProps } from 'src/defaultProps'
+import filterShape2DProps from 'src/utils/filterShape2DProps'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import { GroupProps } from '../Group'
 import { RectangleProps } from './Path2D/Rectangle'
@@ -18,7 +18,7 @@ type Rounded =
   | [topLeft: number, topRightAndBottomLeft: number, bottomRight: number]
 
 type TextProps = Normalize<
-  ShapeProps & {
+  Shape2DProps & {
     text: string
     size?: number
     fontFamily?: string
@@ -44,7 +44,7 @@ const Text = createToken(parser, (props: TextProps) => {
   const canvas = useInternalContext()
   const merged = mergeProps(
     {
-      ...defaultShapeProps,
+      ...defaultShape2DProps,
       close: true,
       fontFamily: 'arial',
       size: 10,
@@ -54,7 +54,7 @@ const Text = createToken(parser, (props: TextProps) => {
     },
     props,
   )
-  const filteredProps = filterShapeProps(merged)
+  const filteredProps = filterShape2DProps(merged)
 
   const render = (ctx: CanvasRenderingContext2D) => {
     const offset = canvas?.origin ?? { x: 0, y: 0 }
@@ -81,7 +81,7 @@ const Text = createToken(parser, (props: TextProps) => {
 
   return {
     props: filteredProps,
-    type: 'StaticShape',
+    type: 'StaticShape2D',
     id: 'Text',
     render,
   }

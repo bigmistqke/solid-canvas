@@ -1,12 +1,12 @@
-import { ShapeToken } from 'src/parser'
-import { CanvasMouseEvent, ResolvedShapeProps } from 'src/types'
-import { isPointInShape } from './isPointInShape'
+import { Shape2DToken } from 'src/parser'
+import { CanvasMouseEvent, ResolvedShape2DProps } from 'src/types'
+import { isPointInShape2D } from './isPointInShape2D'
 
 export default (
-  token: ShapeToken,
+  token: Shape2DToken,
   event: CanvasMouseEvent,
   ctx: CanvasRenderingContext2D | undefined,
-  props: ResolvedShapeProps,
+  props: ResolvedShape2DProps,
   dragEventHandler: (event: CanvasMouseEvent) => void,
 ) => {
   if (!ctx) return false
@@ -15,7 +15,7 @@ export default (
   ctx.save()
   // NOTE:  minimal thickness of 5
   ctx.lineWidth = props.lineWidth < 20 ? 20 : props.lineWidth
-  const hit = isPointInShape(event, props, token.path())
+  const hit = isPointInShape2D(event, props, token.path())
   ctx.restore()
 
   if (hit) {

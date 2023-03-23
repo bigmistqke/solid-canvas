@@ -2,8 +2,8 @@ import { createTokenizer } from '@solid-primitives/jsx-tokenizer'
 import { Accessor } from 'solid-js'
 import { CanvasMouseEvent } from './types'
 
-export type ShapeToken = {
-  type: 'Shape'
+export type Shape2DToken = {
+  type: 'Shape2D'
   id: string
   hitTest: (event: CanvasMouseEvent) => boolean
   path: Accessor<Path2D>
@@ -24,13 +24,13 @@ export type GroupToken = {
   // clip: Accessor<(ctx: CanvasRenderingContext2D) => void>
 }
 
-export type StaticShape = {
+export type StaticShape2D = {
   props: any
-  type: 'StaticShape'
+  type: 'StaticShape2D'
   id: string
   render: (ctx: CanvasRenderingContext2D) => void
 }
 
-export type CanvasToken = ShapeToken | ColorToken | GroupToken | StaticShape
+export type CanvasToken = Shape2DToken | ColorToken | GroupToken | StaticShape2D
 
 export const parser = createTokenizer<CanvasToken>({ name: 'solid-canvas' })

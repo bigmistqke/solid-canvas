@@ -4,7 +4,7 @@ import { InternalContext, useInternalContext } from 'src/context/InternalContext
 
 import { CanvasToken, parser } from 'src/parser'
 import { CanvasMouseEvent, Composite, ExtendedColor, Position } from 'src/types'
-import { isPointInShape } from 'src/utils/isPointInShape'
+import { isPointInShape2D } from 'src/utils/isPointInShape2D'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
@@ -99,7 +99,7 @@ const Group = createToken(parser, (props: GroupProps) => {
         path.addPath(data.path())
       }
     })
-    return isPointInShape(event, merged, path)
+    return isPointInShape2D(event, merged, path)
   }
 
   const hitTest = (event: CanvasMouseEvent) => {

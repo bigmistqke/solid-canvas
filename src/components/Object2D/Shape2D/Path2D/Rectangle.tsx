@@ -2,9 +2,9 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createEffect, createSignal, mergeProps } from 'solid-js'
 
 import { useInternalContext } from 'src/context/InternalContext'
-import { parser, ShapeToken } from 'src/parser'
-import { Dimensions, Normalize, ShapeProps } from 'src/types'
-import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
+import { parser, Shape2DToken } from 'src/parser'
+import { Dimensions, Normalize, Shape2DProps } from 'src/types'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useTransformedPath from 'src/utils/useTransformedPath'
@@ -13,7 +13,7 @@ import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
 import withGroup from 'src/utils/withGroup'
 
-export type RectangleProps = ShapeProps & {
+export type RectangleProps = Shape2DProps & {
   dimensions: Dimensions
   onMouseEnter?: () => void
   onMouseLeave?: () => void
@@ -31,7 +31,7 @@ export type RectangleProps = ShapeProps & {
 
 const Rectangle = createToken(parser, (props: RectangleProps) => {
   const canvas = useInternalContext()
-  const merged = mergeProps({ ...defaultShapeProps, close: true }, props)
+  const merged = mergeProps({ ...defaultShape2DProps, close: true }, props)
   const [dragPosition, dragEventHandler] = useDraggable()
 
   const matrix = useMatrix(merged, dragPosition)
@@ -76,14 +76,14 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
 
   return {
     id: 'Rectangle',
-    type: 'Shape',
+    type: 'Shape2D',
     render: (ctx: CanvasRenderingContext2D) => {
       renderPath(ctx, merged, path())
     },
     debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
     path,
     hitTest: function (event) {
-      const token: ShapeToken = this
+      const token: Shape2DToken = this
       const result = hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       setHover(result)
       return result

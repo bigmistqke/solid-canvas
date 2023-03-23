@@ -1,9 +1,9 @@
-import { ResolvedShapeProps } from 'src/types'
+import { ResolvedShape2DProps } from 'src/types'
 import { resolveColor, resolveExtendedColor } from './resolveColor'
 
 export default (
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
-  props: ResolvedShapeProps,
+  props: ResolvedShape2DProps,
   path: Path2D,
 ) => {
   ctx.save()

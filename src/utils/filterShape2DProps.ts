@@ -1,6 +1,6 @@
 import { splitProps } from 'solid-js'
 
-const filterShapeProps = <T extends Record<string, any>>(props: T) =>
+const filterShape2DProps = <T extends Record<string, any>>(props: T) =>
   splitProps(props, [
     'fill',
     'dash',
@@ -11,4 +11,4 @@ const filterShapeProps = <T extends Record<string, any>>(props: T) =>
     'onMouseMove',
   ])[0]
 
-export default filterShapeProps
+export default filterShape2DProps

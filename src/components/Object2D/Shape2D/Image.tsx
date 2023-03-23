@@ -2,10 +2,10 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
-import { parser, ShapeToken } from 'src/parser'
-import { Normalize, ShapeProps, ImageSource, Dimensions, ExtendedColor } from 'src/types'
-import { defaultShapeProps } from 'src/utils/defaultProps'
-import filterShapeProps from 'src/utils/filterShapeProps'
+import { CanvasToken, parser, Shape2DToken } from 'src/parser'
+import { Normalize, Shape2DProps, ImageSource, Dimensions, ExtendedColor } from 'src/types'
+import { defaultShape2DProps } from 'src/defaultProps'
+import filterShape2DProps from 'src/utils/filterShape2DProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
 import useTransformedPath from 'src/utils/useTransformedPath'
@@ -22,7 +22,7 @@ const Image = createToken(
   parser,
   (
     props: Normalize<
-      ShapeProps & {
+      Shape2DProps & {
         image: ImageSource
         dimensions?: Dimensions
         fontFamily?: string
@@ -33,7 +33,7 @@ const Image = createToken(
     const canvas = useInternalContext()
     const merged = mergeProps(
       {
-        ...defaultShapeProps,
+        ...defaultShape2DProps,
         close: true,
         fontFamily: 'arial',
         size: 10,
@@ -41,7 +41,7 @@ const Image = createToken(
       },
       props,
     )
-    const filteredProps = filterShapeProps(merged)
+    const filteredProps = filterShape2DProps(merged)
 
     const [dragPosition, dragEventHandler] = useDraggable()
 
@@ -72,11 +72,11 @@ const Image = createToken(
 
     return {
       props: filteredProps,
-      type: 'Shape',
+      type: 'Shape2D',
       id: 'Image',
       render,
       hitTest: function (event) {
-        return hitTest(this as ShapeToken, event, canvas?.ctx, merged, dragEventHandler)
+        return hitTest(this as Shape2DToken, event, canvas?.ctx, merged, dragEventHandler)
       },
       path,
     }

@@ -1,9 +1,9 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createEffect, mergeProps } from 'solid-js'
 
-import { parser, ShapeToken } from 'src/parser'
-import { ShapeProps, Dimensions, Normalize } from 'src/types'
-import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
+import { parser, Shape2DToken } from 'src/parser'
+import { Shape2DProps, Dimensions, Normalize } from 'src/types'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import useBounds from 'src/utils/useBounds'
 import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
@@ -22,7 +22,7 @@ const Arc = createToken(
   parser,
   (
     props: Normalize<
-      ShapeProps & {
+      Shape2DProps & {
         radius?: number
         angle?: {
           start: number
@@ -33,7 +33,7 @@ const Arc = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps(
-      { ...defaultShapeProps, close: true, radius: 10, angle: { start: 0, end: 2 * Math.PI } },
+      { ...defaultShape2DProps, close: true, radius: 10, angle: { start: 0, end: 2 * Math.PI } },
       props,
     )
     const [dragPosition, dragEventHandler] = useDraggable()
@@ -70,10 +70,10 @@ const Arc = createToken(
       matrix,
     )
 
-    let token: ShapeToken
+    let token: Shape2DToken
     return {
       id: 'Arc',
-      type: 'Shape',
+      type: 'Shape2D',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       path,

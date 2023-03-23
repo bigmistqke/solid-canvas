@@ -68,7 +68,7 @@ export type Composite =
   | 'difference'
   | 'exclusion'
 
-export type ShapeProps = {
+export type Shape2DProps = {
   /**
    * Default: 'transparent'
    */
@@ -156,10 +156,10 @@ export type ShapeProps = {
   onMouseUp?: (event: CanvasMouseEvent) => void
 }
 
-export type ResolvedShapeProps = Required<
-  Omit<ShapeProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
+export type ResolvedShape2DProps = Required<
+  Omit<Shape2DProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
 > &
-  Pick<ShapeProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
+  Pick<Shape2DProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
 
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D

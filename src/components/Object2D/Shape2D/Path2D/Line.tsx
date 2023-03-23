@@ -1,9 +1,9 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { parser, ShapeToken } from 'src/parser'
-import { Position, ShapeProps } from 'src/types'
-import { defaultBoundsProps, defaultShapeProps } from 'src/utils/defaultProps'
+import { parser, Shape2DToken } from 'src/parser'
+import { Position, Shape2DProps } from 'src/types'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import useBounds from 'src/utils/useBounds'
 import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
@@ -21,13 +21,13 @@ import withGroup from 'src/utils/withGroup'
 const Line = createToken(
   parser,
   (
-    props: ShapeProps & {
+    props: Shape2DProps & {
       points: Position[]
       close?: boolean
     },
   ) => {
     const canvas = useInternalContext()
-    const merged = mergeProps({ ...defaultShapeProps, close: false }, props)
+    const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
     const [dragPosition, dragEventHandler] = useDraggable()
 
     const matrix = useMatrix(merged, dragPosition)
@@ -49,13 +49,13 @@ const Line = createToken(
     }, matrix)
 
     return {
-      type: 'Shape',
+      type: 'Shape2D',
       id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       path,
       hitTest: function (event) {
-        const token: ShapeToken = this
+        const token: Shape2DToken = this
         return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
       },
     }

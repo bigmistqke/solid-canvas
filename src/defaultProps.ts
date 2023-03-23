@@ -1,6 +1,6 @@
-import { ResolvedShapeProps } from 'src/types'
+import { ResolvedShape2DProps } from 'src/types'
 
-const defaultShapeProps: ResolvedShapeProps = {
+const defaultShape2DProps: ResolvedShape2DProps = {
   position: { x: 0, y: 0 },
   stroke: 'black',
   rotation: 0,
@@ -17,7 +17,7 @@ const defaultShapeProps: ResolvedShapeProps = {
   opacity: 1,
 }
 
-const defaultBoundsProps: ResolvedShapeProps = {
+const defaultBoundsProps: ResolvedShape2DProps = {
   position: { x: 0, y: 0 },
   stroke: 'grey',
   rotation: 0,
@@ -34,4 +34,4 @@ const defaultBoundsProps: ResolvedShapeProps = {
   opacity: 1,
 }
 
-export { defaultShapeProps, defaultBoundsProps }
+export { defaultShape2DProps, defaultBoundsProps }
