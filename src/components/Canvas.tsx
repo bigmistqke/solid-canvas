@@ -1,5 +1,6 @@
 import { resolveTokens } from '@solid-primitives/jsx-tokenizer'
 import {
+  Accessor,
   Component,
   createEffect,
   createSignal,
@@ -16,7 +17,7 @@ import { InternalContext } from 'src/context/InternalContext'
 import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
-import { CanvasMouseEvent, Color, Position } from 'src/types'
+import { CanvasMouseEvent, Color, Composite, Position } from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
@@ -55,7 +56,15 @@ export const Canvas: Component<{
   debug?: boolean
   clock?: number
   cursor?: CursorStyle
-  feedback?: ((ctx: CanvasRenderingContext2D) => void) | true | number
+  feedback?:
+    | ((ctx: CanvasRenderingContext2D) => void)
+    | true
+    | {
+        opacity?: number
+        composite?: Composite
+        filter?: string
+        offset?: Position | Accessor<Position>
+      }
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
   onMouseUp?: (event: CanvasMouseEvent) => void
@@ -150,7 +159,7 @@ export const Canvas: Component<{
       ],
     ),
   )
-  const map = mapArray(tokens, (token, i) => {
+  const maintainStack = mapArray(tokens, (token, i) => {
     const index = stack().length - i()
 
     setStack(stack => [...stack.slice(0, index), token.data, ...stack.slice(index)])
@@ -159,7 +168,7 @@ export const Canvas: Component<{
       setStack(stack => [...stack.slice(0, index - 1), ...stack.slice(index)])
     })
   })
-  createEffect(map)
+  createEffect(maintainStack)
 
   const render = () => {
     startRenderTime = performance.now()
@@ -175,8 +184,20 @@ export const Canvas: Component<{
     ctx.beginPath()
     if (typeof props.feedback === 'number' || props.feedback) {
       if (typeof props.feedback === 'function') props.feedback(ctx)
-      else if (typeof props.feedback === 'number') {
-        // TODO: implement feedback with alpha = props.feedback
+      else if (typeof props.feedback === 'object') {
+        const feedback = props.feedback
+        const bitmap = createImageBitmap(ctx.canvas)
+        bitmap.then(bitmap => {
+          ctx.restore()
+          ctx.save()
+          ctx.globalAlpha = feedback.opacity ?? 1
+          if (feedback.composite) ctx.globalCompositeOperation = feedback.composite
+          if (feedback.filter) ctx.filter = feedback.filter ?? ''
+          const offset = typeof feedback.offset === 'function' ? feedback.offset() : feedback.offset
+          ctx.drawImage(bitmap, offset?.x ?? 0, offset?.y ?? 0, ctx.canvas.width, ctx.canvas.height)
+          ctx.restore()
+          bitmap.close()
+        })
       }
     } else {
       ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
