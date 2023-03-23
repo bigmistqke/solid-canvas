@@ -300,7 +300,6 @@ export const Canvas: Component<{
   }
   const mouseMoveHandler = (e: MouseEvent) => {
     mouseEventHandler(e, 'onMouseMove', event => {
-      console.log('event.target.length', event.target.length)
       if (event.target.length === 0 && props.draggable) setCursorStyle('move')
       else if (event.target.length === 0) {
         setCursorStyle(props.cursor ?? 'default')
