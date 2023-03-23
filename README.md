@@ -190,7 +190,7 @@ const App = () => (
 
 ## Canvas API-Coverage
 
-- [ ] Shape
+- [x] Shape
   - [x] Path2D
     - [x] `<Rectangle/>`
     - [x] `<Line/>`
@@ -199,7 +199,6 @@ const App = () => (
     - [x] `<Quadratic/>`
   - [x] `<Text/>`
   - [x] `<Image/>`
-  - [ ] `<ImageData/>`
 - [x] `<Group/>`
 - [ ] Compositing
   - [ ] `<Group/>`
