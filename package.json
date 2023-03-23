@@ -1,7 +1,7 @@
 {
-  "version": "0.0.0",
+  "version": "0.0.1",
   "name": "solid-canvas",
-  "description": "a solid-wrapper around the `Canvas` API",
+  "description": "A canvas library for solid-js",
   "license": "MIT",
   "author": "bigmistqke",
   "contributors": [],
