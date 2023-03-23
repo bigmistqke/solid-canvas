@@ -21,6 +21,7 @@ import { CanvasMouseEvent, Color, Composite, Position } from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
+import useDraggable from 'src/utils/useDraggable'
 
 /**
  * All `solid-canvas`-components have to be inside a `Canvas`
@@ -75,10 +76,8 @@ export const Canvas: Component<{
     width: window.innerWidth,
     height: window.innerHeight,
   })
-  const [stats, setStats] = createStore<{ fps?: number; memory?: { used: number; total: number } }>(
-    {},
-  )
-
+  const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
+  const [cursorStyle, setCursorStyle] = createSignal<CursorStyle>('default')
   const [eventListeners, setEventListeners] = createStore<{
     onMouseDown: ((event: CanvasMouseEvent) => void)[]
     onMouseMove: ((event: CanvasMouseEvent) => void)[]
@@ -88,9 +87,9 @@ export const Canvas: Component<{
     onMouseMove: [],
     onMouseUp: [],
   })
-
-  const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
-  const [cursorStyle, setCursorStyle] = createSignal<CursorStyle>('default')
+  const [stats, setStats] = createStore<{ fps?: number; memory?: { used: number; total: number } }>(
+    {},
+  )
 
   let lastCursorPosition: Position | undefined
   let startRenderTime: number
@@ -105,6 +104,7 @@ export const Canvas: Component<{
       onMouseUp={e => mouseUpHandler(e)}
     />
   ) as HTMLCanvasElement
+
   const ctx = canvas.getContext('2d', {
     alpha: props.alpha,
     willReadFrequently: true,
@@ -161,7 +161,6 @@ export const Canvas: Component<{
   )
   const maintainStack = mapArray(tokens, (token, i) => {
     const index = stack().length - i()
-
     setStack(stack => [...stack.slice(0, index), token.data, ...stack.slice(index)])
     onCleanup(() => {
       const index = stack().length - i()
@@ -217,12 +216,6 @@ export const Canvas: Component<{
       ctx.restore()
     }
 
-    /* stack().forEach(token => {
-      ctx.save()
-      if ('debug' in token) token.debug(ctx)
-      if ('render' in token) token.render(ctx)
-      ctx.restore()
-    }) */
     if (props.stats) {
       setStats('fps', Math.floor(1000 / (performance.now() - startRenderTime)))
       setStats(
@@ -239,7 +232,7 @@ export const Canvas: Component<{
   }
 
   createEffect(() => {
-    if (props.clock) return
+    if (props.clock || props.clock === 0) return
     render()
   })
   createEffect(on(() => props.clock, render))
@@ -255,6 +248,8 @@ export const Canvas: Component<{
       : { x: 0, y: 0 }
     lastCursorPosition = position
     let stop = false
+
+    // NOTE:  `event` gets mutated by `token.hitTest`
     const event: CanvasMouseEvent = {
       ctx,
       position,
