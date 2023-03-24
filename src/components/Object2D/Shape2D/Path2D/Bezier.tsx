@@ -66,18 +66,24 @@ const Bezier = createToken(
 
       if (!point || !offset) return new Path2D()
 
-      let svgString = `M${point.point.x + offset.point.x},${point.point.y + offset.point.y} C${
-        point.control.x + offset.control.x
-      },${point.control.y + offset.control.y} `
+      point = {
+        control: addVectors(offset.control, offset.point, point.control),
+        point: addVectors(offset.point, point.point),
+      }
+
+      let svgString = `M${point.point.x},${point.point.y} C${point.control.x},${point.control.y} `
 
       let i = 1
       while ((point = getAllPoints()[i])) {
         offset = controls.offsets()[i]
         if (!offset) return new Path2D()
+        point = {
+          control: addVectors(offset.control, offset.point, point.control),
+          point: addVectors(offset.point, point.point),
+        }
+
         if (i === 2) svgString += 'S'
-        svgString += `${point.control.x + offset.control.x},${point.control.y + offset.control.y} ${
-          point?.point.x + offset.point.x
-        },${point?.point.y + offset.point.y} `
+        svgString += `${point.control.x},${point.control.y} ${point.point.x},${point.point.y} `
         i++
       }
       const path2D = new Path2D(svgString)
