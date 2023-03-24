@@ -1,8 +1,14 @@
 import { Position } from 'src/types'
 
-const addPositions = (a: Position, b: Position) => ({
-  x: a.x + b.x,
-  y: a.y + b.y,
-})
+const addPositions = (...args: Position[]) => {
+  const result = { x: 0, y: 0 }
+
+  args.forEach(arg => {
+    result.x += arg.x
+    result.y += arg.y
+  })
+
+  return result
+}
 
 export default addPositions
