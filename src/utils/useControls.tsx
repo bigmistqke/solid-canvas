@@ -1,5 +1,5 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createSignal, For, JSX, on } from 'solid-js'
+import { Accessor, createSignal, For, JSX, on, Show, untrack } from 'solid-js'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position, Shape2DProps } from 'src/types'
@@ -40,7 +40,10 @@ export default function <T extends Position | ControlledPoint>(props: {
 
   const controls = (
     <Group>
-      <For each={props.points}>
+      {/* 
+        TODO: without untrack it would re-mount all ControlPoints with each interaction 
+      */}
+      <For each={untrack(() => props.points)}>
         {(value, i) => {
           if ('x' in value) {
             return (
@@ -69,29 +72,59 @@ export default function <T extends Position | ControlledPoint>(props: {
               }}
               position={value.point}
             >
-              <Line
-                points={[
-                  { x: 6, y: 6 },
-                  addVectors(
-                    value.control ?? { x: 0, y: 0 },
-                    (offsets()[i()] as ControlledPoint).control ?? { x: 0, y: 0 },
-                  ),
-                ]}
-                lineDash={[10, 5]}
-              />
-              <ControlPoint
-                onDragMove={dragPosition => {
-                  setOffsets(offsets => {
-                    const offset = offsets[i()]
-                    if (offset && 'control' in offset) offset.control = dragPosition
-                    return [...offsets]
-                  })
-                }}
-                position={value.control!}
-                onMouseDown={event => {
-                  event.propagation = false
-                }}
-              />
+              <Group position={{ x: 6, y: 6 }}>
+                <Show when={value.control}>
+                  <Line
+                    points={[
+                      { x: 0, y: 0 },
+                      addVectors(
+                        value.control ?? { x: 0, y: 0 },
+                        (offsets()[i()] as ControlledPoint).control ?? { x: 0, y: 0 },
+                      ),
+                    ]}
+                    lineDash={[10, 5]}
+                  />
+                  <ControlPoint
+                    onDragMove={dragPosition => {
+                      setOffsets(offsets => {
+                        const offset = offsets[i()]
+                        if (offset && 'control' in offset) offset.control = dragPosition
+                        return [...offsets]
+                      })
+                    }}
+                    position={value.control!}
+                    onMouseDown={event => {
+                      event.propagation = false
+                    }}
+                  />
+                </Show>
+                <Show when={false}>
+                  <Line
+                    points={[
+                      { x: 0, y: 0 },
+                      addVectors(
+                        value.oppositeControl ?? { x: 0, y: 0 },
+                        (offsets()[i()] as ControlledPoint).oppositeControl ?? { x: 0, y: 0 },
+                      ),
+                    ]}
+                    lineDash={[10, 5]}
+                  />
+                  <ControlPoint
+                    onDragMove={dragPosition => {
+                      setOffsets(offsets => {
+                        const offset = offsets[i()]
+                        if (offset && 'oppositeControl' in offset)
+                          offset.oppositeControl = dragPosition
+                        return [...offsets]
+                      })
+                    }}
+                    position={value.oppositeControl!}
+                    onMouseDown={event => {
+                      event.propagation = false
+                    }}
+                  />
+                </Show>
+              </Group>
             </ControlPoint>
           )
         }}

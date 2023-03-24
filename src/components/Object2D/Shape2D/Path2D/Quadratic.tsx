@@ -12,6 +12,7 @@ import renderPath from 'src/utils/renderPath'
 import renderPoint from 'src/utils/renderPoint'
 import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
+import useControls from 'src/utils/useControls'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -39,42 +40,111 @@ const Quadratic = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
+    let previousControl:
+      | {
+          x: number
+          y: number
+        }
+      | undefined
+
+    const getAllPoints = () => {
+      previousControl = undefined
+      return props.points.map((point, i) => {
+        if (i === 0) {
+          return point
+        }
+        console.log('previousControl', previousControl)
+
+        point = {
+          ...point,
+          control:
+            'control' in point
+              ? point.control
+              : {
+                  x: previousControl!.x - point.point.x,
+                  y: previousControl!.y - point.point.y,
+                },
+        }
+
+        if (i === props.points.length - 1) {
+          return point
+        }
+
+        const oppositeControl = {
+          x: point.control.x * -1,
+          y: point.control.y * -1,
+        }
+
+        previousControl = addVectors(oppositeControl, point.point)
+
+        console.log(
+          point.control,
+          oppositeControl,
+          previousControl,
+          addVectors(point.control, point.point),
+        )
+
+        return {
+          ...point,
+          oppositeControl,
+        }
+      })
+    }
 
     const matrix = useMatrix(merged)
-
-    const handles = useHandle(() => props.points, matrix)
+    const controls = useControls({
+      ...merged,
+      get points() {
+        return getAllPoints()
+      },
+    })
 
     const bounds = useBounds(() => {
-      return handles
-        .points()
-        .map(({ control, point, oppositeControl }) => {
-          if (control && oppositeControl) {
-            return [control, oppositeControl]
+      return props.points
+        .map(point => {
+          if ('control' in point) {
+            return [point.control, point.point]
           }
-          if (control) {
+          /*  if (control) {
             return [point, control]
-          }
-          return [point]
+          } */
+          return [point.point]
         })
         .flat()
     }, matrix)
 
     const path = useTransformedPath(() => {
-      let point: Point | (Point & { control: Position }) | undefined = props.points[0]
+      const points = getAllPoints()
 
-      let svgString = `M${point?.point.x},${point?.point.y} `
+      let point: Point | (Point & { control: Position }) | undefined = points[0]
+      let offset = controls.offsets()[0]
+      if (!point || !offset) return new Path2D()
+
+      point = { point: addVectors(point.point, offset.point) }
+
+      let svgString = `M${point.point.x},${point.point.y} `
 
       let i = 1
-      while ((point = props.points[i])) {
+      while ((point = points[i])) {
+        offset = controls.offsets()[i]
+        i++
+        if (!offset) return
         if (i === 1) svgString += 'Q'
         if (i === 2) svgString += 'T'
-        if ('control' in point) {
-          const control = addVectors(point.point, point.control)
-          svgString += `${control.x},${control.y} ${point.point.x},${point.point.y} `
+        if ('control' in point && 'control' in offset) {
+          point = {
+            control: addVectors(offset.control, offset.point, point.control),
+            point: addVectors(offset.point, point.point),
+          }
+
+          // const control = addVectors(point.point, point.control)
+          svgString += `${point.control.x},${point.control.y} ${point.point.x},${point.point.y} `
         } else {
+          point = {
+            point: addVectors(offset.point, point.point),
+          }
           svgString += `${point.point.x},${point.point.y} `
         }
-        i++
       }
 
       const path2D = new Path2D(svgString)
@@ -88,18 +158,21 @@ const Quadratic = createToken(
       canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
       canvas.ctx.restore()
-      handles.render()
       canvas.ctx.restore()
     }
 
     return {
       type: 'Shape2D',
       id: 'Bezier',
-      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
+      render: (ctx: CanvasRenderingContext2D) => {
+        renderPath(ctx, merged, path())
+        controls.render(ctx)
+      },
       debug,
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this
+        controls.hitTest(event)
         return hitTest(token, event, canvas?.ctx, merged)
       },
     }
@@ -108,7 +181,7 @@ const Quadratic = createToken(
 
 const GroupedQuadratic = withGroup(Quadratic)
 
-// NOTE:  I was exploring to use a hook for (editable) handles
+// NOTE:  I was exploring to use a hook for (editable) controls
 //        but I am not sure if this is the right approach.
 
 //        I feel that we should be able to write it more as userland
@@ -124,7 +197,7 @@ const GroupedQuadratic = withGroup(Quadratic)
 //        but unsure how to design the API that `Controls` could work for all the Canvas-primitives
 //          like `Line`, `Bezier`, `Quadratic`, ...
 
-const useHandle = (
+/* const useHandle = (
   points: Accessor<{ point: Position; control?: Position }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
@@ -170,7 +243,7 @@ const useHandle = (
       }
     })
 
-  const renderHandles = () => {
+  const renderControls = () => {
     if (!canvas) return
     let firstPoint: Position
 
@@ -196,9 +269,9 @@ const useHandle = (
   }
 
   return {
-    render: renderHandles,
+    render: renderControls,
     points: getAllPoints,
   }
 }
-
+ */
 export { GroupedQuadratic as Quadratic, type QuadraticPoints }

@@ -1,22 +1,18 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createEffect, createMemo, mergeProps } from 'solid-js'
+import { createMemo, mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addVectors from 'src/utils/addVectors'
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import hitTest from 'src/utils/hitTest'
-import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
-import renderPoint from 'src/utils/renderPoint'
-import useTransformedPath from 'src/utils/useTransformedPath'
-import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
-import useDraggable from 'src/utils/useDraggable'
-import useMatrix from 'src/utils/useMatrix'
-import withGroup from 'src/utils/withGroup'
 import useControls from 'src/utils/useControls'
+import useMatrix from 'src/utils/useMatrix'
+import useTransformedPath from 'src/utils/useTransformedPath'
+import withGroup from 'src/utils/withGroup'
 
 /**
  * Paints a cubic bezier to the canvas
@@ -37,6 +33,13 @@ const Bezier = createToken(
 
     const controls = useControls(props)
 
+    const getOppositeControl = (point: Position, control: Position) => {
+      return {
+        x: point.x + control.x * -1,
+        y: point.y + control.y * -1,
+      }
+    }
+
     const getAllPoints = createMemo(() =>
       props.points.map(({ point, control }, i) =>
         i === 0 || i === props.points.length - 1
@@ -48,13 +51,6 @@ const Bezier = createToken(
             },
       ),
     )
-
-    const getOppositeControl = (point: Position, control: Position) => {
-      return {
-        x: point.x + control.x * -1,
-        y: point.y + control.y * -1,
-      }
-    }
 
     const bounds = useBounds(() => {
       return getAllPoints().map(Object.values).flat()
