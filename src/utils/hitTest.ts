@@ -13,7 +13,7 @@ export default (
 
   ctx.save()
   // NOTE:  minimal thickness of 5
-  ctx.lineWidth = props.lineWidth /* < 20 ? 20 : props.lineWidth */
+  ctx.lineWidth = props.lineWidth < 20 ? 20 : props.lineWidth
   const hit = isPointInShape2D(event, props, token.path())
   ctx.restore()
 
