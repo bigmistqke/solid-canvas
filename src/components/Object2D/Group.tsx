@@ -122,9 +122,6 @@ const Group = createToken(parser, (props: GroupProps) => {
         }
       }
     })
-    if (result.length === 1) {
-      console.log(event.id)
-    }
     if (result.length === 1 && result[0] === tokens()[tokens().length - 1] && props.draggable) {
       dragEventHandler(event)
     }
