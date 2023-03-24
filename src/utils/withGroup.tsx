@@ -5,7 +5,13 @@ import { Shape2DProps } from 'src/types'
 
 function withGroup<T extends Shape2DProps, U extends unknown>(Component: TokenComponent<T, U>) {
   return (props: T & GroupProps) => {
-    const [groupProps, shapeProps] = splitProps(props, ['children', 'clip', 'position'])
+    const [groupProps, shapeProps] = splitProps(props, [
+      'children',
+      'clip',
+      'position',
+      'draggable',
+      'onDragMove',
+    ])
     return (
       <Group {...groupProps}>
         {props.children}

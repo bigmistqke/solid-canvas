@@ -2,15 +2,14 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { createEffect, createSignal, mergeProps } from 'solid-js'
 
 import { useInternalContext } from 'src/context/InternalContext'
-import { parser, Shape2DToken } from 'src/parser'
-import { Dimensions, Normalize, Shape2DProps } from 'src/types'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
+import { parser, Shape2DToken } from 'src/parser'
+import { Dimensions, Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import useTransformedPath from 'src/utils/useTransformedPath'
 import useBounds from 'src/utils/useBounds'
-import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 export type RectangleProps = Shape2DProps & {
@@ -32,9 +31,8 @@ export type RectangleProps = Shape2DProps & {
 const Rectangle = createToken(parser, (props: RectangleProps) => {
   const canvas = useInternalContext()
   const merged = mergeProps({ ...defaultShape2DProps, close: true }, props)
-  const [dragPosition, dragEventHandler] = useDraggable()
 
-  const matrix = useMatrix(merged, dragPosition)
+  const matrix = useMatrix(merged)
 
   const getPath = () => {
     const path = new Path2D()
@@ -84,7 +82,7 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     path,
     hitTest: function (event) {
       const token: Shape2DToken = this
-      const result = hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+      const result = hitTest(token, event, canvas?.ctx, merged)
       setHover(result)
       return result
     },

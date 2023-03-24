@@ -1,4 +1,4 @@
-import { createToken, resolveTokens } from '@solid-primitives/jsx-tokenizer'
+import { createToken, resolveTokens, TokenElement } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, JSX, mergeProps } from 'solid-js'
 import { InternalContext, useInternalContext } from 'src/context/InternalContext'
 
@@ -8,6 +8,7 @@ import { isPointInShape2D } from 'src/utils/isPointInShape2D'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
+import useDraggable from 'src/utils/useDraggable'
 
 /**
  * Groups (and clips) the component's children
@@ -30,13 +31,15 @@ const Group = createToken(parser, (props: GroupProps) => {
   if (!canvas) throw 'CanvasTokens need to be included in Canvas'
   const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
+  const [dragPosition, dragEventHandler] = useDraggable(props)
+
   const context = {
     ...canvas,
     get origin() {
       return canvas
         ? {
-            x: merged.position.x + canvas.origin.x,
-            y: merged.position.y + canvas.origin.y,
+            x: merged.position.x + canvas.origin.x + dragPosition().x,
+            y: merged.position.y + canvas.origin.y + dragPosition().y,
           }
         : merged.position
     },
@@ -106,15 +109,26 @@ const Group = createToken(parser, (props: GroupProps) => {
     if (clipTokens().length > 0) {
       if (!hitTestClip(event)) return false
     }
-    let result = false
-    tokens().forEach(({ data }) => {
-      if ('hitTest' in data) {
-        const hit = data.hitTest(event)
-
-        if (hit) result = true
+    let result: TokenElement<CanvasToken>[] = []
+    let stop = false
+    // const stopPropagation = () => (stop = true)
+    forEachReversed(tokens(), token => {
+      if (!event.propagation) return
+      if ('hitTest' in token.data) {
+        const hit = token.data.hitTest(event)
+        if (hit) {
+          result.push(token)
+          event.propagation = false
+        }
       }
     })
-    return result
+    if (result.length === 1) {
+      console.log(event.id)
+    }
+    if (result.length === 1 && result[0] === tokens()[tokens().length - 1] && props.draggable) {
+      dragEventHandler(event)
+    }
+    return false
   }
 
   return {

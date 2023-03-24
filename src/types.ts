@@ -142,6 +142,10 @@ export type Shape2DProps = {
    */
   pointerEvents?: boolean
 
+  controls?: boolean
+
+  onDragMove?: (position: Position, event: CanvasMouseEvent) => void
+
   /**
    * Set onMouseDown-eventhandler.
    */
@@ -157,16 +161,22 @@ export type Shape2DProps = {
 }
 
 export type ResolvedShape2DProps = Required<
-  Omit<Shape2DProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
+  Omit<
+    Shape2DProps,
+    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'
+  >
 > &
-  Pick<Shape2DProps, 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'>
+  Pick<
+    Shape2DProps,
+    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'
+  >
 
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
   type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp'
   position: Position
   delta: Position
-  stopPropagation: () => void
+  propagation: boolean
   target: CanvasToken[]
 }
 

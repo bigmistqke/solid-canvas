@@ -2,7 +2,7 @@ import { Accessor, createMemo } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 import { Shape2DProps, Position } from 'src/types'
 
-export default (props: Shape2DProps, dragPosition: Accessor<Position>) => {
+export default (props: Shape2DProps) => {
   const canvas = useInternalContext()
   let position: { x: number; y: number }
   let matrix: DOMMatrix
@@ -10,8 +10,8 @@ export default (props: Shape2DProps, dragPosition: Accessor<Position>) => {
   let offset: DOMPoint
   return createMemo(() => {
     position = {
-      x: (props.position?.x ?? 0) + dragPosition().x + (canvas?.origin.x ?? 0),
-      y: (props.position?.y ?? 0) + dragPosition().y + (canvas?.origin.y ?? 0),
+      x: (props.position?.x ?? 0) + (canvas?.origin.x ?? 0),
+      y: (props.position?.y ?? 0) + (canvas?.origin.y ?? 0),
     }
 
     matrix = new DOMMatrix()

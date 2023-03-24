@@ -2,15 +2,14 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
-import { CanvasToken, parser, Shape2DToken } from 'src/parser'
-import { Normalize, Shape2DProps, ImageSource, Dimensions, ExtendedColor } from 'src/types'
 import { defaultShape2DProps } from 'src/defaultProps'
+import { parser, Shape2DToken } from 'src/parser'
+import { Dimensions, ExtendedColor, ImageSource, Normalize, Shape2DProps } from 'src/types'
 import filterShape2DProps from 'src/utils/filterShape2DProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
-import useTransformedPath from 'src/utils/useTransformedPath'
-import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -43,11 +42,9 @@ const Image = createToken(
     )
     const filteredProps = filterShape2DProps(merged)
 
-    const [dragPosition, dragEventHandler] = useDraggable()
-
     const image = resolveImage(() => props.image)
 
-    const matrix = useMatrix(merged, dragPosition)
+    const matrix = useMatrix(merged)
 
     const path = useTransformedPath(() => {
       const path = new Path2D()
@@ -63,8 +60,8 @@ const Image = createToken(
       if (props.opacity) ctx.globalAlpha = props.opacity
       ctx.drawImage(
         img,
-        origin.x + merged.position.x + dragPosition().x,
-        origin.y + merged.position.y + dragPosition().y,
+        origin.x + merged.position.x,
+        origin.y + merged.position.y,
         merged.dimensions.width,
         merged.dimensions.height,
       )
@@ -76,7 +73,7 @@ const Image = createToken(
       id: 'Image',
       render,
       hitTest: function (event) {
-        return hitTest(this as Shape2DToken, event, canvas?.ctx, merged, dragEventHandler)
+        return hitTest(this as Shape2DToken, event, canvas?.ctx, merged)
       },
       path,
     }

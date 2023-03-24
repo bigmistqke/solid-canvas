@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createEffect, mergeProps } from 'solid-js'
+import { Accessor, createEffect, createMemo, mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { parser, Shape2DToken } from 'src/parser'
@@ -16,6 +16,7 @@ import useBounds from 'src/utils/useBounds'
 import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
 import withGroup from 'src/utils/withGroup'
+import useControls from 'src/utils/useControls'
 
 /**
  * Paints a cubic bezier to the canvas
@@ -31,26 +32,52 @@ const Bezier = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-    const [dragPosition, dragEventHandler] = useDraggable()
 
-    const matrix = useMatrix(merged, dragPosition)
+    const matrix = useMatrix(merged)
 
-    const handles = useHandle(() => props.points, matrix)
+    const controls = useControls(props)
+
+    const getAllPoints = createMemo(() =>
+      props.points.map(({ point, control }, i) =>
+        i === 0 || i === props.points.length - 1
+          ? { control: addVectors(control, point), point }
+          : {
+              control: addVectors(control, point),
+              point,
+              oppositeControl: getOppositeControl(point, control),
+            },
+      ),
+    )
+
+    const getOppositeControl = (point: Position, control: Position) => {
+      return {
+        x: point.x + control.x * -1,
+        y: point.y + control.y * -1,
+      }
+    }
 
     const bounds = useBounds(() => {
-      return handles.points().map(Object.values).flat()
+      return getAllPoints().map(Object.values).flat()
     }, matrix)
 
     const path = useTransformedPath(() => {
-      let point = handles.points()[0]
-      if (!point) return new Path2D()
+      let point = getAllPoints()[0]
+      let offset = controls.offsets()[0]
 
-      let svgString = `M${point.point.x},${point.point.y} C${point.control.x},${point.control.y} `
+      if (!point || !offset) return new Path2D()
+
+      let svgString = `M${point.point.x + offset.point.x},${point.point.y + offset.point.y} C${
+        point.control.x + offset.control.x
+      },${point.control.y + offset.control.y} `
 
       let i = 1
-      while ((point = handles.points()[i])) {
+      while ((point = getAllPoints()[i])) {
+        offset = controls.offsets()[i]
+        if (!offset) return new Path2D()
         if (i === 2) svgString += 'S'
-        svgString += `${point.control.x},${point.control.y} ${point?.point.x},${point?.point.y} `
+        svgString += `${point.control.x + offset.control.x},${point.control.y + offset.control.y} ${
+          point?.point.x + offset.point.x
+        },${point?.point.y + offset.point.y} `
         i++
       }
       const path2D = new Path2D(svgString)
@@ -63,7 +90,7 @@ const Bezier = createToken(
       if (!canvas) return
       canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
-      handles.render()
+      controls.render(ctx)
       canvas.ctx.restore()
     }
 
@@ -72,81 +99,19 @@ const Bezier = createToken(
       type: 'Shape2D',
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
+        controls.render(ctx)
         renderPath(ctx, merged, path())
       },
       debug,
       path,
       hitTest: function (event) {
         token = this
-        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+        controls.hitTest(event)
+        return hitTest(token, event, canvas?.ctx, merged)
       },
     }
   },
 )
-
-// NOTE:  I was exploring to use a hook for (editable) handles
-//        but I am not sure if this is the right approach.
-
-//        I feel that we should be able to write it more as userland
-//        with draggable `<Line/>` and `<Arc/>`
-
-//        maybe with an API like:
-//          const Bezier = ...
-//          export default (points) =>
-//            <Controls points={points}>
-//              (points) => <Bezier points={points}/>
-//            </Controls>
-
-//        but unsure how to design the API that `Controls` could work for all the Canvas-primitives
-//          like `Line`, `Bezier`, `Quadratic`, ...
-
-const useHandle = (
-  points: Accessor<{ point: Position; control: Position }[]>,
-  matrix: Accessor<DOMMatrix>,
-) => {
-  const canvas = useInternalContext()
-
-  const getAllPoints = () =>
-    points().map(({ point, control }, i) =>
-      i === 0 || i === points().length - 1
-        ? { control: addVectors(control, point), point }
-        : {
-            control: addVectors(control, point),
-            point,
-            oppositeControl: getOppositeControl(point, control),
-          },
-    )
-
-  const getOppositeControl = (point: Position, control: Position) => {
-    return {
-      x: point.x + control.x * -1,
-      y: point.y + control.y * -1,
-    }
-  }
-
-  const renderHandles = () => {
-    if (!canvas) return
-    getAllPoints().forEach(({ control, point, oppositeControl }, i) => {
-      if (oppositeControl) {
-        oppositeControl = transformPoint(oppositeControl, matrix())
-        renderPoint(canvas.ctx, oppositeControl)
-      }
-
-      point = transformPoint(point, matrix())
-      control = transformPoint(control, matrix())
-      if (oppositeControl) renderLine(canvas.ctx, point, oppositeControl)
-
-      renderLine(canvas.ctx, point, control)
-      renderPoint(canvas.ctx, point)
-      renderPoint(canvas.ctx, control)
-    })
-  }
-
-  return {
-    render: renderHandles,
-    points: getAllPoints,
-  }
-}
 
 const GroupedBezier = withGroup(Bezier)
 

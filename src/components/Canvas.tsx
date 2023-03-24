@@ -254,18 +254,19 @@ export const Canvas: Component<{
       ctx,
       position,
       delta,
-      stopPropagation: () => (stop = true),
+      propagation: true,
       target: [],
       type,
     }
 
     forEachReversed(stack(), token => {
+      // if (!event.propagation) return
       if ('hitTest' in token) {
         token.hitTest(event)
       }
     })
 
-    if (!stop) final(event)
+    if (event.propagation) final(event)
 
     eventListeners[type].forEach(listener => listener(event))
 

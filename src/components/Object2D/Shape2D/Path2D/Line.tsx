@@ -1,16 +1,16 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { mergeProps } from 'solid-js'
+import { createEffect, mergeProps } from 'solid-js'
 
+import { useInternalContext } from 'src/context/InternalContext'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
-import useBounds from 'src/utils/useBounds'
-import useMatrix from 'src/utils/useMatrix'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
+import useBounds from 'src/utils/useBounds'
+import useControls from 'src/utils/useControls'
+import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
-import useDraggable from 'src/utils/useDraggable'
-import { useInternalContext } from 'src/context/InternalContext'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -28,19 +28,21 @@ const Line = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-    const [dragPosition, dragEventHandler] = useDraggable()
 
-    const matrix = useMatrix(merged, dragPosition)
+    const matrix = useMatrix(merged)
     const bounds = useBounds(() => props.points, matrix)
+    const controls = useControls(props)
 
     const path = useTransformedPath(() => {
       // calculate path
       const path2D = new Path2D()
       let point = props.points[0]
-      path2D.moveTo(point!.x, point!.y)
+      let offset = controls.offsets()[0]
+      path2D.moveTo(point!.x + (offset?.x ?? 0), point!.y + (offset?.y ?? 0))
       let i = 0
       while ((point = props.points[i])) {
-        path2D.lineTo(point.x, point.y)
+        offset = controls.offsets()[i]
+        path2D.lineTo(point.x + (offset?.x ?? 0), point.y + (offset?.y ?? 0))
         i++
       }
       if (merged.close) path2D.closePath()
@@ -51,12 +53,16 @@ const Line = createToken(
     return {
       type: 'Shape2D',
       id: 'Line',
-      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
+      render: (ctx: CanvasRenderingContext2D) => {
+        renderPath(ctx, merged, path())
+        controls?.render(ctx)
+      },
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this
-        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+        controls?.hitTest(event)
+        return hitTest(token, event, canvas?.ctx, merged)
       },
     }
   },

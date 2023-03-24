@@ -7,23 +7,19 @@ export default (
   event: CanvasMouseEvent,
   ctx: CanvasRenderingContext2D | undefined,
   props: ResolvedShape2DProps,
-  dragEventHandler: (event: CanvasMouseEvent) => void,
 ) => {
   if (!ctx) return false
   if (props.pointerEvents === false) return false
 
   ctx.save()
   // NOTE:  minimal thickness of 5
-  ctx.lineWidth = props.lineWidth < 20 ? 20 : props.lineWidth
+  ctx.lineWidth = props.lineWidth /* < 20 ? 20 : props.lineWidth */
   const hit = isPointInShape2D(event, props, token.path())
   ctx.restore()
 
   if (hit) {
     props[event.type]?.(event)
     event.target.push(token)
-    if (props.draggable) {
-      dragEventHandler(event)
-    }
   }
   return hit
 }

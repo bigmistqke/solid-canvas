@@ -2,19 +2,18 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addVectors from 'src/utils/addVectors'
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import hitTest from 'src/utils/hitTest'
 import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
 import renderPoint from 'src/utils/renderPoint'
-import useTransformedPath from 'src/utils/useTransformedPath'
 import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
-import useDraggable from 'src/utils/useDraggable'
 import useMatrix from 'src/utils/useMatrix'
+import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -40,9 +39,8 @@ const Quadratic = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-    const [dragPosition, dragEventHandler] = useDraggable()
 
-    const matrix = useMatrix(merged, dragPosition)
+    const matrix = useMatrix(merged)
 
     const handles = useHandle(() => props.points, matrix)
 
@@ -102,7 +100,7 @@ const Quadratic = createToken(
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this
-        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas?.ctx, merged)
       },
     }
   },

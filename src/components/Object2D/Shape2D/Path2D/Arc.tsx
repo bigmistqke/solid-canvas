@@ -1,16 +1,15 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, mergeProps } from 'solid-js'
+import { mergeProps } from 'solid-js'
 
-import { parser, Shape2DToken } from 'src/parser'
-import { Shape2DProps, Dimensions, Normalize } from 'src/types'
+import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
-import useBounds from 'src/utils/useBounds'
-import useMatrix from 'src/utils/useMatrix'
+import { parser, Shape2DToken } from 'src/parser'
+import { Normalize, Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
+import useBounds from 'src/utils/useBounds'
+import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
-import useDraggable from 'src/utils/useDraggable'
-import { useInternalContext } from 'src/context/InternalContext'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -36,9 +35,8 @@ const Arc = createToken(
       { ...defaultShape2DProps, close: true, radius: 10, angle: { start: 0, end: 2 * Math.PI } },
       props,
     )
-    const [dragPosition, dragEventHandler] = useDraggable()
 
-    const matrix = useMatrix(merged, dragPosition)
+    const matrix = useMatrix(merged)
 
     const getPath = () => {
       const path = new Path2D()
@@ -79,7 +77,7 @@ const Arc = createToken(
       path,
       hitTest: function (event) {
         token = this
-        return hitTest(token, event, canvas?.ctx, merged, dragEventHandler)
+        return hitTest(token, event, canvas?.ctx, merged)
       },
     }
   },
