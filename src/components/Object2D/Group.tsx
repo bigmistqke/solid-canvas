@@ -24,6 +24,7 @@ export type GroupProps = {
   position?: Position
   clip?: Accessor<JSX.Element | JSX.Element[]>
   composite?: Composite
+  draggable?: boolean
 }
 
 const Group = createToken(parser, (props: GroupProps) => {
