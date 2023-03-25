@@ -11,11 +11,7 @@ type BezierPoint = {
   oppositeControl?: Position
 }
 
-type OffsetUpdater = (
-  index: number,
-  value: Position,
-  type: 'control' | 'point',
-) => void
+type OffsetUpdater = (index: number, value: Position, type: 'control' | 'point') => void
 
 const Handle = (props: {
   position: Position
@@ -45,15 +41,9 @@ const VectorHandle = (props: {
   draggable?: boolean
 }) => (
   <>
-    <Line
-      points={[{ x: 0, y: 0 }, props.position]}
-      lineDash={[10, 5]}
-      pointerEvents={false}
-    />
+    <Line points={[{ x: 0, y: 0 }, props.position]} lineDash={[10, 5]} pointerEvents={false} />
     <Handle
-      onDragMove={dragPosition =>
-        props.updateOffset(props.index, dragPosition, 'control')
-      }
+      onDragMove={dragPosition => props.updateOffset(props.index, dragPosition, 'control')}
       position={props.position}
       onMouseDown={event => {
         event.propagation = false
@@ -84,25 +74,17 @@ const BezierHandles = (props: {
     ) ?? { x: 0, y: 0 }
 
   const controlPosition = () =>
-    addPositions(
-      props.value.control,
-      (props.offsets[props.index] as BezierPoint).control,
-    ) ?? {
+    addPositions(props.value.control, (props.offsets[props.index] as BezierPoint).control) ?? {
       x: 0,
       y: 0,
     }
 
   const handlePosition = () =>
-    addPositions(
-      props.value.point,
-      (props.offsets[props.index] as BezierPoint).point,
-    )
+    addPositions(props.value.point, (props.offsets[props.index] as BezierPoint).point)
 
   return (
     <Handle
-      onDragMove={dragPosition =>
-        props.updateOffset(props.index, dragPosition, 'point')
-      }
+      onDragMove={dragPosition => props.updateOffset(props.index, dragPosition, 'point')}
       onMouseDown={event => {
         event.propagation = false
       }}
@@ -149,15 +131,10 @@ export default function <T extends Position | BezierPoint>(props: {
     ) as T[],
   )
 
-  const updateOffset = (
-    index: number,
-    value: Position,
-    type?: 'control' | 'point',
-  ) => {
+  const updateOffset = (index: number, value: Position, type?: 'control' | 'point') => {
     setOffsets(offsets => {
       const offset = offsets[index]
-      if (offset && type && type in offset)
-        (offset as BezierPoint)[type] = value
+      if (offset && type && type in offset) (offset as BezierPoint)[type] = value
       return [...offsets]
     })
   }
