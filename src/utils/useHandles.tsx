@@ -1,20 +1,30 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createSignal, For, JSX, Show, untrack } from 'solid-js'
-import { Arc, Group, Line } from 'src'
+import {
+  Accessor,
+  createSignal,
+  For,
+  Index,
+  JSX,
+  Show,
+  untrack,
+} from 'solid-js'
+import { Arc, Group, Line, Text } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
 import addPositions from './addPositions'
+import invertPosition from './invertPosition'
 
 type BezierPoint = {
   point: Position
   control?: Position
   oppositeControl?: Position
+  automatic: boolean
 }
 
 type OffsetUpdater = (
   index: number,
   value: Position,
-  type: 'control' | 'point',
+  type: 'control' | 'point' | 'oppositeControl',
 ) => void
 
 const Handle = (props: {
@@ -22,16 +32,18 @@ const Handle = (props: {
   children?: JSX.Element | JSX.Element[]
   draggable?: boolean
   onDragMove?: (position: Position) => void
-  onMouseDown?: (event: CanvasMouseEvent) => void
 }) => (
   <Arc
     onDragMove={props.onDragMove}
     radius={6}
-    fill="black"
+    stroke="transparent"
+    fill={props.draggable !== false ? 'black' : 'lightgrey'}
     position={{ x: props.position.x - 6, y: props.position.y - 6 }}
     draggable={props.draggable === false ? false : 'controlled'}
     pointerEvents={props.draggable === false ? false : true}
-    onMouseDown={props.onMouseDown}
+    onMouseDown={event => {
+      event.propagation = false
+    }}
   >
     {props.children}
   </Arc>
@@ -39,9 +51,7 @@ const Handle = (props: {
 
 const VectorHandle = (props: {
   position: Position
-  index: number
-  updateOffset: OffsetUpdater
-  value: BezierPoint
+  updateOffset: (position: Position) => void
   draggable?: boolean
 }) => (
   <>
@@ -49,90 +59,48 @@ const VectorHandle = (props: {
       points={[{ x: 0, y: 0 }, props.position]}
       lineDash={[10, 5]}
       pointerEvents={false}
+      stroke={props.draggable !== false ? 'black' : 'lightgrey'}
     />
     <Handle
-      onDragMove={dragPosition =>
-        props.updateOffset(props.index, dragPosition, 'control')
-      }
+      onDragMove={dragPosition => props.updateOffset(dragPosition)}
       position={props.position}
-      onMouseDown={event => {
-        event.propagation = false
-      }}
       draggable={props.draggable}
     />
   </>
 )
 
-const invertPosition = (position: Position | undefined) =>
-  position ? { x: position.x * -1, y: position.y * -1 } : undefined
-
 const BezierHandles = (props: {
   index: number
-  updateOffset: OffsetUpdater
-  offsets: BezierPoint[]
+  updateOffset: (
+    position: Position,
+    type: 'control' | 'oppositeControl' | 'point',
+  ) => void
+  offset?: BezierPoint
   value: BezierPoint
+  type: 'cubic' | 'quadratic'
+  automatic: boolean
 }) => {
-  // NOTE:  I think this is specific to Quadratic and might not apply to Bezier
-  /* const oppositeControlPosition = () =>
-    addPositions(
-      props.value.oppositeControl,
-      props.offsets[props.index - 1]?.control,
-      props.offsets[props.index - 1]?.point,
-      props.offsets[props.index]
-        ? {
-            x: props.offsets[props.index]!.point.x * -1,
-            y: props.offsets[props.index]!.point.y * -1,
-          }
-        : undefined,
-    ) ?? { x: 0, y: 0 } */
-
-  const oppositeControlPosition = () =>
-    addPositions(
-      props.value.oppositeControl,
-      invertPosition(props.offsets[props.index]?.control),
-    ) ?? { x: 0, y: 0 }
-
-  const controlPosition = () =>
-    addPositions(
-      props.value.control,
-      (props.offsets[props.index] as BezierPoint).control,
-    ) ?? {
-      x: 0,
-      y: 0,
-    }
-
-  const handlePosition = () =>
-    addPositions(
-      props.value.point,
-      (props.offsets[props.index] as BezierPoint).point,
-    )
-
   return (
     <Handle
-      onDragMove={dragPosition =>
-        props.updateOffset(props.index, dragPosition, 'point')
-      }
-      onMouseDown={event => {
-        event.propagation = false
-      }}
-      position={handlePosition()}
+      onDragMove={offset => props.updateOffset(offset, 'point')}
+      position={props.value.point}
+      draggable={true}
     >
       <Group position={{ x: 6, y: 6 }}>
         <Show when={props.value.control}>
           <VectorHandle
-            position={controlPosition()}
-            updateOffset={props.updateOffset}
-            value={props.value}
-            index={props.index}
+            position={props.value.control!}
+            updateOffset={offset => props.updateOffset(offset, 'control')}
+            draggable={props.type === 'cubic' || !props.value.automatic}
           />
         </Show>
         <Show when={props.value.oppositeControl}>
           <VectorHandle
-            position={oppositeControlPosition()}
-            updateOffset={props.updateOffset}
-            value={props.value}
-            index={props.index}
-            draggable={false}
+            position={props.value.oppositeControl!}
+            updateOffset={offset =>
+              props.updateOffset(offset, 'oppositeControl')
+            }
+            draggable={props.type === 'cubic' && !props.value.automatic}
           />
         </Show>
       </Group>
@@ -141,7 +109,7 @@ const BezierHandles = (props: {
 }
 function useLinearHandles(
   points: Accessor<Position[]>,
-  editable: Accessor<boolean>,
+  editable: Accessor<boolean | undefined>,
 ) {
   const [offsets, setOffsets] = createSignal(
     points().map(v => ({ x: 0, y: 0 })),
@@ -178,29 +146,65 @@ function useLinearHandles(
   }
 }
 function useBezierHandles(
-  points: Accessor<BezierPoint[]>,
-  editable: Accessor<boolean>,
+  values: Accessor<BezierPoint[]>,
+  editable: Accessor<boolean | undefined>,
   type: 'cubic' | 'quadratic',
 ) {
   const [offsets, setOffsets] = createSignal<BezierPoint[]>(
-    points().map(v => ({
+    values().map(v => ({
       control: { x: 0, y: 0 },
       oppositeControl: { x: 0, y: 0 },
       point: { x: 0, y: 0 },
+      automatic: v.automatic,
     })),
   )
 
-  const updateOffset = (
-    index: number,
-    value: Position,
-    type?: 'control' | 'point',
-  ) => {
+  const updateOffset: OffsetUpdater = (index, value, type) =>
     setOffsets(offsets => {
       const offset = offsets[index]
       if (offset && type && type in offset)
         (offset as BezierPoint)[type] = value
       return [...offsets]
     })
+
+  const controls = () => {
+    const result: BezierPoint[] = []
+    values().forEach((value, i) => {
+      const point = addPositions(value.point, offsets()[i]!.point)
+
+      if (type === 'cubic') {
+        result.push({
+          automatic: value.automatic,
+          point,
+          control: addPositions(value.control, offsets()[i]?.control),
+          oppositeControl: addPositions(
+            value.oppositeControl,
+            value.automatic
+              ? invertPosition(offsets()[i]?.control)
+              : offsets()[i]?.oppositeControl,
+          ),
+        })
+        return
+      }
+
+      const oppositeControl = addPositions(
+        result[i - 1]?.control,
+        result[i - 1]?.point,
+        invertPosition(addPositions(value.point, offsets()[i]?.point)),
+      )
+
+      const control = value.automatic
+        ? invertPosition(oppositeControl)
+        : addPositions(value.control, offsets()[i]?.control)
+
+      result.push({
+        automatic: value.automatic,
+        point,
+        control: i === values().length - 1 ? undefined : control,
+        oppositeControl: i === 0 ? undefined : oppositeControl,
+      })
+    })
+    return result
   }
 
   const handles = (
@@ -208,16 +212,21 @@ function useBezierHandles(
       {/* 
         TODO: without untrack it would re-mount all ControlPoints with each interaction 
       */}
-      <For each={untrack(() => points())}>
+
+      <Index each={controls()}>
         {(value, i) => (
           <BezierHandles
-            offsets={offsets() as BezierPoint[]}
-            value={value}
-            index={i()}
-            updateOffset={updateOffset}
+            index={i}
+            updateOffset={(
+              position: Position,
+              type: 'control' | 'oppositeControl' | 'point',
+            ) => updateOffset(i, position, type)}
+            type={type}
+            automatic={false}
+            value={value()}
           />
         )}
-      </For>
+      </Index>
     </Group>
   ) as any as TokenElement<GroupToken>
 

@@ -1,5 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createMemo, mergeProps } from 'solid-js'
+import { createMemo, createSignal, mergeProps } from 'solid-js'
+import { Portal } from 'solid-js/web'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
@@ -7,6 +8,7 @@ import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import hitTest from 'src/utils/hitTest'
+import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
 import { useBezierHandles } from 'src/utils/useHandles'
@@ -22,7 +24,11 @@ const Bezier = createToken(
   parser,
   (
     props: Shape2DProps & {
-      points: { point: Position; control: Position }[]
+      points: {
+        point: Position
+        control: Position
+        oppositeControl?: Position
+      }[]
       close?: boolean
     },
   ) => {
@@ -39,13 +45,16 @@ const Bezier = createToken(
     }
 
     const getAllPoints = createMemo(() =>
-      props.points.map(({ point, control }, i) =>
+      props.points.map(({ point, control, oppositeControl }, i) =>
         i === 0 || i === props.points.length - 1
-          ? { control, point }
+          ? { control, point, automatic: false }
           : {
               control,
               point,
-              oppositeControl: getOppositeControl(point, control),
+              oppositeControl: oppositeControl
+                ? oppositeControl
+                : getOppositeControl(point, control),
+              automatic: oppositeControl === undefined,
             },
       ),
     )
@@ -59,6 +68,25 @@ const Bezier = createToken(
     const bounds = useBounds(() => {
       return getAllPoints().map(Object.values).flat()
     }, matrix)
+
+    const [svgPath, setSvgPath] = createSignal<string>()
+
+    /* const svg = (
+      <Portal>
+        <svg
+          style={{
+            position: 'fixed',
+            'z-index': 10,
+            top: '0px',
+            background: 'lightgrey',
+            stroke: 'black',
+            fill: 'transparent',
+          }}
+        >
+          <path d={svgPath()} />
+        </svg>
+      </Portal>
+    ) */
 
     const path = useTransformedPath(() => {
       const values = getAllPoints()
@@ -74,26 +102,33 @@ const Bezier = createToken(
       let svgString = `M${point.x},${point.y} C${control.x},${control.y} `
 
       let i = 1
-      while ((value = getAllPoints()[i])) {
+      while ((value = values[i])) {
         offset = offsets[i]
         point = addPositions(offset?.point, value.point)
-        control = addPositions(
-          value.point,
-          offset?.point,
-          offset?.control,
-          value.control,
-        )
+        control = addPositions(point, offset?.control, value.control)
 
         if (!offset || !control || !point) {
-          console.error('incorrect path')
+          console.error('incorrect path', offset, control, point, value)
           return new Path2D()
         }
 
-        // TODO:  implement manual control-points
-        if (i === 2) svgString += 'S'
-        svgString += `${control.x},${control.y} ${point.x},${point.y} `
+        let oppositeControl = value.automatic
+          ? addPositions(
+              point,
+              invertPosition(offset?.control),
+              value.oppositeControl,
+            )
+          : addPositions(point, offset?.oppositeControl, value.oppositeControl)
+
+        if (oppositeControl)
+          svgString += `${control.x},${control.y} ${point.x},${point.y} ${oppositeControl.x},${oppositeControl.y} `
+        else svgString += `${control.x},${control.y} ${point.x},${point.y}`
+
         i++
       }
+
+      setSvgPath(svgString)
+
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
 

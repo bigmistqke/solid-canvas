@@ -7,6 +7,7 @@ import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import hitTest from 'src/utils/hitTest'
+import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
 import { useBezierHandles } from 'src/utils/useHandles'
@@ -34,33 +35,38 @@ const Quadratic = createToken(
 
     const getAllPoints = () => {
       let previousControl: Position | undefined = undefined
-      let oppositeControl: Position
+      let oppositeControl: Position | undefined
 
-      return props.points.map(({ point, control }, i) => {
-        control = control ?? {
-          x: (previousControl!.x - point.x) * -1,
-          y: (previousControl!.y - point.y) * -1,
-        }
+      return props.points.map((value, i) => {
+        let automatic = !('control' in value)
+        let control =
+          value.control ??
+          invertPosition(
+            addPositions(previousControl, invertPosition(value.point)),
+          )
 
-        oppositeControl = {
-          x: control.x * -1,
-          y: control.y * -1,
-        }
+        oppositeControl = previousControl
+          ? {
+              x: previousControl.x - value.point.x,
+              y: previousControl.y - value.point.y,
+            }
+          : undefined
 
-        previousControl = addPositions(control, point)
+        previousControl = addPositions(control, value.point)
 
         if (i === props.points.length - 1) {
-          return { point, oppositeControl }
+          return { point: value.point, oppositeControl, automatic }
         }
 
         if (i === 0) {
-          return { point, control }
+          return { point: value.point, control, automatic }
         }
 
         return {
-          point,
+          point: value.point,
           control,
           oppositeControl,
+          automatic,
         }
       })
     }
@@ -68,7 +74,7 @@ const Quadratic = createToken(
     const matrix = useMatrix(merged)
     const handles = useBezierHandles(
       () => getAllPoints(),
-      () => !!props.editable,
+      () => props.editable,
       'quadratic',
     )
 
@@ -94,7 +100,7 @@ const Quadratic = createToken(
       let control = addPositions(offset?.point, offset?.control, value?.control)
 
       if (!point || !offset || !control) {
-        console.error('incorrect path')
+        console.error('incorrect path', point, offset, control, value)
         return new Path2D()
       }
 
@@ -112,16 +118,12 @@ const Quadratic = createToken(
           value.control,
         )
 
-        if (!offset || !control || !point) {
-          console.error('incorrect path')
+        if (!offset || !point) {
+          console.error('incorrect path', point, offset, control, value)
           return new Path2D()
         }
 
-        if (
-          i !== values.length - 1 &&
-          'control' in value &&
-          'control' in offset
-        ) {
+        if (!value.automatic && i !== values.length - 1 && control) {
           svg += `${point.x},${point.y} ${control.x},${control.y} `
         } else {
           svg += `${point.x},${point.y} `
