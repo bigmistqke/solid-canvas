@@ -3,7 +3,7 @@ import { Accessor, createSignal, For, JSX, Show, untrack } from 'solid-js'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
-import addPositions from './addVectors'
+import addPositions from './addPositions'
 
 type BezierPoint = {
   point: Position
