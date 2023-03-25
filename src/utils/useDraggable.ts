@@ -1,8 +1,9 @@
 import { createSignal, createEffect, onCleanup } from 'solid-js'
+import { GroupProps } from 'src/components/Object2D/Group'
 import { useInternalContext } from 'src/context/InternalContext'
 import { CanvasMouseEvent, Shape2DProps } from 'src/types'
 
-export default (props: Shape2DProps) => {
+export default (props: Shape2DProps | GroupProps) => {
   const canvas = useInternalContext()
 
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
@@ -32,7 +33,7 @@ export default (props: Shape2DProps) => {
   })
 
   const dragEventHandler = (event: CanvasMouseEvent) => {
-    if (event.target.length === 1 && event.type === 'onMouseDown') {
+    if (event.target.length === 1 && event.type === 'onMouseDown' && props.draggable) {
       setSelected(true)
       event.propagation = false
     }
