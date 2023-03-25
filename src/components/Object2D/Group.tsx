@@ -1,6 +1,13 @@
-import { createToken, resolveTokens, TokenElement } from '@solid-primitives/jsx-tokenizer'
+import {
+  createToken,
+  resolveTokens,
+  TokenElement,
+} from '@solid-primitives/jsx-tokenizer'
 import { Accessor, JSX, mergeProps } from 'solid-js'
-import { InternalContext, useInternalContext } from 'src/context/InternalContext'
+import {
+  InternalContext,
+  useInternalContext,
+} from 'src/context/InternalContext'
 
 import { CanvasToken, parser } from 'src/parser'
 import { CanvasMouseEvent, Composite, ExtendedColor, Position } from 'src/types'
@@ -35,7 +42,8 @@ const Group = createToken(parser, (props: GroupProps) => {
 
   const [dragPosition, dragEventHandler] = useDraggable(props)
 
-  const offset = () => (props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition())
+  const offset = () =>
+    props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition()
 
   const context = {
     ...canvas,
@@ -126,7 +134,11 @@ const Group = createToken(parser, (props: GroupProps) => {
         }
       }
     })
-    if (result.length === 1 && result[0] === tokens()[tokens().length - 1] && props.draggable) {
+    if (
+      result.length === 1 &&
+      result[0] === tokens()[tokens().length - 1] &&
+      props.draggable
+    ) {
       dragEventHandler(event)
     }
     return false

@@ -22,7 +22,9 @@ const loadImageSource = (media: ImageSource) =>
       }
       return
     }
-    if (['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(extension?.toLowerCase())) {
+    if (
+      ['jpg', 'jpeg', 'png', 'gif', 'svg'].includes(extension?.toLowerCase())
+    ) {
       const image = document.createElement('img')
       image.onload = event => {
         console.log('loaded')

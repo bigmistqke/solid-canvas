@@ -33,7 +33,12 @@ export type HSLA = {
 }
 
 export type Color = RGB | RGBA | HSL | HSLA | string
-export type ExtendedColor = Color | CanvasGradient | CanvasPattern | JSX.Element | null
+export type ExtendedColor =
+  | Color
+  | CanvasGradient
+  | CanvasPattern
+  | JSX.Element
+  | null
 
 export type ImageSource =
   | HTMLImageElement
@@ -165,12 +170,24 @@ export type Shape2DProps = {
 export type ResolvedShape2DProps = Required<
   Omit<
     Shape2DProps,
-    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow' | 'editable'
+    | 'onDragMove'
+    | 'onMouseDown'
+    | 'onMouseMove'
+    | 'onMouseUp'
+    | 'composite'
+    | 'shadow'
+    | 'editable'
   >
 > &
   Pick<
     Shape2DProps,
-    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow' | 'editable'
+    | 'onDragMove'
+    | 'onMouseDown'
+    | 'onMouseMove'
+    | 'onMouseUp'
+    | 'composite'
+    | 'shadow'
+    | 'editable'
   >
 
 export type CanvasMouseEvent = {

@@ -1,6 +1,10 @@
 import { Position } from 'src/types'
 
-const renderLine = (ctx: CanvasRenderingContext2D, start: Position, end: Position) => {
+const renderLine = (
+  ctx: CanvasRenderingContext2D,
+  start: Position,
+  end: Position,
+) => {
   ctx.save()
   ctx.beginPath()
   ctx.strokeStyle = 'grey'

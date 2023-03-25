@@ -27,6 +27,7 @@ export const isPointInShape2D = (
   props: ResolvedShape2DProps | GroupProps,
   path: Path2D,
 ) => {
-  const result = isPointInPath(event, props, path) || isPointInStroke(event, props, path)
+  const result =
+    isPointInPath(event, props, path) || isPointInStroke(event, props, path)
   return result
 }

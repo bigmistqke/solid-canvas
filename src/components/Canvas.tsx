@@ -87,9 +87,10 @@ export const Canvas: Component<{
     onMouseMove: [],
     onMouseUp: [],
   })
-  const [stats, setStats] = createStore<{ fps?: number; memory?: { used: number; total: number } }>(
-    {},
-  )
+  const [stats, setStats] = createStore<{
+    fps?: number
+    memory?: { used: number; total: number }
+  }>({})
 
   let lastCursorPosition: Position | undefined
   let startRenderTime: number
@@ -126,7 +127,10 @@ export const Canvas: Component<{
             },
             get origin() {
               return props.origin
-                ? { x: origin().x + props.origin.x, y: origin().y + props.origin.y }
+                ? {
+                    x: origin().x + props.origin.x,
+                    y: origin().y + props.origin.y,
+                  }
                 : origin()
             },
             addEventListener: (
@@ -141,7 +145,10 @@ export const Canvas: Component<{
             ) => {
               setEventListeners(type, listeners => {
                 const index = listeners.indexOf(callback)
-                const result = [...listeners.slice(0, index), ...listeners.slice(index + 1)]
+                const result = [
+                  ...listeners.slice(0, index),
+                  ...listeners.slice(index + 1),
+                ]
                 return result
               })
             },
@@ -161,7 +168,11 @@ export const Canvas: Component<{
   )
   const maintainStack = mapArray(tokens, (token, i) => {
     const index = stack().length - i()
-    setStack(stack => [...stack.slice(0, index), token.data, ...stack.slice(index)])
+    setStack(stack => [
+      ...stack.slice(0, index),
+      token.data,
+      ...stack.slice(index),
+    ])
     onCleanup(() => {
       const index = stack().length - i()
       setStack(stack => [...stack.slice(0, index - 1), ...stack.slice(index)])
@@ -190,10 +201,20 @@ export const Canvas: Component<{
           ctx.restore()
           ctx.save()
           ctx.globalAlpha = feedback.opacity ?? 1
-          if (feedback.composite) ctx.globalCompositeOperation = feedback.composite
+          if (feedback.composite)
+            ctx.globalCompositeOperation = feedback.composite
           if (feedback.filter) ctx.filter = feedback.filter ?? ''
-          const offset = typeof feedback.offset === 'function' ? feedback.offset() : feedback.offset
-          ctx.drawImage(bitmap, offset?.x ?? 0, offset?.y ?? 0, ctx.canvas.width, ctx.canvas.height)
+          const offset =
+            typeof feedback.offset === 'function'
+              ? feedback.offset()
+              : feedback.offset
+          ctx.drawImage(
+            bitmap,
+            offset?.x ?? 0,
+            offset?.y ?? 0,
+            ctx.canvas.width,
+            ctx.canvas.height,
+          )
           ctx.restore()
           bitmap.close()
         })
@@ -223,8 +244,12 @@ export const Canvas: Component<{
         'memory' in performance
           ? {
               // NOTE: performance.memory is chrome-only
-              used: Math.floor((performance.memory as any).usedJSHeapSize / 1048576),
-              total: Math.floor((performance.memory as any).jsHeapSizeLimit / 1048576),
+              used: Math.floor(
+                (performance.memory as any).usedJSHeapSize / 1048576,
+              ),
+              total: Math.floor(
+                (performance.memory as any).jsHeapSizeLimit / 1048576,
+              ),
             }
           : undefined,
       )
@@ -244,7 +269,10 @@ export const Canvas: Component<{
   ) => {
     const position = { x: e.clientX, y: e.clientY }
     const delta = lastCursorPosition
-      ? { x: position.x - lastCursorPosition.x, y: position.y - lastCursorPosition.y }
+      ? {
+          x: position.x - lastCursorPosition.x,
+          y: position.y - lastCursorPosition.y,
+        }
       : { x: 0, y: 0 }
     lastCursorPosition = position
     let stop = false

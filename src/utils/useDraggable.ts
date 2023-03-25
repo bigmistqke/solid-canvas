@@ -33,7 +33,11 @@ export default (props: GroupProps) => {
   })
 
   const dragEventHandler = (event: CanvasMouseEvent) => {
-    if (event.target.length === 1 && event.type === 'onMouseDown' && props.draggable) {
+    if (
+      event.target.length === 1 &&
+      event.type === 'onMouseDown' &&
+      props.draggable
+    ) {
       setSelected(true)
       event.propagation = false
     }

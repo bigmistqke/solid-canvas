@@ -1,6 +1,9 @@
 import { Accessor, Context, JSX, untrack } from 'solid-js'
 
-type CheckSingle<Arg> = Arg extends { context: infer TContext; value: infer TValue }
+type CheckSingle<Arg> = Arg extends {
+  context: infer TContext
+  value: infer TValue
+}
   ? TContext extends Context<TValue | undefined>
     ? true
     : false

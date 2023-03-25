@@ -37,7 +37,12 @@ const Gradient = createToken(parser, (props: GradientProps) => {
     const { ctx } = canvas
     switch (props.type) {
       case 'linear':
-        return ctx.createLinearGradient(props.start.x, props.start.y, props.end.x, props.end.y)
+        return ctx.createLinearGradient(
+          props.start.x,
+          props.start.y,
+          props.end.x,
+          props.end.y,
+        )
       case 'radial':
         return ctx.createRadialGradient(
           props.start.x,
@@ -48,7 +53,11 @@ const Gradient = createToken(parser, (props: GradientProps) => {
           props.endRadius,
         )
       case 'conic':
-        return ctx.createConicGradient(props.startAngle, props.center.x, props.center.y)
+        return ctx.createConicGradient(
+          props.startAngle,
+          props.center.x,
+          props.center.y,
+        )
     }
   }
 

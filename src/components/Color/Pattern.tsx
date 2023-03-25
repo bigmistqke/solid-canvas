@@ -21,7 +21,9 @@ const Pattern = createToken(parser, (props: PatternProps) => {
   const image = resolveImage(() => props.image)
 
   const color = () => {
-    return canvas && image() ? canvas.ctx.createPattern(image()!, merged.repetition) : undefined
+    return canvas && image()
+      ? canvas.ctx.createPattern(image()!, merged.repetition)
+      : undefined
   }
 
   return {

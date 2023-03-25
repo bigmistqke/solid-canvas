@@ -1,5 +1,12 @@
 import { createToken, TokenComponent } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, createMemo, createSignal, mergeProps, Show, splitProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  mergeProps,
+  Show,
+  splitProps,
+} from 'solid-js'
 import { Rectangle } from 'src'
 
 import { useInternalContext } from 'src/context/InternalContext'
@@ -87,12 +94,16 @@ const Text = createToken(parser, (props: TextProps) => {
   }
 })
 
-function withRectangle<T extends TextProps, U extends unknown>(Component: TokenComponent<T, U>) {
+function withRectangle<T extends TextProps, U extends unknown>(
+  Component: TokenComponent<T, U>,
+) {
   return (
     props: Omit<T, 'dimensions'> &
       Omit<RectangleProps, 'dimensions'> &
       GroupProps & {
-        hover?: Omit<RectangleProps, 'dimensions'> & { background: ExtendedColor }
+        hover?: Omit<RectangleProps, 'dimensions'> & {
+          background: ExtendedColor
+        }
       },
   ) => {
     const [hover, setHover] = createSignal(false)
@@ -107,7 +118,10 @@ function withRectangle<T extends TextProps, U extends unknown>(Component: TokenC
       'onMouseUp',
     ])
 
-    const mergedRectangleProps = mergeProps({ stroke: 'transparent' }, rectangleProps)
+    const mergedRectangleProps = mergeProps(
+      { stroke: 'transparent' },
+      rectangleProps,
+    )
 
     const [dimensions, setDimensions] = createSignal<Dimensions>()
 
