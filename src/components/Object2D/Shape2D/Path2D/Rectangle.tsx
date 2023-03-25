@@ -37,7 +37,13 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
   const getPath = () => {
     const path = new Path2D()
     if (props.rounded && 'roundRect' in path)
-      path.roundRect(0, 0, merged.dimensions.width, merged.dimensions.height, props.rounded)
+      path.roundRect(
+        0,
+        0,
+        merged.dimensions.width,
+        merged.dimensions.height,
+        props.rounded,
+      )
     else path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
     return path
   }
@@ -76,13 +82,14 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     id: 'Rectangle',
     type: 'Shape2D',
     render: (ctx: CanvasRenderingContext2D) => {
-      renderPath(ctx, merged, path())
+      renderPath(ctx, merged, path(), canvas?.origin)
     },
-    debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
+    debug: (ctx: CanvasRenderingContext2D) =>
+      renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin),
     path,
     hitTest: function (event) {
       const token: Shape2DToken = this
-      const result = hitTest(token, event, canvas?.ctx, merged)
+      const result = hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
       setHover(result)
       return result
     },

@@ -57,16 +57,16 @@ const Line = createToken(
       type: 'Shape2D',
       id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => {
-        renderPath(ctx, merged, path())
+        renderPath(ctx, merged, path(), canvas?.origin)
         handles?.render(ctx)
       },
       debug: (ctx: CanvasRenderingContext2D) =>
-        renderPath(ctx, defaultBoundsProps, bounds().path),
+        renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin),
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this
         handles?.hitTest(event)
-        return hitTest(token, event, canvas?.ctx, merged)
+        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
       },
     }
   },

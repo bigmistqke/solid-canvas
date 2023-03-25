@@ -169,6 +169,7 @@ function useBezierHandles(
 
   const controls = () => {
     const result: BezierPoint[] = []
+    console.time('calculate controls')
     values().forEach((value, i) => {
       const point = addPositions(value.point, offsets()[i]!.point)
 
@@ -204,38 +205,40 @@ function useBezierHandles(
         oppositeControl: i === 0 ? undefined : oppositeControl,
       })
     })
+    console.timeEnd('calculate controls')
     return result
   }
-
   const handles = (
-    <Group>
-      {/* 
+    <Show when={true /* editable() */}>
+      <Group>
+        {/* 
         TODO: without untrack it would re-mount all ControlPoints with each interaction 
       */}
 
-      <Index each={controls()}>
-        {(value, i) => (
-          <BezierHandles
-            index={i}
-            updateOffset={(
-              position: Position,
-              type: 'control' | 'oppositeControl' | 'point',
-            ) => updateOffset(i, position, type)}
-            type={type}
-            automatic={false}
-            value={value()}
-          />
-        )}
-      </Index>
-    </Group>
-  ) as any as TokenElement<GroupToken>
+        <Index each={controls()}>
+          {(value, i) => (
+            <BezierHandles
+              index={i}
+              updateOffset={(
+                position: Position,
+                type: 'control' | 'oppositeControl' | 'point',
+              ) => updateOffset(i, position, type)}
+              type={type}
+              automatic={false}
+              value={value()}
+            />
+          )}
+        </Index>
+      </Group>
+    </Show>
+  ) as any as Accessor<TokenElement<GroupToken>>
 
   return {
     render: (ctx: CanvasRenderingContext2D) => {
-      if (editable()) handles.data.render(ctx)
+      if (editable()) handles().data.render(ctx)
     },
     hitTest: (event: CanvasMouseEvent) => {
-      if (editable()) handles.data.hitTest(event)
+      if (editable()) handles().data.hitTest(event)
     },
     offsets,
   }

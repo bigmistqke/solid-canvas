@@ -144,7 +144,7 @@ const Quadratic = createToken(
     const debug = (ctx: CanvasRenderingContext2D) => {
       if (!canvas) return
       canvas.ctx.save()
-      renderPath(ctx, defaultBoundsProps, bounds().path)
+      renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin)
       canvas.ctx.restore()
       canvas.ctx.restore()
     }
@@ -153,7 +153,7 @@ const Quadratic = createToken(
       type: 'Shape2D',
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
-        renderPath(ctx, merged, path())
+        renderPath(ctx, merged, path(), canvas?.origin)
         handles.render(ctx)
       },
       debug,
@@ -161,7 +161,7 @@ const Quadratic = createToken(
       hitTest: function (event) {
         const token: Shape2DToken = this
         handles.hitTest(event)
-        return hitTest(token, event, canvas?.ctx, merged)
+        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
       },
     }
   },

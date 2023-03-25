@@ -138,7 +138,7 @@ const Bezier = createToken(
     const debug = (ctx: CanvasRenderingContext2D) => {
       if (!canvas) return
       canvas.ctx.save()
-      renderPath(ctx, defaultBoundsProps, bounds().path)
+      renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin)
       handles.render(ctx)
       canvas.ctx.restore()
     }
@@ -149,14 +149,14 @@ const Bezier = createToken(
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
         handles.render(ctx)
-        renderPath(ctx, merged, path())
+        renderPath(ctx, merged, path(), canvas?.origin)
       },
       debug,
       path,
       hitTest: function (event) {
         token = this
         handles.hitTest(event)
-        return hitTest(token, event, canvas?.ctx, merged)
+        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
       },
     }
   },

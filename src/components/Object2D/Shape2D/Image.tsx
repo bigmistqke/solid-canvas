@@ -4,7 +4,13 @@ import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { Dimensions, ExtendedColor, ImageSource, Normalize, Shape2DProps } from 'src/types'
+import {
+  Dimensions,
+  ExtendedColor,
+  ImageSource,
+  Normalize,
+  Shape2DProps,
+} from 'src/types'
 import filterShape2DProps from 'src/utils/filterShape2DProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
@@ -73,7 +79,13 @@ const Image = createToken(
       id: 'Image',
       render,
       hitTest: function (event) {
-        return hitTest(this as Shape2DToken, event, canvas?.ctx, merged)
+        return hitTest(
+          this as Shape2DToken,
+          event,
+          canvas?.ctx,
+          merged,
+          canvas?.origin,
+        )
       },
       path,
     }

@@ -32,7 +32,12 @@ const Arc = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps(
-      { ...defaultShape2DProps, close: true, radius: 10, angle: { start: 0, end: 2 * Math.PI } },
+      {
+        ...defaultShape2DProps,
+        close: true,
+        radius: 10,
+        angle: { start: 0, end: 2 * Math.PI },
+      },
       props,
     )
 
@@ -40,7 +45,13 @@ const Arc = createToken(
 
     const getPath = () => {
       const path = new Path2D()
-      path.arc(merged.radius, merged.radius, merged.radius, merged.angle.start, merged.angle.end)
+      path.arc(
+        merged.radius,
+        merged.radius,
+        merged.radius,
+        merged.angle.start,
+        merged.angle.end,
+      )
       return path
     }
 
@@ -72,12 +83,14 @@ const Arc = createToken(
     return {
       id: 'Arc',
       type: 'Shape2D',
-      render: (ctx: CanvasRenderingContext2D) => renderPath(ctx, merged, path()),
-      debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
+      render: (ctx: CanvasRenderingContext2D) =>
+        renderPath(ctx, merged, path(), canvas?.origin),
+      debug: (ctx: CanvasRenderingContext2D) =>
+        renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin),
       path,
       hitTest: function (event) {
         token = this
-        return hitTest(token, event, canvas?.ctx, merged)
+        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
       },
     }
   },
