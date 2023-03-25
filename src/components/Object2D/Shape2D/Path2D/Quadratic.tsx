@@ -1,16 +1,14 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, mergeProps } from 'solid-js'
+import { createSignal, mergeProps } from 'solid-js'
+import { Portal } from 'solid-js/web'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
-import addVectors from 'src/utils/addVectors'
+import addPositions from 'src/utils/addVectors'
 import hitTest from 'src/utils/hitTest'
-import renderLine from 'src/utils/renderLine'
 import renderPath from 'src/utils/renderPath'
-import renderPoint from 'src/utils/renderPoint'
-import transformPoint from 'src/utils/transformPoint'
 import useBounds from 'src/utils/useBounds'
 import useControls from 'src/utils/useControls'
 import useMatrix from 'src/utils/useMatrix'
@@ -22,13 +20,7 @@ import withGroup from 'src/utils/withGroup'
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo)
  */
 
-type Point = { point: Position }
-
-type QuadraticPoints = [
-  Point,
-  Point & { control: Position },
-  ...((Point & { control: Position }) | Point)[],
-]
+type QuadraticPoints = { point: Position; control?: Position }[]
 
 const Quadratic = createToken(
   parser,
@@ -40,52 +32,35 @@ const Quadratic = createToken(
   ) => {
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-    let previousControl:
-      | {
-          x: number
-          y: number
-        }
-      | undefined
 
     const getAllPoints = () => {
-      previousControl = undefined
-      return props.points.map((point, i) => {
-        if (i === 0) {
-          return point
-        }
-        console.log('previousControl', previousControl)
+      let previousControl: Position | undefined = undefined
+      let oppositeControl: Position
 
-        point = {
-          ...point,
-          control:
-            'control' in point
-              ? point.control
-              : {
-                  x: previousControl!.x - point.point.x,
-                  y: previousControl!.y - point.point.y,
-                },
+      return props.points.map(({ point, control }, i) => {
+        control = control ?? {
+          x: (previousControl!.x - point.x) * -1,
+          y: (previousControl!.y - point.y) * -1,
         }
+
+        oppositeControl = {
+          x: control.x * -1,
+          y: control.y * -1,
+        }
+
+        previousControl = addPositions(control, point)
 
         if (i === props.points.length - 1) {
-          return point
+          return { point, oppositeControl }
         }
 
-        const oppositeControl = {
-          x: point.control.x * -1,
-          y: point.control.y * -1,
+        if (i === 0) {
+          return { point, control }
         }
-
-        previousControl = addVectors(oppositeControl, point.point)
-
-        console.log(
-          point.control,
-          oppositeControl,
-          previousControl,
-          addVectors(point.control, point.point),
-        )
 
         return {
-          ...point,
+          point,
+          control,
           oppositeControl,
         }
       })
@@ -102,52 +77,56 @@ const Quadratic = createToken(
     const bounds = useBounds(() => {
       return props.points
         .map(point => {
-          if ('control' in point) {
+          if ('control' in point && point.control) {
             return [point.control, point.point]
           }
-          /*  if (control) {
-            return [point, control]
-          } */
           return [point.point]
         })
         .flat()
     }, matrix)
 
     const path = useTransformedPath(() => {
-      const points = getAllPoints()
+      const values = getAllPoints()
 
-      let point: Point | (Point & { control: Position }) | undefined = points[0]
-      let offset = controls.offsets()[0]
-      if (!point || !offset) return new Path2D()
+      const offsets = controls.offsets()
 
-      point = { point: addVectors(point.point, offset.point) }
+      let value = values[0]
+      let offset = offsets[0]
+      let point = addPositions(value?.point, offset?.point)
+      let control = addPositions(offset?.point, offset?.control, value?.control)
 
-      let svgString = `M${point.point.x},${point.point.y} `
-
-      let i = 1
-      while ((point = points[i])) {
-        offset = controls.offsets()[i]
-        i++
-        if (!offset) return
-        if (i === 1) svgString += 'Q'
-        if (i === 2) svgString += 'T'
-        if ('control' in point && 'control' in offset) {
-          point = {
-            control: addVectors(offset.control, offset.point, point.control),
-            point: addVectors(offset.point, point.point),
-          }
-
-          // const control = addVectors(point.point, point.control)
-          svgString += `${point.control.x},${point.control.y} ${point.point.x},${point.point.y} `
-        } else {
-          point = {
-            point: addVectors(offset.point, point.point),
-          }
-          svgString += `${point.point.x},${point.point.y} `
-        }
+      if (!point || !offset || !control) {
+        console.error('incorrect path')
+        return new Path2D()
       }
 
-      const path2D = new Path2D(svgString)
+      let svg = `M${point.x},${point.y} Q${control.x},${control.y} `
+
+      let i = 1
+
+      while ((value = values[i])) {
+        offset = offsets[i]
+        point = addPositions(offset?.point, value.point)
+        control = addPositions(value.point, offset?.point, offset?.control, value.control)
+
+        if (!offset || !control || !point) {
+          console.error('incorrect path')
+          return new Path2D()
+        }
+
+        if (i !== values.length - 1 && 'control' in value && 'control' in offset) {
+          svg += `${point.x},${point.y} ${control.x},${control.y} `
+        } else {
+          svg += `${point.x},${point.y} `
+          if (i !== values.length - 1) {
+            svg += 'T '
+          }
+        }
+
+        i++
+      }
+
+      const path2D = new Path2D(svg)
       if (merged.close) path2D.closePath()
 
       return path2D
@@ -223,10 +202,10 @@ const GroupedQuadratic = withGroup(Quadratic)
       }
 
       if (i === points().length - 1) {
-        return { point, control: addVectors(control, point) }
+        return { point, control: addPositions(control, point) }
       }
 
-      const oppositeControl = addVectors(
+      const oppositeControl = addPositions(
         {
           x: control.x * -1,
           y: control.y * -1,
@@ -238,7 +217,7 @@ const GroupedQuadratic = withGroup(Quadratic)
 
       return {
         point,
-        control: addVectors(control, point),
+        control: addPositions(control, point),
         oppositeControl,
       }
     })
