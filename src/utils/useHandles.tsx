@@ -1,11 +1,21 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { createSignal, For, JSX, Setter, Show, untrack } from 'solid-js'
+import { createSignal, For, JSX, Show, untrack } from 'solid-js'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
 import addPositions from './addVectors'
 
-type BezierPoint = { point: Position; control?: Position; oppositeControl?: Position }
+type BezierPoint = {
+  point: Position
+  control?: Position
+  oppositeControl?: Position
+}
+
+type OffsetUpdater = (
+  index: number,
+  value: Position,
+  type: 'control' | 'point',
+) => void
 
 const Handle = (props: {
   position: Position
@@ -30,20 +40,20 @@ const Handle = (props: {
 const VectorHandle = (props: {
   position: Position
   index: number
-  setOffsets: Setter<BezierPoint[]>
+  updateOffset: OffsetUpdater
   value: BezierPoint
   draggable?: boolean
 }) => (
   <>
-    <Line points={[{ x: 0, y: 0 }, props.position]} lineDash={[10, 5]} pointerEvents={false} />
+    <Line
+      points={[{ x: 0, y: 0 }, props.position]}
+      lineDash={[10, 5]}
+      pointerEvents={false}
+    />
     <Handle
-      onDragMove={dragPosition => {
-        props.setOffsets(offsets => {
-          const offset = offsets[props.index]
-          if (offset && 'control' in offset) offset.control = dragPosition
-          return [...offsets]
-        })
-      }}
+      onDragMove={dragPosition =>
+        props.updateOffset(props.index, dragPosition, 'control')
+      }
       position={props.position}
       onMouseDown={event => {
         event.propagation = false
@@ -55,49 +65,54 @@ const VectorHandle = (props: {
 
 const BezierHandles = (props: {
   index: number
-  setOffsets: Setter<BezierPoint[]>
+  updateOffset: OffsetUpdater
   offsets: BezierPoint[]
   value: BezierPoint
 }) => {
   // NOTE:  I think this is specific to Quadratic and might not apply to Bezier
-  const oppositeControlPosition = () => {
-    return (
-      addPositions(
-        props.value.oppositeControl,
-        props.offsets[props.index - 1]?.control,
-        props.offsets[props.index - 1]?.point,
-        props.offsets[props.index]
-          ? {
-              x: props.offsets[props.index]!.point.x * -1,
-              y: props.offsets[props.index]!.point.y * -1,
-            }
-          : undefined,
-      ) ?? { x: 0, y: 0 }
+  const oppositeControlPosition = () =>
+    addPositions(
+      props.value.oppositeControl,
+      props.offsets[props.index - 1]?.control,
+      props.offsets[props.index - 1]?.point,
+      props.offsets[props.index]
+        ? {
+            x: props.offsets[props.index]!.point.x * -1,
+            y: props.offsets[props.index]!.point.y * -1,
+          }
+        : undefined,
+    ) ?? { x: 0, y: 0 }
+
+  const controlPosition = () =>
+    addPositions(
+      props.value.control,
+      (props.offsets[props.index] as BezierPoint).control,
+    ) ?? {
+      x: 0,
+      y: 0,
+    }
+
+  const handlePosition = () =>
+    addPositions(
+      props.value.point,
+      (props.offsets[props.index] as BezierPoint).point,
     )
-  }
 
   return (
     <Handle
-      onDragMove={dragPosition => {
-        props.setOffsets(offsets => {
-          const offset = offsets[props.index]
-          if (offset && 'point' in offset) offset.point = dragPosition
-          return [...offsets]
-        })
-      }}
+      onDragMove={dragPosition =>
+        props.updateOffset(props.index, dragPosition, 'point')
+      }
       onMouseDown={event => {
         event.propagation = false
       }}
-      position={props.value.point}
+      position={handlePosition()}
     >
       <Group position={{ x: 6, y: 6 }}>
         <Show when={props.value.control}>
           <VectorHandle
-            position={addPositions(
-              props.value.control ?? { x: 0, y: 0 },
-              (props.offsets[props.index] as BezierPoint).control ?? { x: 0, y: 0 },
-            )}
-            setOffsets={props.setOffsets}
+            position={controlPosition()}
+            updateOffset={props.updateOffset}
             value={props.value}
             index={props.index}
           />
@@ -105,7 +120,7 @@ const BezierHandles = (props: {
         <Show when={props.value.oppositeControl}>
           <VectorHandle
             position={oppositeControlPosition()}
-            setOffsets={props.setOffsets}
+            updateOffset={props.updateOffset}
             value={props.value}
             index={props.index}
             draggable={false}
@@ -125,10 +140,27 @@ export default function <T extends Position | BezierPoint>(props: {
       'x' in v
         ? { x: 0, y: 0 }
         : 'oppositeControl' in v
-        ? { control: { x: 0, y: 0 }, oppositeControl: { x: 0, y: 0 }, point: { x: 0, y: 0 } }
+        ? {
+            control: { x: 0, y: 0 },
+            oppositeControl: { x: 0, y: 0 },
+            point: { x: 0, y: 0 },
+          }
         : { control: { x: 0, y: 0 }, point: { x: 0, y: 0 } },
     ) as T[],
   )
+
+  const updateOffset = (
+    index: number,
+    value: Position,
+    type?: 'control' | 'point',
+  ) => {
+    setOffsets(offsets => {
+      const offset = offsets[index]
+      if (offset && type && type in offset)
+        (offset as BezierPoint)[type] = value
+      return [...offsets]
+    })
+  }
 
   const handles = (
     <Group>
@@ -153,9 +185,9 @@ export default function <T extends Position | BezierPoint>(props: {
           return (
             <BezierHandles
               offsets={offsets() as BezierPoint[]}
-              setOffsets={setOffsets}
               value={value}
               index={i()}
+              updateOffset={updateOffset}
             />
           )
         }}
