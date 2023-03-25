@@ -1,5 +1,5 @@
-import { Component, createMemo, createSignal, on, Show } from 'solid-js'
-import { Arc, Canvas, Image, useClock, Text } from 'src'
+import { Component } from 'solid-js'
+import { Bezier, Canvas, Group, Line, Quadratic, Text, useClock } from 'src'
 import { Composite } from 'src/types'
 
 const randomColor = (alpha?: number) => ({
@@ -49,114 +49,95 @@ const fxs: {
   },
 ]
 
+const clock = useClock()
+clock.start()
+
 const App: Component = () => {
-  const [switchScene, setSwitchScene] = createSignal(0)
-  const [cursor, setCursor] = createSignal<{ x: number; y: number }>()
-  const fill = randomColor(1)
-
-  const clock = useClock()
-  clock.start()
-
-  const switchColor = createMemo(() => Math.floor(clock.clock() / 200))
-
-  const incrementSwitchScene = () => setSwitchScene(c => c + 1)
-
-  window.addEventListener('keydown', event => {
-    if (event.code === 'Space') {
-      event.preventDefault()
-      incrementSwitchScene()
-    }
-  })
-
-  const feedback = (ctx: CanvasRenderingContext2D) => {
-    const bitmap = createImageBitmap(ctx.canvas)
-    bitmap.then(bitmap => {
-      const fx = fxs[switchScene() % fxs.length]
-      ctx.restore()
-      ctx.save()
-      ctx.globalAlpha = fx?.alpha ?? 1
-      if (fx?.composite) ctx.globalCompositeOperation = fx?.composite
-      if (fx?.filter) ctx.filter = fx.filter
-
-      const offset = typeof fx?.offset === 'function' ? fx?.offset() : fx?.offset
-      ctx.drawImage(bitmap, offset?.x ?? 0, offset?.y ?? 0, ctx.canvas.width, ctx.canvas.height)
-      if (fx?.double) {
-        ctx.globalAlpha = 0.25
-        ctx.drawImage(
-          bitmap,
-          (offset?.x ?? 0) * 5,
-          (offset?.y ?? 0) * 5,
-          ctx.canvas.width,
-          ctx.canvas.height,
-        )
-      }
-      ctx.restore()
-      bitmap.close()
-    })
-  }
-
-  const image = createMemo(
-    () =>
-      [
-        'https://thumbs.dreamstime.com/b/rainbow-sky-14537169.jpg',
-        'https://thumbs.dreamstime.com/b/rainbow-blue-sky-21447453.jpg',
-        'https://www.ageuk.org.uk/bp-assets/globalassets/east-grinstead--district/images/home-page/rainbow.png',
-      ][switchScene() % 3],
-  )
-
-  const position = createMemo(
-    on(switchColor, () => ({
-      x: (Math.random() * window.innerWidth) / 2,
-      y: (Math.random() * window.innerHeight) / 2,
-    })),
-  )
   return (
     <>
       <Canvas
-        fill={fill}
-        clock={clock.clock()}
         style={{ width: '100%', height: '100%' }}
         alpha
-        feedback={feedback}
-        cursor="none"
-        onMouseMove={event => setCursor(event.position)}
-        onMouseDown={event => incrementSwitchScene()}
+        draggable
+        origin={{ x: 200, y: 0 }}
       >
-        <Text
-          text="link"
-          rounded={5}
-          padding={10}
-          fill={{ r: 0, g: 0, b: 250 }}
-          background="white"
-          size={15}
-          hover={{ background: 'black', fill: 'white' }}
-          position={{ x: position().x, y: position().y + 300 }}
-          onMouseDown={() =>
-            window.open(
-              [
-                'https://thumbs.dreamstime.com/b/rainbow-sky-14537169.jpg',
-                'https://thumbs.dreamstime.com/b/rainbow-blue-sky-21447453.jpg',
-                'https://www.ageuk.org.uk/bp-assets/globalassets/east-grinstead--district/images/home-page/rainbow.png',
-              ][switchScene() % 3]!,
-            )
-          }
-        />
-        <Show when={cursor()}>
-          <Image
-            pointerEvents={false}
-            dimensions={{ width: 100, height: 100 }}
-            position={{ x: cursor()!.x - 50, y: cursor()!.y - 50 }}
-            image={image()!}
-            clip={() => <Arc radius={50} />}
-          />
-        </Show>
-        <Image
-          pointerEvents={false}
-          dimensions={{ width: 500, height: 300 }}
-          position={position()}
-          image={image()!}
-          opacity={0.2}
-        />
+        {/*  <Line
+          position={{ x: 400, y: 200 }}
+          points={[
+            { x: 0, y: 100 },
+            { x: 100, y: 200 },
+            { x: 200, y: 100 },
+          ]}
+          draggable
+          fill="black"
+          editable
+        /> */}
+        <Group position={{ x: 100, y: 100 }}>
+          <Bezier
+            points={[
+              { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
+              {
+                point: { x: 100, y: 100 },
+                control: { x: -50, y: 0 },
+                oppositeControl: { x: 50, y: 0 },
+              },
+              { point: { x: 200, y: 0 }, control: { x: 0, y: 50 } },
+            ]}
+            editable
+          >
+            <Text
+              position={{ x: 0, y: -40 }}
+              text="cubic bezier with oppositeControl manually defined"
+            />
+          </Bezier>
+          <Bezier
+            position={{ x: 0, y: 300 }}
+            points={[
+              { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
+              {
+                point: { x: 100, y: 100 },
+                control: { x: -50, y: 0 },
+              },
+              { point: { x: 200, y: 0 }, control: { x: 0, y: 50 } },
+            ]}
+            editable
+          >
+            <Text
+              position={{ x: 0, y: -40 }}
+              text="cubic bezier with oppositeControl automatically defined"
+            />
+          </Bezier>
+        </Group>
+        <Group position={{ x: 500, y: 100 }}>
+          <Quadratic
+            points={[
+              { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
+              { point: { x: 100, y: 100 }, control: { x: 50, y: 0 } },
+              { point: { x: 200, y: 0 } },
+            ]}
+            editable
+          >
+            <Text
+              position={{ x: 0, y: -40 }}
+              text="quadratic bezier with control manually defined"
+            />
+          </Quadratic>
+          <Quadratic
+            position={{ x: 0, y: 300 }}
+            points={[
+              { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
+              { point: { x: 100, y: 100 } },
+              { point: { x: 200, y: 0 } },
+              { point: { x: 400, y: 100 } },
+            ]}
+            editable
+          >
+            <Text
+              position={{ x: 0, y: -40 }}
+              text="quadratic bezier with control automatically defined"
+            />
+          </Quadratic>
+        </Group>
       </Canvas>
     </>
   )
