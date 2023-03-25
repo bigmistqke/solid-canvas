@@ -136,13 +136,15 @@ export type Shape2DProps = {
   /**
    * Makes shape draggable. Default: false
    */
-  draggable?: boolean
+  /* draggable?: boolean */
   /**
    * Ignore all pointer-events. Default: false
    */
   pointerEvents?: boolean
-
-  controls?: boolean
+  /**
+   * Enable editable handles. Default: false
+   */
+  editable?: boolean
 
   onDragMove?: (position: Position, event: CanvasMouseEvent) => void
 
@@ -163,12 +165,12 @@ export type Shape2DProps = {
 export type ResolvedShape2DProps = Required<
   Omit<
     Shape2DProps,
-    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'
+    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow' | 'editable'
   >
 > &
   Pick<
     Shape2DProps,
-    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow'
+    'onDragMove' | 'onMouseDown' | 'onMouseMove' | 'onMouseUp' | 'composite' | 'shadow' | 'editable'
   >
 
 export type CanvasMouseEvent = {

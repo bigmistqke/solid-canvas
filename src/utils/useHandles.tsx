@@ -118,7 +118,7 @@ const BezierHandles = (props: {
 
 export default function <T extends Position | BezierPoint>(props: {
   points: T[]
-  controls?: boolean | undefined
+  editable?: boolean | undefined
 }) {
   const [offsets, setOffsets] = createSignal<T[]>(
     props.points.map(v =>
@@ -165,10 +165,10 @@ export default function <T extends Position | BezierPoint>(props: {
 
   return {
     render: (ctx: CanvasRenderingContext2D) => {
-      if (props.controls) handles.data.render(ctx)
+      if (props.editable) handles.data.render(ctx)
     },
     hitTest: (event: CanvasMouseEvent) => {
-      if (props.controls) handles.data.hitTest(event)
+      if (props.editable) handles.data.hitTest(event)
     },
     offsets,
   }
