@@ -1,9 +1,9 @@
-import { createSignal, createEffect, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { GroupProps } from 'src/components/Object2D/Group'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Shape2DProps } from 'src/types'
+import { CanvasMouseEvent } from 'src/types'
 
-export default (props: Shape2DProps | GroupProps) => {
+export default (props: GroupProps) => {
   const canvas = useInternalContext()
 
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })

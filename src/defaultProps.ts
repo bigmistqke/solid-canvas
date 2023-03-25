@@ -12,7 +12,6 @@ const defaultShape2DProps: ResolvedShape2DProps = {
   lineWidth: 2,
   skewX: 0,
   skewY: 0,
-  draggable: false,
   pointerEvents: true,
   opacity: 1,
 }
@@ -29,7 +28,6 @@ const defaultBoundsProps: ResolvedShape2DProps = {
   lineWidth: 1,
   skewX: 0,
   skewY: 0,
-  draggable: false,
   pointerEvents: true,
   opacity: 1,
 }
