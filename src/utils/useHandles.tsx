@@ -1,5 +1,5 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { createSignal, For, JSX, Show, untrack } from 'solid-js'
+import { Accessor, createSignal, For, JSX, Show, untrack } from 'solid-js'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
@@ -63,6 +63,9 @@ const VectorHandle = (props: {
   </>
 )
 
+const invertPosition = (position: Position | undefined) =>
+  position ? { x: position.x * -1, y: position.y * -1 } : undefined
+
 const BezierHandles = (props: {
   index: number
   updateOffset: OffsetUpdater
@@ -70,7 +73,7 @@ const BezierHandles = (props: {
   value: BezierPoint
 }) => {
   // NOTE:  I think this is specific to Quadratic and might not apply to Bezier
-  const oppositeControlPosition = () =>
+  /* const oppositeControlPosition = () =>
     addPositions(
       props.value.oppositeControl,
       props.offsets[props.index - 1]?.control,
@@ -81,6 +84,12 @@ const BezierHandles = (props: {
             y: props.offsets[props.index]!.point.y * -1,
           }
         : undefined,
+    ) ?? { x: 0, y: 0 } */
+
+  const oppositeControlPosition = () =>
+    addPositions(
+      props.value.oppositeControl,
+      invertPosition(props.offsets[props.index]?.control),
     ) ?? { x: 0, y: 0 }
 
   const controlPosition = () =>
@@ -130,23 +139,55 @@ const BezierHandles = (props: {
     </Handle>
   )
 }
+function useLinearHandles(
+  points: Accessor<Position[]>,
+  editable: Accessor<boolean>,
+) {
+  const [offsets, setOffsets] = createSignal(
+    points().map(v => ({ x: 0, y: 0 })),
+  )
+  const handles = (
+    <Group>
+      {/* 
+        TODO: without untrack it would re-mount all ControlPoints with each interaction 
+      */}
+      <For each={untrack(() => points())}>
+        {(value, i) => (
+          <Handle
+            onDragMove={dragPosition => {
+              setOffsets(offsets => {
+                offsets[i()] = dragPosition
+                return [...offsets]
+              })
+            }}
+            position={value}
+          />
+        )}
+      </For>
+    </Group>
+  ) as any as TokenElement<GroupToken>
 
-export default function <T extends Position | BezierPoint>(props: {
-  points: T[]
-  editable?: boolean | undefined
-}) {
-  const [offsets, setOffsets] = createSignal<T[]>(
-    props.points.map(v =>
-      'x' in v
-        ? { x: 0, y: 0 }
-        : 'oppositeControl' in v
-        ? {
-            control: { x: 0, y: 0 },
-            oppositeControl: { x: 0, y: 0 },
-            point: { x: 0, y: 0 },
-          }
-        : { control: { x: 0, y: 0 }, point: { x: 0, y: 0 } },
-    ) as T[],
+  return {
+    render: (ctx: CanvasRenderingContext2D) => {
+      if (editable()) handles.data.render(ctx)
+    },
+    hitTest: (event: CanvasMouseEvent) => {
+      if (editable()) handles.data.hitTest(event)
+    },
+    offsets,
+  }
+}
+function useBezierHandles(
+  points: Accessor<BezierPoint[]>,
+  editable: Accessor<boolean>,
+  type: 'cubic' | 'quadratic',
+) {
+  const [offsets, setOffsets] = createSignal<BezierPoint[]>(
+    points().map(v => ({
+      control: { x: 0, y: 0 },
+      oppositeControl: { x: 0, y: 0 },
+      point: { x: 0, y: 0 },
+    })),
   )
 
   const updateOffset = (
@@ -167,41 +208,28 @@ export default function <T extends Position | BezierPoint>(props: {
       {/* 
         TODO: without untrack it would re-mount all ControlPoints with each interaction 
       */}
-      <For each={untrack(() => props.points)}>
-        {(value, i) => {
-          if ('x' in value) {
-            return (
-              <Handle
-                onDragMove={dragPosition => {
-                  setOffsets(offsets => {
-                    offsets[i()] = dragPosition as T
-                    return [...offsets]
-                  })
-                }}
-                position={value}
-              />
-            )
-          }
-          return (
-            <BezierHandles
-              offsets={offsets() as BezierPoint[]}
-              value={value}
-              index={i()}
-              updateOffset={updateOffset}
-            />
-          )
-        }}
+      <For each={untrack(() => points())}>
+        {(value, i) => (
+          <BezierHandles
+            offsets={offsets() as BezierPoint[]}
+            value={value}
+            index={i()}
+            updateOffset={updateOffset}
+          />
+        )}
       </For>
     </Group>
   ) as any as TokenElement<GroupToken>
 
   return {
     render: (ctx: CanvasRenderingContext2D) => {
-      if (props.editable) handles.data.render(ctx)
+      if (editable()) handles.data.render(ctx)
     },
     hitTest: (event: CanvasMouseEvent) => {
-      if (props.editable) handles.data.hitTest(event)
+      if (editable()) handles.data.hitTest(event)
     },
     offsets,
   }
 }
+
+export { useLinearHandles, useBezierHandles }

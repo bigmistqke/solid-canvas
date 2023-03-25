@@ -8,7 +8,7 @@ import { Position, Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useHandles from 'src/utils/useHandles'
+import { useLinearHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -31,7 +31,10 @@ const Line = createToken(
 
     const matrix = useMatrix(merged)
     const bounds = useBounds(() => props.points, matrix)
-    const handles = useHandles(props)
+    const handles = useLinearHandles(
+      () => props.points,
+      () => props.editable,
+    )
 
     const path = useTransformedPath(() => {
       // calculate path
@@ -57,7 +60,8 @@ const Line = createToken(
         renderPath(ctx, merged, path())
         handles?.render(ctx)
       },
-      debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
+      debug: (ctx: CanvasRenderingContext2D) =>
+        renderPath(ctx, defaultBoundsProps, bounds().path),
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this

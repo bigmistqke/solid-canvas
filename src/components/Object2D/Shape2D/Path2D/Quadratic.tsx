@@ -1,6 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createSignal, mergeProps } from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
@@ -10,7 +9,7 @@ import addPositions from 'src/utils/addVectors'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useHandles from 'src/utils/useHandles'
+import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -67,12 +66,11 @@ const Quadratic = createToken(
     }
 
     const matrix = useMatrix(merged)
-    const handles = useHandles({
-      ...merged,
-      get points() {
-        return getAllPoints()
-      },
-    })
+    const handles = useBezierHandles(
+      () => getAllPoints(),
+      () => !!props.editable,
+      'quadratic',
+    )
 
     const bounds = useBounds(() => {
       return props.points
@@ -107,14 +105,23 @@ const Quadratic = createToken(
       while ((value = values[i])) {
         offset = offsets[i]
         point = addPositions(offset?.point, value.point)
-        control = addPositions(value.point, offset?.point, offset?.control, value.control)
+        control = addPositions(
+          value.point,
+          offset?.point,
+          offset?.control,
+          value.control,
+        )
 
         if (!offset || !control || !point) {
           console.error('incorrect path')
           return new Path2D()
         }
 
-        if (i !== values.length - 1 && 'control' in value && 'control' in offset) {
+        if (
+          i !== values.length - 1 &&
+          'control' in value &&
+          'control' in offset
+        ) {
           svg += `${point.x},${point.y} ${control.x},${control.y} `
         } else {
           svg += `${point.x},${point.y} `

@@ -9,7 +9,7 @@ import addPositions from 'src/utils/addVectors'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useHandles from 'src/utils/useHandles'
+import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -31,25 +31,29 @@ const Bezier = createToken(
 
     const matrix = useMatrix(merged)
 
-    const handles = useHandles(props)
-
     const getOppositeControl = (point: Position, control: Position) => {
       return {
-        x: point.x + control.x * -1,
-        y: point.y + control.y * -1,
+        x: control.x * -1,
+        y: control.y * -1,
       }
     }
 
     const getAllPoints = createMemo(() =>
       props.points.map(({ point, control }, i) =>
         i === 0 || i === props.points.length - 1
-          ? { control: addPositions(control, point), point }
+          ? { control, point }
           : {
-              control: addPositions(control, point),
+              control,
               point,
               oppositeControl: getOppositeControl(point, control),
             },
       ),
+    )
+
+    const handles = useBezierHandles(
+      () => getAllPoints(),
+      () => !!props.editable,
+      'cubic',
     )
 
     const bounds = useBounds(() => {
@@ -57,30 +61,37 @@ const Bezier = createToken(
     }, matrix)
 
     const path = useTransformedPath(() => {
-      let point = getAllPoints()[0]
-      let offset = handles.offsets()[0]
+      const values = getAllPoints()
+      const offsets = handles.offsets()
 
-      if (!point || !offset) return new Path2D()
+      let value = values[0]
+      let offset = offsets[0]
+      let point = addPositions(value?.point, offset?.point)
+      let control = addPositions(offset?.point, offset?.control, value?.control)
 
-      point = {
-        control: addPositions(offset.control, offset.point, point.control),
-        point: addPositions(offset.point, point.point),
-      }
+      if (!point || !offset || !control) return new Path2D()
 
-      let svgString = `M${point.point.x},${point.point.y} C${point.control.x},${point.control.y} `
+      let svgString = `M${point.x},${point.y} C${control.x},${control.y} `
 
       let i = 1
-      while ((point = getAllPoints()[i])) {
-        offset = handles.offsets()[i]
-        if (!offset) return new Path2D()
-        point = {
-          control: addPositions(offset.control, offset.point, point.control),
-          point: addPositions(offset.point, point.point),
-          // oppositeControl: addPositions(offset.oppositeControl, point.point),
+      while ((value = getAllPoints()[i])) {
+        offset = offsets[i]
+        point = addPositions(offset?.point, value.point)
+        control = addPositions(
+          value.point,
+          offset?.point,
+          offset?.control,
+          value.control,
+        )
+
+        if (!offset || !control || !point) {
+          console.error('incorrect path')
+          return new Path2D()
         }
+
         // TODO:  implement manual control-points
         if (i === 2) svgString += 'S'
-        svgString += `${point.control.x},${point.control.y} ${point.point.x},${point.point.y} `
+        svgString += `${control.x},${control.y} ${point.x},${point.y} `
         i++
       }
       const path2D = new Path2D(svgString)
