@@ -1,8 +1,21 @@
-import { Component, createEffect, createMemo, createSignal, For, on, Show } from 'solid-js'
+import {
+  Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+  Show,
+} from 'solid-js'
 import { Arc, Bezier, Canvas, Group, useCanvas, useClock } from 'src'
 import { Position } from 'src/types'
 
-const randomColor = (alpha?: number) => ({ h: Math.random() * 360, s: 50, l: 50, a: alpha ?? 0.5 })
+const randomColor = (alpha?: number) => ({
+  h: Math.random() * 360,
+  s: 50,
+  l: 50,
+  a: alpha ?? 0.5,
+})
 
 const Smiley = (props: { counter: number; position: Position }) => {
   const context = useCanvas()
@@ -12,8 +25,14 @@ const Smiley = (props: { counter: number; position: Position }) => {
 
   context?.onFrame(() => {
     setPosition({
-      x: props.position.x - 50 * scale + Math.sin(performance.now() / (20 * delta) + delta) * 20,
-      y: props.position.y - 50 * scale + Math.cos(performance.now() / (20 * delta) + delta) * 20,
+      x:
+        props.position.x -
+        50 * scale +
+        Math.sin(performance.now() / (20 * delta) + delta) * 20,
+      y:
+        props.position.y -
+        50 * scale +
+        Math.cos(performance.now() / (20 * delta) + delta) * 20,
     })
   })
 
@@ -54,9 +73,18 @@ const Smiley = (props: { counter: number; position: Position }) => {
           lineWidth={5 * scale}
           stroke="black"
           points={[
-            { point: { x: 25 * scale, y: 0 }, control: { x: 0, y: 15 * scale } },
-            { point: { x: 50 * scale, y: 25 * scale }, control: { x: -15 * scale, y: 0 } },
-            { point: { x: 75 * scale, y: 0 }, control: { x: 0, y: 15 * scale } },
+            {
+              point: { x: 25 * scale, y: 0 },
+              control: { x: 0, y: 15 * scale },
+            },
+            {
+              point: { x: 50 * scale, y: 25 * scale },
+              control: { x: -15 * scale, y: 0 },
+            },
+            {
+              point: { x: 75 * scale, y: 0 },
+              control: { x: 0, y: 15 * scale },
+            },
           ]}
         />
       </Group>
@@ -77,7 +105,10 @@ const App: Component = () => {
   const fill = createMemo(
     on(
       counter,
-      () => `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${Math.random() * 200})`,
+      () =>
+        `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${
+          Math.random() * 200
+        })`,
     ),
   )
 

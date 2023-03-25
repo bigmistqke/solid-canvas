@@ -78,8 +78,15 @@ const App: Component = () => {
       if (fx?.composite) ctx.globalCompositeOperation = fx?.composite
       if (fx?.filter) ctx.filter = fx.filter
 
-      const offset = typeof fx?.offset === 'function' ? fx?.offset() : fx?.offset
-      ctx.drawImage(bitmap, offset?.x ?? 0, offset?.y ?? 0, ctx.canvas.width, ctx.canvas.height)
+      const offset =
+        typeof fx?.offset === 'function' ? fx?.offset() : fx?.offset
+      ctx.drawImage(
+        bitmap,
+        offset?.x ?? 0,
+        offset?.y ?? 0,
+        ctx.canvas.width,
+        ctx.canvas.height,
+      )
       if (fx?.double) {
         ctx.globalAlpha = 0.25
         ctx.drawImage(
