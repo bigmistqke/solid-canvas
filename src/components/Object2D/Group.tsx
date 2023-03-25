@@ -24,7 +24,8 @@ export type GroupProps = {
   position?: Position
   clip?: Accessor<JSX.Element | JSX.Element[]>
   composite?: Composite
-  draggable?: boolean
+  draggable?: boolean | 'controlled'
+  onDragMove?: (position: Position, event: CanvasMouseEvent) => void
 }
 
 const Group = createToken(parser, (props: GroupProps) => {
@@ -34,13 +35,15 @@ const Group = createToken(parser, (props: GroupProps) => {
 
   const [dragPosition, dragEventHandler] = useDraggable(props)
 
+  const offset = () => (props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition())
+
   const context = {
     ...canvas,
     get origin() {
       return canvas
         ? {
-            x: merged.position.x + canvas.origin.x + dragPosition().x,
-            y: merged.position.y + canvas.origin.y + dragPosition().y,
+            x: merged.position.x + canvas.origin.x + offset().x,
+            y: merged.position.y + canvas.origin.y + offset().y,
           }
         : merged.position
     },
