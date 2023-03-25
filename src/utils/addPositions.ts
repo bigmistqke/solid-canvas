@@ -1,19 +1,19 @@
 import { Position } from 'src/types'
 
-const addPositions = <T extends Position | undefined>(...args: T[]) => {
-  let result!: T
+const addPositions = <T extends Position | undefined>(...args: T[]): T => {
+  let result!: undefined | Position
   let arg: Position | undefined
 
   for (arg of args) {
-    if (!arg) continue
-    if (!result) result = { ...arg } as T
+    if (!arg) return undefined as T
+    if (!result) result = { ...arg }
     else {
       result.x += arg.x
       result.y += arg.y
     }
   }
 
-  return result
+  return result as T
 }
 
 export default addPositions
