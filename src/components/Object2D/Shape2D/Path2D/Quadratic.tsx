@@ -10,7 +10,7 @@ import addPositions from 'src/utils/addVectors'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useControls from 'src/utils/useControls'
+import useHandles from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -67,7 +67,7 @@ const Quadratic = createToken(
     }
 
     const matrix = useMatrix(merged)
-    const controls = useControls({
+    const handles = useHandles({
       ...merged,
       get points() {
         return getAllPoints()
@@ -88,7 +88,7 @@ const Quadratic = createToken(
     const path = useTransformedPath(() => {
       const values = getAllPoints()
 
-      const offsets = controls.offsets()
+      const offsets = handles.offsets()
 
       let value = values[0]
       let offset = offsets[0]
@@ -145,13 +145,13 @@ const Quadratic = createToken(
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
         renderPath(ctx, merged, path())
-        controls.render(ctx)
+        handles.render(ctx)
       },
       debug,
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this
-        controls.hitTest(event)
+        handles.hitTest(event)
         return hitTest(token, event, canvas?.ctx, merged)
       },
     }

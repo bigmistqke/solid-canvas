@@ -130,7 +130,7 @@ export default function <T extends Position | BezierPoint>(props: {
     ) as T[],
   )
 
-  const controls = (
+  const handles = (
     <Group>
       {/* 
         TODO: without untrack it would re-mount all ControlPoints with each interaction 
@@ -165,10 +165,10 @@ export default function <T extends Position | BezierPoint>(props: {
 
   return {
     render: (ctx: CanvasRenderingContext2D) => {
-      if (props.controls) controls.data.render(ctx)
+      if (props.controls) handles.data.render(ctx)
     },
     hitTest: (event: CanvasMouseEvent) => {
-      if (props.controls) controls.data.hitTest(event)
+      if (props.controls) handles.data.hitTest(event)
     },
     offsets,
   }

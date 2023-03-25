@@ -5,11 +5,11 @@ import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
-import addVectors from 'src/utils/addVectors'
+import addPositions from 'src/utils/addVectors'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useControls from 'src/utils/useControls'
+import useHandles from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -31,7 +31,7 @@ const Bezier = createToken(
 
     const matrix = useMatrix(merged)
 
-    const controls = useControls(props)
+    const handles = useHandles(props)
 
     const getOppositeControl = (point: Position, control: Position) => {
       return {
@@ -43,9 +43,9 @@ const Bezier = createToken(
     const getAllPoints = createMemo(() =>
       props.points.map(({ point, control }, i) =>
         i === 0 || i === props.points.length - 1
-          ? { control: addVectors(control, point), point }
+          ? { control: addPositions(control, point), point }
           : {
-              control: addVectors(control, point),
+              control: addPositions(control, point),
               point,
               oppositeControl: getOppositeControl(point, control),
             },
@@ -58,26 +58,27 @@ const Bezier = createToken(
 
     const path = useTransformedPath(() => {
       let point = getAllPoints()[0]
-      let offset = controls.offsets()[0]
+      let offset = handles.offsets()[0]
 
       if (!point || !offset) return new Path2D()
 
       point = {
-        control: addVectors(offset.control, offset.point, point.control),
-        point: addVectors(offset.point, point.point),
+        control: addPositions(offset.control, offset.point, point.control),
+        point: addPositions(offset.point, point.point),
       }
 
       let svgString = `M${point.point.x},${point.point.y} C${point.control.x},${point.control.y} `
 
       let i = 1
       while ((point = getAllPoints()[i])) {
-        offset = controls.offsets()[i]
+        offset = handles.offsets()[i]
         if (!offset) return new Path2D()
         point = {
-          control: addVectors(offset.control, offset.point, point.control),
-          point: addVectors(offset.point, point.point),
+          control: addPositions(offset.control, offset.point, point.control),
+          point: addPositions(offset.point, point.point),
+          // oppositeControl: addPositions(offset.oppositeControl, point.point),
         }
-
+        // TODO:  implement manual control-points
         if (i === 2) svgString += 'S'
         svgString += `${point.control.x},${point.control.y} ${point.point.x},${point.point.y} `
         i++
@@ -92,7 +93,7 @@ const Bezier = createToken(
       if (!canvas) return
       canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path)
-      controls.render(ctx)
+      handles.render(ctx)
       canvas.ctx.restore()
     }
 
@@ -101,14 +102,14 @@ const Bezier = createToken(
       type: 'Shape2D',
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
-        controls.render(ctx)
+        handles.render(ctx)
         renderPath(ctx, merged, path())
       },
       debug,
       path,
       hitTest: function (event) {
         token = this
-        controls.hitTest(event)
+        handles.hitTest(event)
         return hitTest(token, event, canvas?.ctx, merged)
       },
     }

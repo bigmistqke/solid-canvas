@@ -8,7 +8,7 @@ import { Position, Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useControls from 'src/utils/useControls'
+import useHandles from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
@@ -31,17 +31,17 @@ const Line = createToken(
 
     const matrix = useMatrix(merged)
     const bounds = useBounds(() => props.points, matrix)
-    const controls = useControls(props)
+    const handles = useHandles(props)
 
     const path = useTransformedPath(() => {
       // calculate path
       const path2D = new Path2D()
       let point = props.points[0]
-      let offset = controls.offsets()[0]
+      let offset = handles.offsets()[0]
       path2D.moveTo(point!.x + (offset?.x ?? 0), point!.y + (offset?.y ?? 0))
       let i = 0
       while ((point = props.points[i])) {
-        offset = controls.offsets()[i]
+        offset = handles.offsets()[i]
         path2D.lineTo(point.x + (offset?.x ?? 0), point.y + (offset?.y ?? 0))
         i++
       }
@@ -55,13 +55,13 @@ const Line = createToken(
       id: 'Line',
       render: (ctx: CanvasRenderingContext2D) => {
         renderPath(ctx, merged, path())
-        controls?.render(ctx)
+        handles?.render(ctx)
       },
       debug: (ctx: CanvasRenderingContext2D) => renderPath(ctx, defaultBoundsProps, bounds().path),
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this
-        controls?.hitTest(event)
+        handles?.hitTest(event)
         return hitTest(token, event, canvas?.ctx, merged)
       },
     }
