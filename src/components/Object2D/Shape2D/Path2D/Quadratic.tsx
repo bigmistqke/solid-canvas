@@ -1,11 +1,13 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { mergeProps } from 'solid-js'
+import { createSignal, mergeProps } from 'solid-js'
+import { Portal } from 'solid-js/web'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
+import useDebugSvg from 'src/utils/useDebugSvg'
 import hitTest from 'src/utils/hitTest'
 import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
@@ -79,28 +81,33 @@ const Quadratic = createToken(
     )
 
     const bounds = useBounds(() => {
-      return props.points
-        .map(point => {
-          if ('control' in point && point.control) {
-            return [point.control, point.point]
+      const points = handles.points()
+      return points
+        .map((point, i) => {
+          let result: Position[] = [point.point]
+          if (point.control) {
+            const control = addPositions(point.point, point.control)
+            const nextPoint = points[i + 1]?.point
+            if (nextPoint) {
+              result.push(control, point.point)
+            } else {
+              result.push(point.point)
+            }
           }
-          return [point.point]
+          return result
         })
         .flat()
     }, matrix)
 
     const path = useTransformedPath(() => {
-      const values = getAllPoints()
-
-      const offsets = handles.offsets()
+      const values = handles.points()
 
       let value = values[0]
-      let offset = offsets[0]
-      let point = addPositions(value?.point, offset?.point)
-      let control = addPositions(offset?.point, offset?.control, value?.control)
+      let point = value?.point
+      let control = addPositions(value?.control, point)
 
-      if (!point || !offset || !control) {
-        console.error('incorrect path', point, offset, control, value)
+      if (!point || !control) {
+        console.error('incorrect path', point, control, value)
         return new Path2D()
       }
 
@@ -109,33 +116,20 @@ const Quadratic = createToken(
       let i = 1
 
       while ((value = values[i])) {
-        offset = offsets[i]
-        point = addPositions(offset?.point, value.point)
-        control = addPositions(
-          value.point,
-          offset?.point,
-          offset?.control,
-          value.control,
-        )
+        point = value.point as Position
+        control = addPositions(value.control, point)
 
-        if (!offset || !point) {
-          console.error('incorrect path', point, offset, control, value)
-          return new Path2D()
-        }
-
-        if (!value.automatic && i !== values.length - 1 && control) {
+        if (i !== values.length - 1 && control) {
           svg += `${point.x},${point.y} ${control.x},${control.y} `
         } else {
           svg += `${point.x},${point.y} `
-          if (i !== values.length - 1) {
-            svg += 'T '
-          }
         }
 
         i++
       }
 
       const path2D = new Path2D(svg)
+
       if (merged.close) path2D.closePath()
 
       return path2D
@@ -169,97 +163,4 @@ const Quadratic = createToken(
 
 const GroupedQuadratic = withGroup(Quadratic)
 
-// NOTE:  I was exploring to use a hook for (editable) controls
-//        but I am not sure if this is the right approach.
-
-//        I feel that we should be able to write it more as userland
-//        with draggable `<Line/>` and `<Arc/>`
-
-//        maybe with an API like:
-//          const Bezier = ...
-//          export default (points) =>
-//            <Controls points={points}>
-//              (points) => <Bezier points={points}/>
-//            </Controls>
-
-//        but unsure how to design the API that `Controls` could work for all the Canvas-primitives
-//          like `Line`, `Bezier`, `Quadratic`, ...
-
-/* const useHandle = (
-  points: Accessor<{ point: Position; control?: Position }[]>,
-  matrix: Accessor<DOMMatrix>,
-) => {
-  const canvas = useInternalContext()
-  let previousControl: Position
-  const getAllPoints = () =>
-    points().map(({ point, control }, i) => {
-      if (i === 0) {
-        return { point }
-      }
-
-      if (!control) {
-        // NOTE:  with the T-command it is possible to create smooth curves without defining control points
-
-        //        from https://www.w3.org/TR/2015/WD-SVG2-20150709/paths.html#PathDataQuadraticBezierCommands
-        //          Note that the control point for the "T" command is computed automatically
-        //          as the reflection of the control point for the previous "Q" command relative
-        //          to the start point of the "T" command.'
-        control = {
-          x: previousControl.x - point.x,
-          y: previousControl.y - point.y,
-        }
-      }
-
-      if (i === points().length - 1) {
-        return { point, control: addPositions(control, point) }
-      }
-
-      const oppositeControl = addPositions(
-        {
-          x: control.x * -1,
-          y: control.y * -1,
-        },
-        point,
-      )
-
-      previousControl = oppositeControl
-
-      return {
-        point,
-        control: addPositions(control, point),
-        oppositeControl,
-      }
-    })
-
-  const renderControls = () => {
-    if (!canvas) return
-    let firstPoint: Position
-
-    getAllPoints()
-      .map(({ control, point, oppositeControl }) => ({
-        point: transformPoint(point, matrix()),
-        control: control ? transformPoint(control, matrix()) : undefined,
-        oppositeControl: oppositeControl ? transformPoint(oppositeControl, matrix()) : undefined,
-      }))
-      .forEach(({ control, point, oppositeControl }, i) => {
-        renderPoint(canvas.ctx, point)
-        if (!firstPoint) firstPoint = point
-        if (control) {
-          if (i === 1) renderLine(canvas.ctx, firstPoint, control)
-          renderLine(canvas.ctx, point, control)
-          renderPoint(canvas.ctx, control)
-        }
-        if (oppositeControl) {
-          renderPoint(canvas.ctx, oppositeControl)
-          renderLine(canvas.ctx, point, oppositeControl)
-        }
-      })
-  }
-
-  return {
-    render: renderControls,
-    points: getAllPoints,
-  }
-}
- */
 export { GroupedQuadratic as Quadratic, type QuadraticPoints }
