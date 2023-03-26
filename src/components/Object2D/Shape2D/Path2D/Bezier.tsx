@@ -66,68 +66,46 @@ const Bezier = createToken(
     )
 
     const bounds = useBounds(() => {
-      return getAllPoints().map(Object.values).flat()
+      return handles
+        .points()
+        .map(Object.values)
+        .flat()
+        .filter(v => typeof v === 'object')
     }, matrix)
 
-    const [svgPath, setSvgPath] = createSignal<string>()
-
-    /* const svg = (
-      <Portal>
-        <svg
-          style={{
-            position: 'fixed',
-            'z-index': 10,
-            top: '0px',
-            background: 'lightgrey',
-            stroke: 'black',
-            fill: 'transparent',
-          }}
-        >
-          <path d={svgPath()} />
-        </svg>
-      </Portal>
-    ) */
-
     const path = useTransformedPath(() => {
-      const values = getAllPoints()
-      const offsets = handles.offsets()
+      const values = handles.points()
 
       let value = values[0]
-      let offset = offsets[0]
-      let point = addPositions(value?.point, offset?.point)
-      let control = addPositions(offset?.point, offset?.control, value?.control)
+      let point = value?.point
+      let control = addPositions(point, value?.control)
+      let oppositeControl: Position | undefined
 
-      if (!point || !offset || !control) return new Path2D()
+      if (!point || !control) return new Path2D()
 
       let svgString = `M${point.x},${point.y} C${control.x},${control.y} `
 
       let i = 1
-      while ((value = values[i])) {
-        offset = offsets[i]
-        point = addPositions(offset?.point, value.point)
-        control = addPositions(point, offset?.control, value.control)
 
-        if (!offset || !control || !point) {
-          console.error('incorrect path', offset, control, point, value)
+      while ((value = values[i])) {
+        point = value.point
+        control = addPositions(point, value.control)
+
+        if (!control || !point) {
+          console.error('incorrect path', control, point, value)
           return new Path2D()
         }
 
-        let oppositeControl = value.automatic
-          ? addPositions(
-              point,
-              invertPosition(offset?.control),
-              value.oppositeControl,
-            )
-          : addPositions(point, offset?.oppositeControl, value.oppositeControl)
+        oppositeControl = value.automatic
+          ? addPositions(point, invertPosition(value?.control))
+          : addPositions(point, value.oppositeControl)
 
+        svgString += `${control.x},${control.y} ${point.x},${point.y} `
         if (oppositeControl)
-          svgString += `${control.x},${control.y} ${point.x},${point.y} ${oppositeControl.x},${oppositeControl.y} `
-        else svgString += `${control.x},${control.y} ${point.x},${point.y}`
+          svgString += `${oppositeControl.x},${oppositeControl.y} `
 
         i++
       }
-
-      setSvgPath(svgString)
 
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
