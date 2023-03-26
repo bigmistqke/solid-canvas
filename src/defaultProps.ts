@@ -25,11 +25,12 @@ const defaultBoundsProps: ResolvedShape2DProps = {
   lineCap: 'butt',
   lineJoin: 'round',
   miterLimit: 10,
-  lineWidth: 1,
+  lineWidth: 0.5,
   skewX: 0,
   skewY: 0,
   pointerEvents: true,
   opacity: 1,
+  composite: 'destination-over',
 }
 
 export { defaultShape2DProps, defaultBoundsProps }
