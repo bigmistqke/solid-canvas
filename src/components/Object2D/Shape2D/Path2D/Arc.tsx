@@ -60,20 +60,20 @@ const Arc = createToken(
     const bounds = useBounds(
       () => [
         {
-          x: merged.radius * -1,
-          y: merged.radius * -1,
+          x: 0,
+          y: 0,
         },
         {
-          x: merged.radius * 1,
-          y: merged.radius * -1,
+          x: merged.radius * 2,
+          y: 0,
         },
         {
-          x: merged.radius * 1,
-          y: merged.radius * 1,
+          x: merged.radius * 2,
+          y: merged.radius * 2,
         },
         {
-          x: merged.radius * -1,
-          y: merged.radius * 1,
+          x: 0,
+          y: merged.radius * 2,
         },
       ],
       matrix,
