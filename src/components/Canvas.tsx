@@ -222,11 +222,7 @@ export const Canvas: Component<{
     } else {
       ctx.clearRect(0, 0, canvasDimensions().width, canvasDimensions().height)
     }
-    if (props.fill) {
-      ctx.globalCompositeOperation = 'destination-atop'
-      ctx.fillStyle = resolveColor(props.fill) ?? 'white'
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-    }
+
     ctx.restore()
 
     let token
@@ -234,6 +230,14 @@ export const Canvas: Component<{
       ctx.save()
       if ('debug' in token) token.debug(ctx)
       if ('render' in token) token.render(ctx)
+      ctx.restore()
+    }
+
+    if (props.fill) {
+      ctx.save()
+      ctx.globalCompositeOperation = 'destination-over'
+      ctx.fillStyle = resolveColor(props.fill) ?? 'white'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
       ctx.restore()
     }
 
