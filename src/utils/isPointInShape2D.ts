@@ -7,16 +7,16 @@ const isPointInPath = (
   path: Path2D,
 ) => {
   // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
-  // if (!token.props.fill) return false
+  if (!props.fill || props.fill === 'transparent') return false
   return event.ctx.isPointInPath(path, event.position.x, event.position.y)
 }
 const isPointInStroke = (
   event: CanvasMouseEvent,
-  props: ResolvedShape2DProps | GroupProps,
+  props: ResolvedShape2DProps,
   path: Path2D,
 ) => {
-  // TODO:  can not check for token.props.fill as it would re-mount ColorTokens
-  // if (!token.props.stroke) return false
+  // TODO:  can not check for props.fill as it would re-mount ColorTokens
+  if (!props.stroke || props.stroke === 'transparent') return false
 
   // TODO:  we should set the strokeStyle to the path's strokeStyle
   return event.ctx.isPointInStroke(path, event.position.x, event.position.y)
@@ -28,6 +28,7 @@ export const isPointInShape2D = (
   path: Path2D,
 ) => {
   const result =
-    isPointInPath(event, props, path) || isPointInStroke(event, props, path)
+    isPointInPath(event, props, path) ||
+    ('stroke' in props ? isPointInStroke(event, props, path) : false)
   return result
 }
