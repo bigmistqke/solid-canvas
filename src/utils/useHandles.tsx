@@ -8,7 +8,7 @@ import {
   Show,
   untrack,
 } from 'solid-js'
-import { Arc, Group, Line, Text } from 'src'
+import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
 import addPositions from './addPositions'
@@ -35,10 +35,10 @@ const Handle = (props: {
 }) => (
   <Arc
     onDragMove={props.onDragMove}
-    radius={6}
+    radius={10}
     stroke="transparent"
     fill={props.draggable !== false ? 'black' : 'lightgrey'}
-    position={{ x: props.position.x - 6, y: props.position.y - 6 }}
+    position={{ x: props.position.x - 10, y: props.position.y - 10 }}
     draggable={props.draggable === false ? false : 'controlled'}
     pointerEvents={props.draggable === false ? false : true}
     onMouseDown={event => {
@@ -60,6 +60,7 @@ const VectorHandle = (props: {
       lineDash={[10, 5]}
       pointerEvents={false}
       stroke={props.draggable !== false ? 'black' : 'lightgrey'}
+      composite="destination-over"
     />
     <Handle
       onDragMove={dragPosition => props.updateOffset(dragPosition)}
@@ -86,7 +87,7 @@ const BezierHandles = (props: {
       position={props.value.point}
       draggable={true}
     >
-      <Group position={{ x: 6, y: 6 }}>
+      <Group position={{ x: 10, y: 10 }}>
         <Show when={props.value.control}>
           <VectorHandle
             position={props.value.control!}
@@ -169,20 +170,21 @@ function useBezierHandles(
 
   const controls = () => {
     const result: BezierPoint[] = []
-    console.time('calculate controls')
+    let offset: BezierPoint | undefined
     values().forEach((value, i) => {
-      const point = addPositions(value.point, offsets()[i]!.point)
+      offset = offsets()[i]!
+      const point = addPositions(value.point, offset.point)
 
       if (type === 'cubic') {
         result.push({
           automatic: value.automatic,
           point,
-          control: addPositions(value.control, offsets()[i]?.control),
+          control: addPositions(value.control, offset.control),
           oppositeControl: addPositions(
             value.oppositeControl,
             value.automatic
-              ? invertPosition(offsets()[i]?.control)
-              : offsets()[i]?.oppositeControl,
+              ? invertPosition(offset.control)
+              : offset.oppositeControl,
           ),
         })
         return
@@ -191,12 +193,12 @@ function useBezierHandles(
       const oppositeControl = addPositions(
         result[i - 1]?.control,
         result[i - 1]?.point,
-        invertPosition(addPositions(value.point, offsets()[i]?.point)),
+        invertPosition(addPositions(value.point, offset.point)),
       )
 
       const control = value.automatic
         ? invertPosition(oppositeControl)
-        : addPositions(value.control, offsets()[i]?.control)
+        : addPositions(value.control, offset.control)
 
       result.push({
         automatic: value.automatic,
@@ -205,11 +207,10 @@ function useBezierHandles(
         oppositeControl: i === 0 ? undefined : oppositeControl,
       })
     })
-    console.timeEnd('calculate controls')
     return result
   }
   const handles = (
-    <Show when={true /* editable() */}>
+    <Show when={editable()}>
       <Group>
         {/* 
         TODO: without untrack it would re-mount all ControlPoints with each interaction 
@@ -240,7 +241,7 @@ function useBezierHandles(
     hitTest: (event: CanvasMouseEvent) => {
       if (editable()) handles().data.hitTest(event)
     },
-    offsets,
+    points: controls,
   }
 }
 
