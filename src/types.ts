@@ -199,6 +199,12 @@ export type CanvasMouseEvent = {
   target: CanvasToken[]
 }
 
+export type BezierPoint = {
+  point: Position
+  control?: Position
+  oppositeControl?: Position
+}
+
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>
   : { [K in keyof T]: T[K] }

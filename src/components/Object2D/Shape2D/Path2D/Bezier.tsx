@@ -22,6 +22,7 @@ import useBounds from 'src/utils/useBounds'
 import useDebugSvg from 'src/utils/useDebugSvg'
 import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
+import useProcessedPoints from 'src/utils/useProcessedPoints'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
@@ -46,54 +47,18 @@ const Bezier = createToken(
 
     const matrix = useMatrix(merged)
 
-    const getOppositeControl = (point: Position, control: Position) => {
-      return {
-        x: control.x * -1,
-        y: control.y * -1,
-      }
-    }
-
-    const processedPoints = createMemo(
-      mapArray(
-        () => props.points,
-        (value, index) => {
-          return {
-            ...value,
-            get oppositeControl() {
-              return index() === 0 || index() === props.points.length - 1
-                ? undefined
-                : value.oppositeControl
-                ? value.oppositeControl
-                : getOppositeControl(value.point, value.control)
-            },
-            get automatic() {
-              return index() === 0 || index() === props.points.length - 1
-                ? false
-                : value.oppositeControl === undefined
-            },
-          }
-        },
-      ),
-    )
-
-    const handles = useBezierHandles(
-      () => processedPoints(),
-      () => !!props.editable,
-      'cubic',
-    )
+    const points = useProcessedPoints(() => props.points, 'cubic')
+    const handles = useBezierHandles(points, () => !!props.editable, 'cubic')
 
     const bounds = useBounds(() => {
-      return handles
-        .points()
+      return points()
         .map(Object.values)
         .flat()
         .filter(v => typeof v === 'object')
     }, matrix)
 
-    // const setDebug = useDebugSvg()
-
     const path = useTransformedPath(() => {
-      const values = handles.points()
+      const values = points()
 
       let value = values[0]
       let point = value?.point
@@ -115,9 +80,7 @@ const Bezier = createToken(
           return new Path2D()
         }
 
-        oppositeControl = value.automatic
-          ? addPositions(point, invertPosition(value?.control))
-          : addPositions(point, value.oppositeControl)
+        oppositeControl = addPositions(point, value.oppositeControl)
 
         svgString += `${control.x},${control.y} ${point.x},${point.y} `
         if (oppositeControl && i !== values.length - 1)
@@ -125,8 +88,6 @@ const Bezier = createToken(
 
         i++
       }
-
-      // setDebug(svgString)
 
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()

@@ -1,29 +1,20 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  mapArray,
-  mergeProps,
-  onCleanup,
-} from 'solid-js'
-import { Portal } from 'solid-js/web'
+import { createMemo, mapArray, mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { BezierPoint, Position, Shape2DProps } from 'src/types'
+import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
-import useDebugSvg from 'src/utils/useDebugSvg'
 import hitTest from 'src/utils/hitTest'
 import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
 import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
+import useProcessedPoints from 'src/utils/useProcessedPoints'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
-import { createStore, produce } from 'solid-js/store'
 
 /**
  * Paints a quadratic bezier to the canvas
@@ -43,69 +34,17 @@ const Quadratic = createToken(
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
 
-    const [processedPoints, setProcessedPoints] = createStore<BezierPoint[]>([])
-
-    const setDebug = useDebugSvg()
-
-    const processPoints = createMemo(
-      mapArray(
-        () => props.points,
-        (value, index) => {
-          const automatic = !('control' in value)
-          const previousControl = addPositions(
-            props.points[index() - 1]?.control,
-            props.points[index() - 1]?.point,
-          )
-          const control =
-            value.control ??
-            invertPosition(
-              addPositions(previousControl, invertPosition(value.point)),
-            )
-
-          const oppositeControl = previousControl
-            ? {
-                x: previousControl.x - value.point.x,
-                y: previousControl.y - value.point.y,
-              }
-            : undefined
-
-          return index() === props.points.length - 1
-            ? {
-                point: value.point,
-                oppositeControl,
-                automatic,
-              }
-            : index() === 0
-            ? {
-                point: value.point,
-                control,
-                automatic,
-              }
-            : {
-                point: value.point,
-                control,
-                oppositeControl,
-                automatic,
-              }
-        },
-      ),
-    )
-
     const matrix = useMatrix(merged)
-    const handles = useBezierHandles(
-      processPoints,
-      () => props.editable,
-      'quadratic',
-    )
+    const points = useProcessedPoints(() => props.points, 'quadratic')
+    const handles = useBezierHandles(points, () => props.editable, 'quadratic')
 
     const bounds = useBounds(() => {
-      const points = handles.points()
-      return points
+      return points()
         .map((point, i) => {
           let result: Position[] = [point.point]
           if (point.control) {
             const control = addPositions(point.point, point.control)
-            const nextPoint = points[i + 1]?.point
+            const nextPoint = points()[i + 1]?.point
             if (nextPoint) {
               result.push(control, point.point)
             } else {
@@ -118,7 +57,7 @@ const Quadratic = createToken(
     }, matrix)
 
     const path = useTransformedPath(() => {
-      const values = handles.points()
+      const values = points()
 
       let value = values[0]
       let point = value?.point
@@ -136,19 +75,15 @@ const Quadratic = createToken(
         point = value.point as Position
         control = addPositions(value.control, point)
 
-        console.log(values.length - 1, i)
-
         if (i !== values.length - 1 && control) {
           svg += `${point.x},${point.y} ${control.x},${control.y} `
         } else {
-          console.log('this')
           svg += `${point.x},${point.y} `
         }
 
         i++
       }
 
-      setDebug(svg)
       const path2D = new Path2D(svg)
 
       if (merged.close) path2D.closePath()
