@@ -30,6 +30,21 @@ const useProcessedPoints = (
         y: 0,
       })
 
+      /*
+       *
+       *   `control` - `oppositeControl` and `automatic` have a different meaning between cubic and quadratic beziers:
+       *     - cubic bezier has 2 control points (`control` - `oppositeControl`) per path-point, 1 on each side, both tangentially to the path.
+       *         ->  when a cubic bezier-point is `automatic`
+       *             `oppositeControl` is the continuation of `control`.
+       *     - quadratic bezier's also has 2 control points, on both side each.
+       *         but 1 point's `control` position is being shared with the next point's `oppositeControl`
+       *         users can not set `oppositeControl` for a quadratic bezier, it's only for visual purposes.
+       *         ->  when a series of quadratic bezier-point are `automatic`
+       *             their positions are being calculated by the first non-automatic point (through an iterative series of reflections)
+       *             (that's why the first point needs to have a `control`)
+       *
+       */
+
       const control: Accessor<Position | undefined> = createLazyMemo(() => {
         if (type === 'cubic')
           return addPositions(value.control, offsetControl())
@@ -60,8 +75,7 @@ const useProcessedPoints = (
         },
       )
 
-      // NOTE:  "What You Set Is Not What You Get"
-      //        is a bit awkward.
+      // NOTE:  "What You Set Is Not What You Get" is a bit awkward.
       return {
         get control() {
           return control()
