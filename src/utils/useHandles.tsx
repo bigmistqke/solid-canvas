@@ -1,18 +1,15 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import {
   Accessor,
-  createEffect,
   createMemo,
   createSignal,
   For,
   Index,
   JSX,
   mapArray,
-  onCleanup,
   Show,
   untrack,
 } from 'solid-js'
-import { produce } from 'solid-js/store'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
@@ -152,30 +149,55 @@ function useBezierHandles(
   editable: Accessor<boolean | undefined>,
   type: 'cubic' | 'quadratic',
 ) {
-  const offsets = createMemo(
+  const updateOffset: OffsetUpdater = (index, value, type) => {
+    if (controls()[index]?.[type]) controls()[index]![type] = value
+  }
+
+  const controls = createMemo(
     mapArray(values, (value, index) => {
       const [point, setPoint] = createSignal<Position>({ x: 0, y: 0 })
-      const [control, setControl] = createSignal<Position>({ x: 0, y: 0 })
-      const [oppositeControl, setOppositeControl] = createSignal<Position>({
+      const [control, setControl] = createSignal<Position | undefined>({
+        x: 0,
+        y: 0,
+      })
+      const [oppositeControl, setOppositeControl] = createSignal<
+        Position | undefined
+      >({
         x: 0,
         y: 0,
       })
 
       return {
         get control() {
-          return control()
+          if (type === 'cubic') {
+            return addPositions(value.control, control())
+          }
+          if (index() === values().length - 1) return undefined
+          return value.automatic
+            ? invertPosition(this.oppositeControl)
+            : addPositions(value.control, control())
         },
         set control(v) {
           setControl(v)
         },
-        get oppositeControl() {
-          return oppositeControl()
+        get oppositeControl(): Position | undefined {
+          if (type === 'cubic')
+            return addPositions(
+              value.oppositeControl,
+              value.automatic ? invertPosition(control()) : oppositeControl(),
+            )
+          if (index() === 0) return undefined
+          return addPositions(
+            controls()[index() - 1]?.control,
+            controls()[index() - 1]?.point,
+            invertPosition(addPositions(value.point, point())),
+          )
         },
         set oppositeControl(v) {
           setOppositeControl(v)
         },
         get point() {
-          return point()
+          return addPositions(value.point, point())
         },
         set point(v) {
           setPoint(v)
@@ -184,61 +206,9 @@ function useBezierHandles(
       }
     }),
   )
-
-  const updateOffset: OffsetUpdater = (index, value, type) => {
-    if (offsets()[index]?.[type]) offsets()[index]![type] = value
-  }
-
-  const controls = createMemo(previous => {
-    const result: BezierPoint[] = []
-    let offset: BezierPoint | undefined
-    values().forEach((value, i) => {
-      offset = offsets()[i]
-      const point = addPositions(value.point, offset?.point)
-      if (!point) return
-
-      if (type === 'cubic') {
-        result.push({
-          automatic: value.automatic,
-          point,
-          control: addPositions(value.control, offset?.control),
-          oppositeControl: addPositions(
-            value.oppositeControl,
-            value.automatic
-              ? invertPosition(offset?.control)
-              : offset?.oppositeControl,
-          ),
-        })
-        return
-      }
-
-      const oppositeControl = addPositions(
-        result[i - 1]?.control,
-        result[i - 1]?.point,
-        invertPosition(addPositions(value.point, offset?.point)),
-      )
-
-      const control = value.automatic
-        ? invertPosition(oppositeControl)
-        : addPositions(value.control, offset?.control)
-
-      result.push({
-        automatic: value.automatic,
-        point,
-        control: i === values().length - 1 ? undefined : control,
-        oppositeControl: i === 0 ? undefined : oppositeControl,
-      })
-    })
-
-    return result
-  })
   const handles = (
     <Show when={editable()}>
       <Group>
-        {/* 
-        TODO: without untrack it would re-mount all ControlPoints with each interaction 
-      */}
-
         <Index each={controls()}>
           {(value, i) => (
             <BezierHandles
