@@ -100,7 +100,11 @@ import { Canvas, Rectangle } from 'solid-canvas'
 
 const App = () => (
   <Canvas>
-    <Rectangle position={{ x: 100, y: 100 }} dimensions={{ width: 50, height: 50 }} draggable />
+    <Rectangle
+      position={{ x: 100, y: 100 }}
+      dimensions={{ width: 50, height: 50 }}
+      draggable
+    />
   </Canvas>
 )
 ```
@@ -118,8 +122,14 @@ const App = () => (
       position={{ x: 100, y: 100 }}
       clip={() => (
         <>
-          <Rectangle position={{ x: 0, y: 0 }} dimensions={{ width: 100, height: 50 }} />
-          <Rectangle position={{ x: 0, y: 0 }} dimensions={{ width: 50, height: 100 }} />
+          <Rectangle
+            position={{ x: 0, y: 0 }}
+            dimensions={{ width: 100, height: 50 }}
+          />
+          <Rectangle
+            position={{ x: 0, y: 0 }}
+            dimensions={{ width: 50, height: 100 }}
+          />
         </>
       )}
       fill="blue"
@@ -180,7 +190,6 @@ const App = () => (
 
 <img width="1440" alt="Screenshot 2023-03-26 at 12 00 18" src="https://user-images.githubusercontent.com/10504064/227768487-c927f18c-dcba-4afd-9d5a-7e0939caefa7.png">
 
-
 ## Canvas API-Coverage
 
 - [x] Object2D
@@ -227,6 +236,11 @@ const App = () => (
   - [ ] HoverStyles for `Shape2D`
   - [x] Draggable `Shape2D` 👉 `Shape2D.draggable`
   - [ ] Editable `Path2D` with handlers
+    - [x] `Line`
+    - [x] `Bezier`
+    - [x] `Quadratic`
+    - [ ] `Rectangle`
+    - [ ] `Arc`
   - [ ] Possibility to add behaviors to `Shape2Ds` in a composable way (character-controllers)
   - [ ] Caching any `Object2D` by rendering result to `OffscreenCanvas`
 - Explore render-optimizations:
