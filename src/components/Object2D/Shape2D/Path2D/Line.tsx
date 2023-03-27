@@ -66,7 +66,7 @@ const Line = createToken(
       hitTest: function (event) {
         const token: Shape2DToken = this
         handles?.hitTest(event)
-        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
+        return hitTest(token, event, canvas, merged)
       },
     }
   },

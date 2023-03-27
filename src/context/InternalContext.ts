@@ -1,10 +1,11 @@
-import { createContext, useContext } from 'solid-js'
-import { Position, CanvasMouseEvent } from '../types'
+import { createContext, Setter, useContext } from 'solid-js'
+import { Position, CanvasMouseEvent, CursorStyle } from '../types'
 
-export const InternalContext = createContext<{
+export type InternalContext = {
   ctx: CanvasRenderingContext2D
   origin: Position
   debug: boolean
+  setCursorStyle: Setter<CursorStyle>
   addEventListener: (
     type: CanvasMouseEvent['type'],
     callback: (event: CanvasMouseEvent) => void,
@@ -13,6 +14,7 @@ export const InternalContext = createContext<{
     type: CanvasMouseEvent['type'],
     callback: (event: CanvasMouseEvent) => void,
   ) => void
-}>()
+}
+export const InternalContext = createContext<InternalContext>()
 
 export const useInternalContext = () => useContext(InternalContext)

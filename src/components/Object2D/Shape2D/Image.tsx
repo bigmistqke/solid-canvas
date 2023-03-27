@@ -79,13 +79,7 @@ const Image = createToken(
       id: 'Image',
       render,
       hitTest: function (event) {
-        return hitTest(
-          this as Shape2DToken,
-          event,
-          canvas?.ctx,
-          merged,
-          canvas?.origin,
-        )
+        return hitTest(this as Shape2DToken, event, canvas, merged)
       },
       path,
     }

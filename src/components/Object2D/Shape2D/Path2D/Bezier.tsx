@@ -115,7 +115,7 @@ const Bezier = createToken(
       hitTest: function (event) {
         token = this
         handles.hitTest(event)
-        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
+        return hitTest(token, event, canvas, merged)
       },
     }
   },

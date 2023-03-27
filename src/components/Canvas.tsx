@@ -17,7 +17,13 @@ import { InternalContext } from 'src/context/InternalContext'
 import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
-import { CanvasMouseEvent, Color, Composite, Position } from 'src/types'
+import {
+  CanvasMouseEvent,
+  Color,
+  Composite,
+  CursorStyle,
+  Position,
+} from 'src/types'
 import { resolveColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
@@ -26,25 +32,6 @@ import useDraggable from 'src/utils/useDraggable'
 /**
  * All `solid-canvas`-components have to be inside a `Canvas`
  */
-
-type CursorStyle =
-  | 'auto'
-  | 'default'
-  | 'crosshair'
-  | 'help'
-  | 'move'
-  | 'progress'
-  | 'text'
-  | 'wait'
-  | 'e-resize'
-  | 'ne-resize'
-  | 'nw-resize'
-  | 'n-resize'
-  | 'se-resize'
-  | 'sw-resize'
-  | 's-resize'
-  | 'pointer'
-  | 'none'
 
 export const Canvas: Component<{
   children: JSX.Element
@@ -122,6 +109,7 @@ export const Canvas: Component<{
           context: InternalContext,
           value: {
             ctx,
+            setCursorStyle,
             get debug() {
               return !!props.debug
             },

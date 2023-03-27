@@ -14,6 +14,7 @@ const defaultShape2DProps: ResolvedShape2DProps = {
   skewY: 0,
   pointerEvents: true,
   opacity: 1,
+  cursor: undefined,
 }
 
 const defaultBoundsProps: ResolvedShape2DProps = {
@@ -31,6 +32,7 @@ const defaultBoundsProps: ResolvedShape2DProps = {
   pointerEvents: true,
   opacity: 1,
   composite: 'destination-over',
+  cursor: undefined,
 }
 
 export { defaultShape2DProps, defaultBoundsProps }

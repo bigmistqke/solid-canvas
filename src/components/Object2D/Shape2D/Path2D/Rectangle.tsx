@@ -89,7 +89,7 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     path,
     hitTest: function (event) {
       const token: Shape2DToken = this
-      const result = hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
+      const result = hitTest(token, event, canvas, merged)
       setHover(result)
       return result
     },

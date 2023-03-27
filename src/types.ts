@@ -165,6 +165,10 @@ export type Shape2DProps = {
    * Set onMouseDown-eventhandler.
    */
   onMouseUp?: (event: CanvasMouseEvent) => void
+  /**
+   * Set cursor-style when hovering
+   */
+  cursor?: CursorStyle
 }
 
 export type ResolvedShape2DProps = Required<
@@ -177,6 +181,7 @@ export type ResolvedShape2DProps = Required<
     | 'composite'
     | 'shadow'
     | 'editable'
+    | 'cursor'
   >
 > &
   Pick<
@@ -188,6 +193,7 @@ export type ResolvedShape2DProps = Required<
     | 'composite'
     | 'shadow'
     | 'editable'
+    | 'cursor'
   >
 
 export type CanvasMouseEvent = {
@@ -204,6 +210,26 @@ export type BezierPoint = {
   control?: Position
   oppositeControl?: Position
 }
+
+export type CursorStyle =
+  | 'auto'
+  | 'default'
+  | 'crosshair'
+  | 'help'
+  | 'move'
+  | 'progress'
+  | 'text'
+  | 'wait'
+  | 'e-resize'
+  | 'ne-resize'
+  | 'nw-resize'
+  | 'n-resize'
+  | 'se-resize'
+  | 'sw-resize'
+  | 's-resize'
+  | 'pointer'
+  | 'none'
+  | undefined
 
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>

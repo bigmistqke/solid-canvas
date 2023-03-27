@@ -90,7 +90,7 @@ const Arc = createToken(
       path,
       hitTest: function (event) {
         token = this
-        return hitTest(token, event, canvas?.ctx, merged, canvas?.origin)
+        return hitTest(token, event, canvas, merged)
       },
     }
   },

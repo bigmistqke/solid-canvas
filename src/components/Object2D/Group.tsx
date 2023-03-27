@@ -91,7 +91,6 @@ const Group = createToken(parser, (props: GroupProps) => {
       //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
       ctx.globalCompositeOperation = merged.composite
     }
-    canvas?.ctx.save()
     if (props.opacity) ctx.globalAlpha = props.opacity
     if (props.fill) {
       ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'
