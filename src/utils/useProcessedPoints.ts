@@ -81,7 +81,10 @@ const useProcessedPoints = (
         set point(v) {
           setOffsetPoint(v)
         },
-        automatic: 'control' in value,
+        automatic:
+          type === 'cubic'
+            ? !('oppositeControl' in value)
+            : !('control' in value),
       }
     }),
   )
