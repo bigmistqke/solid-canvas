@@ -11,7 +11,10 @@ const RandomBezier = (props: { counter: number }) => {
         },
         {
           point: { x: 150 + Math.random() * 75, y: Math.random() * 75 - 37 },
-          control: { x: -90 + Math.random() * 75 - 25, y: -70 + Math.random() * 75 - 25 },
+          control: {
+            x: -90 + Math.random() * 75 - 25,
+            y: -70 + Math.random() * 75 - 25,
+          },
         },
         {
           point: { x: 150 + Math.random() * 75, y: Math.random() * 75 - 25 },
@@ -85,11 +88,21 @@ const App: Component = () => {
           top: '5px',
         }}
       >
-        <button onClick={() => setDebug(d => !d)}>debug {debug() ? 'off' : 'on'}</button>
+        <button onClick={() => setDebug(d => !d)}>
+          debug {debug() ? 'off' : 'on'}
+        </button>
       </div>
-      <Canvas style={{ width: '100%', height: '100%' }} alpha stats draggable debug={debug()}>
+      <Canvas
+        style={{ width: '100%', height: '100%' }}
+        alpha
+        stats
+        draggable
+        debug={debug()}
+      >
         <Group position={{ x: 500, y: 150 }}>
-          <For each={new Array(20).fill('')}>{() => <RandomBezier counter={counter()} />}</For>
+          <For each={new Array(20).fill('')}>
+            {() => <RandomBezier counter={counter()} />}
+          </For>
         </Group>
       </Canvas>
     </>

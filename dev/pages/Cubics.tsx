@@ -18,7 +18,9 @@ const RandomBezier = (props: { counter: number; scale: number }) => {
               x: (i * window.innerWidth) / amount,
               y:
                 i % 2 === 0
-                  ? window.innerHeight / 2 + Math.random() * variation - variation / 2
+                  ? window.innerHeight / 2 +
+                    Math.random() * variation -
+                    variation / 2
                   : window.innerHeight / 3 -
                     (window.innerHeight / 3) * props.scale +
                     Math.random() * variation,
@@ -88,7 +90,9 @@ const App: Component = () => {
 
   const randomFill = createMemo(
     on(counter, () => {
-      return `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${Math.random() * 200})`
+      return `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${
+        Math.random() * 200
+      })`
     }),
   )
   return (
@@ -102,7 +106,12 @@ const App: Component = () => {
       >
         <Group position={{ x: 0, y: 0 }}>
           <For each={new Array(amount).fill('')}>
-            {(_, i) => <RandomBezier counter={counter()} scale={(amount - i()) / amount} />}
+            {(_, i) => (
+              <RandomBezier
+                counter={counter()}
+                scale={(amount - i()) / amount}
+              />
+            )}
           </For>
         </Group>
       </Canvas>

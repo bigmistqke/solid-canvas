@@ -42,7 +42,11 @@ const App: Component = () => {
               x: Math.random() * (window.innerWidth + 200) - 100,
               y: Math.random() * (window.innerHeight + 200) - 100,
             },
-            fill: { r: Math.random() * 215, g: Math.random() * 215, b: Math.random() * 215 },
+            fill: {
+              r: Math.random() * 215,
+              g: Math.random() * 215,
+              b: Math.random() * 215,
+            },
             skewY: Math.random() * 90,
           }))}
         >

@@ -9,7 +9,11 @@ const randomColor = (alpha?: number) => ({
   a: alpha ?? 0.5,
 })
 
-const Dot = (props: { switchColor: number; position: Position; switchScene: number }) => {
+const Dot = (props: {
+  switchColor: number
+  position: Position
+  switchScene: number
+}) => {
   const context = useCanvas()
   const [position, setPosition] = createSignal({ x: 0, y: 0 })
 
@@ -17,8 +21,14 @@ const Dot = (props: { switchColor: number; position: Position; switchScene: numb
 
   context?.onFrame(() => {
     setPosition({
-      x: props.position.x - radius() + Math.sin(performance.now() / (10 * delta) + delta) * 10,
-      y: props.position.y - radius() + Math.cos(performance.now() / (10 * delta) + delta) * 10,
+      x:
+        props.position.x -
+        radius() +
+        Math.sin(performance.now() / (10 * delta) + delta) * 10,
+      y:
+        props.position.y -
+        radius() +
+        Math.cos(performance.now() / (10 * delta) + delta) * 10,
     })
   })
 
@@ -119,8 +129,15 @@ const App: Component = () => {
 
       ctx.filter = fx?.filter ?? ''
 
-      const offset = typeof fx?.offset === 'function' ? fx?.offset() : fx?.offset
-      ctx.drawImage(bitmap, offset?.x ?? 0, offset?.y ?? 0, ctx.canvas.width, ctx.canvas.height)
+      const offset =
+        typeof fx?.offset === 'function' ? fx?.offset() : fx?.offset
+      ctx.drawImage(
+        bitmap,
+        offset?.x ?? 0,
+        offset?.y ?? 0,
+        ctx.canvas.width,
+        ctx.canvas.height,
+      )
       if (fx?.double) {
         ctx.globalAlpha = 0.25
         ctx.drawImage(
@@ -149,7 +166,11 @@ const App: Component = () => {
         onMouseDown={event => incrementSwitchScene()}
       >
         <Show when={cursor()}>
-          <Dot switchColor={switchColor()} switchScene={switchScene()} position={cursor()!} />
+          <Dot
+            switchColor={switchColor()}
+            switchScene={switchScene()}
+            position={cursor()!}
+          />
         </Show>
       </Canvas>
     </>

@@ -13,8 +13,12 @@ const Smiley = (props: { counter: number }) => {
     on(
       () => props.counter,
       () => ({
-        x: randomPosition.x + Math.sin(performance.now() / (20 * delta) + delta) * 20,
-        y: randomPosition.y + Math.cos(performance.now() / (20 * delta) + delta) * 20,
+        x:
+          randomPosition.x +
+          Math.sin(performance.now() / (20 * delta) + delta) * 20,
+        y:
+          randomPosition.y +
+          Math.cos(performance.now() / (20 * delta) + delta) * 20,
       }),
     ),
   )
@@ -55,7 +59,9 @@ const App: Component = () => {
   })
   window.addEventListener('resize', increment)
 
-  const fill = `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${Math.random() * 200})`
+  const fill = `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${
+    Math.random() * 200
+  })`
   const loop = () => {
     requestAnimationFrame(loop)
     increment()
@@ -63,8 +69,15 @@ const App: Component = () => {
   loop()
   return (
     <>
-      <Canvas style={{ width: '100%', height: '100%', fill }} alpha stats onMouseDown={increment}>
-        <For each={new Array(100).fill('')}>{() => <Smiley counter={counter()} />}</For>
+      <Canvas
+        style={{ width: '100%', height: '100%', fill }}
+        alpha
+        stats
+        onMouseDown={increment}
+      >
+        <For each={new Array(100).fill('')}>
+          {() => <Smiley counter={counter()} />}
+        </For>
       </Canvas>
     </>
   )

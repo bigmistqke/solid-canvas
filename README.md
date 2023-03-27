@@ -140,45 +140,46 @@ const App = () => (
 import { Bezier, Canvas, Line, Quadratic } from 'solid-canvas'
 
 const App = () => (
-  <Canvas>
+  <Canvas draggable>
     <Line
-      position={{ x: 100, y: 200 }}
+      position={{ x: 100, y: 100 }}
       points={[
-        { x: 0, y: 100 },
-        { x: 50, y: 200 },
-        { x: 100, y: 100 },
-        { x: 150, y: 200 },
-        { x: 200, y: 100 },
-        { x: 250, y: 200 },
+        { x: 0, y: 0 },
+        { x: 50, y: 100 },
+        { x: 100, y: 0 },
+        { x: 150, y: 100 },
+        { x: 200, y: 0 },
+        { x: 250, y: 100 },
       ]}
     />
     <Bezier
-      position={{ x: 500, y: 200 }}
+      position={{ x: 500, y: 100 }}
       points={[
-        { point: { x: 0, y: 100 }, control: { x: 50, y: 0 } },
-        { point: { x: 50, y: 200 }, control: { x: -50, y: 0 } },
-        { point: { x: 100, y: 100 }, control: { x: -50, y: 0 } },
-        { point: { x: 150, y: 200 }, control: { x: -50, y: 0 } },
-        { point: { x: 200, y: 100 }, control: { x: -50, y: 0 } },
-        { point: { x: 250, y: 200 }, control: { x: -50, y: 0 } },
+        { point: { x: 0, y: 0 }, control: { x: 50, y: 0 } },
+        { point: { x: 50, y: 100 }, control: { x: -50, y: 0 } },
+        { point: { x: 100, y: 0 }, control: { x: -50, y: 0 } },
+        { point: { x: 150, y: 100 }, control: { x: -50, y: 0 } },
+        { point: { x: 200, y: 0 }, control: { x: -50, y: 0 } },
+        { point: { x: 250, y: 100 }, control: { x: -50, y: 0 } },
       ]}
     />
     <Quadratic
-      position={{ x: 900, y: 200 }}
+      position={{ x: 900, y: 150 }}
       points={[
-        { point: { x: 0, y: 100 } },
-        { point: { x: 50, y: 200 }, control: { x: -25, y: 0 } },
-        { point: { x: 100, y: 100 } },
-        { point: { x: 150, y: 200 } },
-        { point: { x: 200, y: 100 } },
-        { point: { x: 250, y: 200 } },
+        { point: { x: 0, y: 0 }, control: { x: 25, y: -100 } },
+        { point: { x: 50, y: 0 } },
+        { point: { x: 100, y: 0 } },
+        { point: { x: 150, y: 0 } },
+        { point: { x: 200, y: 0 } },
+        { point: { x: 250, y: 0 } },
       ]}
     />
   </Canvas>
 )
 ```
 
-<img width="1440" alt="Screenshot 2023-03-22 at 21 25 52" src="https://user-images.githubusercontent.com/10504064/227030059-a5b152b8-9d2d-42f8-a894-7e1462624426.png">
+<img width="1440" alt="Screenshot 2023-03-26 at 12 00 18" src="https://user-images.githubusercontent.com/10504064/227768487-c927f18c-dcba-4afd-9d5a-7e0939caefa7.png">
+
 
 ## Canvas API-Coverage
 
