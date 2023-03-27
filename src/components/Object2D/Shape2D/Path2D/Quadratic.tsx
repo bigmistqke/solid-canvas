@@ -1,11 +1,18 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createSignal, mergeProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  mapArray,
+  mergeProps,
+  onCleanup,
+} from 'solid-js'
 import { Portal } from 'solid-js/web'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { BezierPoint, Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import useDebugSvg from 'src/utils/useDebugSvg'
 import hitTest from 'src/utils/hitTest'
@@ -16,6 +23,7 @@ import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
+import { createStore, produce } from 'solid-js/store'
 
 /**
  * Paints a quadratic bezier to the canvas
@@ -35,47 +43,57 @@ const Quadratic = createToken(
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
 
-    const getAllPoints = () => {
-      let previousControl: Position | undefined = undefined
-      let oppositeControl: Position | undefined
+    const [processedPoints, setProcessedPoints] = createStore<BezierPoint[]>([])
 
-      return props.points.map((value, i) => {
-        let automatic = !('control' in value)
-        let control =
-          value.control ??
-          invertPosition(
-            addPositions(previousControl, invertPosition(value.point)),
+    const setDebug = useDebugSvg()
+
+    const processPoints = createMemo(
+      mapArray(
+        () => props.points,
+        (value, index) => {
+          const automatic = !('control' in value)
+          const previousControl = addPositions(
+            props.points[index() - 1]?.control,
+            props.points[index() - 1]?.point,
           )
+          const control =
+            value.control ??
+            invertPosition(
+              addPositions(previousControl, invertPosition(value.point)),
+            )
 
-        oppositeControl = previousControl
-          ? {
-              x: previousControl.x - value.point.x,
-              y: previousControl.y - value.point.y,
-            }
-          : undefined
+          const oppositeControl = previousControl
+            ? {
+                x: previousControl.x - value.point.x,
+                y: previousControl.y - value.point.y,
+              }
+            : undefined
 
-        previousControl = addPositions(control, value.point)
-
-        if (i === props.points.length - 1) {
-          return { point: value.point, oppositeControl, automatic }
-        }
-
-        if (i === 0) {
-          return { point: value.point, control, automatic }
-        }
-
-        return {
-          point: value.point,
-          control,
-          oppositeControl,
-          automatic,
-        }
-      })
-    }
+          return index() === props.points.length - 1
+            ? {
+                point: value.point,
+                oppositeControl,
+                automatic,
+              }
+            : index() === 0
+            ? {
+                point: value.point,
+                control,
+                automatic,
+              }
+            : {
+                point: value.point,
+                control,
+                oppositeControl,
+                automatic,
+              }
+        },
+      ),
+    )
 
     const matrix = useMatrix(merged)
     const handles = useBezierHandles(
-      () => getAllPoints(),
+      processPoints,
       () => props.editable,
       'quadratic',
     )
@@ -107,7 +125,6 @@ const Quadratic = createToken(
       let control = addPositions(value?.control, point)
 
       if (!point || !control) {
-        console.error('incorrect path', point, control, value)
         return new Path2D()
       }
 
@@ -119,15 +136,19 @@ const Quadratic = createToken(
         point = value.point as Position
         control = addPositions(value.control, point)
 
+        console.log(values.length - 1, i)
+
         if (i !== values.length - 1 && control) {
           svg += `${point.x},${point.y} ${control.x},${control.y} `
         } else {
+          console.log('this')
           svg += `${point.x},${point.y} `
         }
 
         i++
       }
 
+      setDebug(svg)
       const path2D = new Path2D(svg)
 
       if (merged.close) path2D.closePath()
@@ -137,9 +158,7 @@ const Quadratic = createToken(
 
     const debug = (ctx: CanvasRenderingContext2D) => {
       if (!canvas) return
-      canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin)
-      canvas.ctx.restore()
       canvas.ctx.restore()
     }
 
@@ -147,8 +166,8 @@ const Quadratic = createToken(
       type: 'Shape2D',
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
-        renderPath(ctx, merged, path(), canvas?.origin)
         handles.render(ctx)
+        renderPath(ctx, merged, path(), canvas?.origin)
       },
       debug,
       path,

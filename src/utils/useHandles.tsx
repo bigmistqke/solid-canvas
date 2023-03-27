@@ -1,13 +1,18 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import {
   Accessor,
+  createEffect,
+  createMemo,
   createSignal,
   For,
   Index,
   JSX,
+  mapArray,
+  onCleanup,
   Show,
   untrack,
 } from 'solid-js'
+import { produce } from 'solid-js/store'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
@@ -60,7 +65,6 @@ const VectorHandle = (props: {
       lineDash={[10, 5]}
       pointerEvents={false}
       stroke={props.draggable !== false ? 'black' : 'lightgrey'}
-      composite="destination-over"
     />
     <Handle
       onDragMove={dragPosition => props.updateOffset(dragPosition)}
@@ -82,30 +86,27 @@ const BezierHandles = (props: {
   automatic: boolean
 }) => {
   return (
-    <Handle
-      onDragMove={offset => props.updateOffset(offset, 'point')}
-      position={props.value.point}
-      draggable={true}
-    >
-      <Group position={{ x: 10, y: 10 }}>
-        <Show when={props.value.control}>
-          <VectorHandle
-            position={props.value.control!}
-            updateOffset={offset => props.updateOffset(offset, 'control')}
-            draggable={props.type === 'cubic' || !props.value.automatic}
-          />
-        </Show>
-        <Show when={props.value.oppositeControl}>
-          <VectorHandle
-            position={props.value.oppositeControl!}
-            updateOffset={offset =>
-              props.updateOffset(offset, 'oppositeControl')
-            }
-            draggable={props.type === 'cubic' && !props.value.automatic}
-          />
-        </Show>
-      </Group>
-    </Handle>
+    <Group position={props.value.point}>
+      <Handle
+        onDragMove={offset => props.updateOffset(offset, 'point')}
+        position={{ x: 0, y: 0 }}
+        draggable={true}
+      />
+      <Show when={props.value.control}>
+        <VectorHandle
+          position={props.value.control!}
+          updateOffset={offset => props.updateOffset(offset, 'control')}
+          draggable={props.type === 'cubic' || !props.value.automatic}
+        />
+      </Show>
+      <Show when={props.value.oppositeControl}>
+        <VectorHandle
+          position={props.value.oppositeControl!}
+          updateOffset={offset => props.updateOffset(offset, 'oppositeControl')}
+          draggable={props.type === 'cubic' && !props.value.automatic}
+        />
+      </Show>
+    </Group>
   )
 }
 function useLinearHandles(
@@ -151,40 +152,61 @@ function useBezierHandles(
   editable: Accessor<boolean | undefined>,
   type: 'cubic' | 'quadratic',
 ) {
-  const [offsets, setOffsets] = createSignal<BezierPoint[]>(
-    values().map(v => ({
-      control: { x: 0, y: 0 },
-      oppositeControl: { x: 0, y: 0 },
-      point: { x: 0, y: 0 },
-      automatic: v.automatic,
-    })),
+  const offsets = createMemo(
+    mapArray(values, (value, index) => {
+      const [point, setPoint] = createSignal<Position>({ x: 0, y: 0 })
+      const [control, setControl] = createSignal<Position>({ x: 0, y: 0 })
+      const [oppositeControl, setOppositeControl] = createSignal<Position>({
+        x: 0,
+        y: 0,
+      })
+
+      return {
+        get control() {
+          return control()
+        },
+        set control(v) {
+          setControl(v)
+        },
+        get oppositeControl() {
+          return oppositeControl()
+        },
+        set oppositeControl(v) {
+          setOppositeControl(v)
+        },
+        get point() {
+          return point()
+        },
+        set point(v) {
+          setPoint(v)
+        },
+        automatic: value.automatic,
+      }
+    }),
   )
 
-  const updateOffset: OffsetUpdater = (index, value, type) =>
-    setOffsets(offsets => {
-      const offset = offsets[index]
-      if (offset && type && type in offset)
-        (offset as BezierPoint)[type] = value
-      return [...offsets]
-    })
+  const updateOffset: OffsetUpdater = (index, value, type) => {
+    if (offsets()[index]?.[type]) offsets()[index]![type] = value
+  }
 
-  const controls = () => {
+  const controls = createMemo(previous => {
     const result: BezierPoint[] = []
     let offset: BezierPoint | undefined
     values().forEach((value, i) => {
-      offset = offsets()[i]!
-      const point = addPositions(value.point, offset.point)
+      offset = offsets()[i]
+      const point = addPositions(value.point, offset?.point)
+      if (!point) return
 
       if (type === 'cubic') {
         result.push({
           automatic: value.automatic,
           point,
-          control: addPositions(value.control, offset.control),
+          control: addPositions(value.control, offset?.control),
           oppositeControl: addPositions(
             value.oppositeControl,
             value.automatic
-              ? invertPosition(offset.control)
-              : offset.oppositeControl,
+              ? invertPosition(offset?.control)
+              : offset?.oppositeControl,
           ),
         })
         return
@@ -193,12 +215,12 @@ function useBezierHandles(
       const oppositeControl = addPositions(
         result[i - 1]?.control,
         result[i - 1]?.point,
-        invertPosition(addPositions(value.point, offset.point)),
+        invertPosition(addPositions(value.point, offset?.point)),
       )
 
       const control = value.automatic
         ? invertPosition(oppositeControl)
-        : addPositions(value.control, offset.control)
+        : addPositions(value.control, offset?.control)
 
       result.push({
         automatic: value.automatic,
@@ -207,8 +229,9 @@ function useBezierHandles(
         oppositeControl: i === 0 ? undefined : oppositeControl,
       })
     })
+
     return result
-  }
+  })
   const handles = (
     <Show when={editable()}>
       <Group>

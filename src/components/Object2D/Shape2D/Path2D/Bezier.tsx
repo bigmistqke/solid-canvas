@@ -1,16 +1,25 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createMemo, createSignal, mergeProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  mapArray,
+  mergeProps,
+  onCleanup,
+} from 'solid-js'
+import { createStore, produce } from 'solid-js/store'
 import { Portal } from 'solid-js/web'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { BezierPoint, Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import hitTest from 'src/utils/hitTest'
 import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
+import useDebugSvg from 'src/utils/useDebugSvg'
 import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
@@ -44,23 +53,31 @@ const Bezier = createToken(
       }
     }
 
-    const getAllPoints = createMemo(() =>
-      props.points.map(({ point, control, oppositeControl }, i) =>
-        i === 0 || i === props.points.length - 1
-          ? { control, point, automatic: false }
-          : {
-              control,
-              point,
-              oppositeControl: oppositeControl
-                ? oppositeControl
-                : getOppositeControl(point, control),
-              automatic: oppositeControl === undefined,
+    const processedPoints = createMemo(
+      mapArray(
+        () => props.points,
+        (value, index) => {
+          return {
+            ...value,
+            get oppositeControl() {
+              return index() === 0 || index() === props.points.length - 1
+                ? undefined
+                : value.oppositeControl
+                ? value.oppositeControl
+                : getOppositeControl(value.point, value.control)
             },
+            get automatic() {
+              return index() === 0 || index() === props.points.length - 1
+                ? false
+                : value.oppositeControl === undefined
+            },
+          }
+        },
       ),
     )
 
     const handles = useBezierHandles(
-      () => getAllPoints(),
+      () => processedPoints(),
       () => !!props.editable,
       'cubic',
     )
@@ -72,6 +89,8 @@ const Bezier = createToken(
         .flat()
         .filter(v => typeof v === 'object')
     }, matrix)
+
+    // const setDebug = useDebugSvg()
 
     const path = useTransformedPath(() => {
       const values = handles.points()
@@ -101,11 +120,13 @@ const Bezier = createToken(
           : addPositions(point, value.oppositeControl)
 
         svgString += `${control.x},${control.y} ${point.x},${point.y} `
-        if (oppositeControl)
+        if (oppositeControl && i !== values.length - 1)
           svgString += `${oppositeControl.x},${oppositeControl.y} `
 
         i++
       }
+
+      // setDebug(svgString)
 
       const path2D = new Path2D(svgString)
       if (merged.close) path2D.closePath()
@@ -115,7 +136,6 @@ const Bezier = createToken(
 
     const debug = (ctx: CanvasRenderingContext2D) => {
       if (!canvas) return
-      canvas.ctx.save()
       renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin)
       handles.render(ctx)
       canvas.ctx.restore()
