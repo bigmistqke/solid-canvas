@@ -57,7 +57,7 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "solid-js": "^1.6.0"
+    "solid-js": "^1.6.16"
   },
   "devDependencies": {
     "concurrently": "^7.6.0",
@@ -66,11 +66,10 @@
     "jsdom": "^21.1.0",
     "prettier": "2.8.3",
     "solid-devtools": "^0.26.0",
-    "solid-js": "^1.6.9",
+    "solid-js": "^1.6.16",
     "tsup": "^6.5.0",
     "tsup-preset-solid": "^0.1.4",
     "typescript": "^4.9.4",
-    "vite": "^4.0.4",
     "vite-plugin-solid": "^2.5.0",
     "vitest": "^0.28.2"
   },
@@ -79,6 +78,8 @@
   ],
   "packageManager": "pnpm@7.22.0",
   "dependencies": {
-    "@solid-primitives/jsx-tokenizer": "^1.0.0"
+    "@solid-primitives/jsx-tokenizer": "^1.0.0",
+    "@solid-primitives/memo": "^1.2.3",
+    "vite": "^4.2.1"
   }
 }
