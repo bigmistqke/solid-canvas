@@ -43,9 +43,7 @@ const Handle = (props: {
     position={{ x: props.position.x - 10, y: props.position.y - 10 }}
     draggable={props.draggable === false ? false : 'controlled'}
     pointerEvents={props.draggable === false ? false : true}
-    onMouseDown={event => {
-      event.propagation = false
-    }}
+    cursor={props.draggable ? 'pointer' : 'default'}
   >
     {props.children}
   </Arc>
