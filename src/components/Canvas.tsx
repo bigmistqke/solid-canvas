@@ -3,6 +3,7 @@ import {
   Accessor,
   Component,
   createEffect,
+  createMemo,
   createSignal,
   JSX,
   mapArray,
@@ -58,7 +59,6 @@ export const Canvas: Component<{
   onMouseUp?: (event: CanvasMouseEvent) => void
   onFrame?: (args: { clock: number }) => void
 }> = props => {
-  const [stack, setStack] = createSignal<CanvasToken[]>([])
   const [canvasDimensions, setCanvasDimensions] = createSignal({
     width: window.innerWidth,
     height: window.innerHeight,
@@ -153,19 +153,6 @@ export const Canvas: Component<{
       ],
     ),
   )
-  const maintainStack = mapArray(tokens, (token, i) => {
-    const index = stack().length - i()
-    setStack(stack => [
-      ...stack.slice(0, index),
-      token.data,
-      ...stack.slice(index),
-    ])
-    onCleanup(() => {
-      const index = stack().length - i()
-      setStack(stack => [...stack.slice(0, index - 1), ...stack.slice(index)])
-    })
-  })
-  createEffect(maintainStack)
 
   const render = () => {
     startRenderTime = performance.now()
@@ -212,11 +199,11 @@ export const Canvas: Component<{
 
     ctx.restore()
 
-    let token
-    for (token of stack()) {
+    let data
+    for ({ data } of tokens()) {
       ctx.save()
-      if ('debug' in token) token.debug(ctx)
-      if ('render' in token) token.render(ctx)
+      if ('debug' in data) data.debug(ctx)
+      if ('render' in data) data.render(ctx)
       ctx.restore()
     }
 
@@ -279,10 +266,10 @@ export const Canvas: Component<{
       cursor: 'move',
     }
 
-    forEachReversed(stack(), token => {
+    forEachReversed(tokens(), ({ data }) => {
       // if (!event.propagation) return
-      if ('hitTest' in token) {
-        token.hitTest(event)
+      if ('hitTest' in data) {
+        data.hitTest(event)
       }
     })
 
