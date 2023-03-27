@@ -25,9 +25,7 @@ export default (
   if (hit) {
     props[event.type]?.(event)
     event.target.push(token)
-    if (props.cursor) {
-      canvas?.setCursorStyle(props.cursor)
-    }
+    if (props.cursor) event.cursor = props.cursor
   }
   return hit
 }

@@ -5,7 +5,6 @@ export type InternalContext = {
   ctx: CanvasRenderingContext2D
   origin: Position
   debug: boolean
-  setCursorStyle: Setter<CursorStyle>
   addEventListener: (
     type: CanvasMouseEvent['type'],
     callback: (event: CanvasMouseEvent) => void,

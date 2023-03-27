@@ -203,6 +203,7 @@ export type CanvasMouseEvent = {
   delta: Position
   propagation: boolean
   target: CanvasToken[]
+  cursor: CursorStyle
 }
 
 export type BezierPoint = {

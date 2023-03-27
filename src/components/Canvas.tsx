@@ -109,7 +109,6 @@ export const Canvas: Component<{
           context: InternalContext,
           value: {
             ctx,
-            setCursorStyle,
             get debug() {
               return !!props.debug
             },
@@ -277,6 +276,7 @@ export const Canvas: Component<{
       propagation: true,
       target: [],
       type,
+      cursor: 'move',
     }
 
     forEachReversed(stack(), token => {
@@ -287,6 +287,7 @@ export const Canvas: Component<{
     })
 
     if (event.propagation) final(event)
+    setCursorStyle(event.cursor)
 
     eventListeners[type].forEach(listener => listener(event))
 
@@ -316,7 +317,13 @@ export const Canvas: Component<{
       if (props.draggable) {
         initPan()
       }
-      props.onMouseDown?.(event)
+      props.onMouseDown?.({
+        ...event,
+        position: {
+          x: event.position.x - origin().x,
+          y: event.position.y - origin().y,
+        },
+      })
     })
   }
   const mouseMoveHandler = (e: MouseEvent) => {
