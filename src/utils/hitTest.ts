@@ -1,4 +1,4 @@
-import { InternalContext } from 'src/context/InternalContext'
+import { InternalContextType } from 'src/context/InternalContext'
 import { Shape2DToken } from 'src/parser'
 import { CanvasMouseEvent, ResolvedShape2DProps } from 'src/types'
 import { isPointInShape2D } from './isPointInShape2D'
@@ -6,7 +6,7 @@ import { isPointInShape2D } from './isPointInShape2D'
 export default (
   token: Shape2DToken,
   event: CanvasMouseEvent,
-  canvas: InternalContext | undefined,
+  canvas: InternalContextType | undefined,
   props: ResolvedShape2DProps,
 ) => {
   if (!canvas) return false

@@ -2,7 +2,7 @@ import { createContext, Setter, useContext } from 'solid-js'
 import { CanvasToken } from 'src/parser'
 import { Position, CanvasMouseEvent, CursorStyle } from '../types'
 
-export type InternalContext = {
+export type InternalContextType = {
   ctx: CanvasRenderingContext2D
   origin: Position
   debug: boolean
@@ -17,6 +17,6 @@ export type InternalContext = {
     callback: (event: CanvasMouseEvent) => void,
   ) => void
 }
-export const InternalContext = createContext<InternalContext>()
+export const InternalContext = createContext<InternalContextType>()
 
 export const useInternalContext = () => useContext(InternalContext)
