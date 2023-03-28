@@ -1,21 +1,16 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import {
   Accessor,
-  createMemo,
   createSignal,
   For,
   Index,
   JSX,
-  mapArray,
   Show,
   untrack,
 } from 'solid-js'
-import { createLazyMemo } from '@solid-primitives/memo'
 import { Arc, Group, Line } from 'src'
 import { GroupToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
-import addPositions from './addPositions'
-import invertPosition from './invertPosition'
 
 type BezierPoint = {
   point: Position
@@ -35,18 +30,23 @@ const Handle = (props: {
   draggable?: boolean
   onDragMove?: (position: Position) => void
 }) => (
-  <Arc
-    onDragMove={props.onDragMove}
-    radius={10}
-    stroke="transparent"
-    fill={props.draggable !== false ? 'black' : 'lightgrey'}
-    position={{ x: props.position.x - 10, y: props.position.y - 10 }}
-    draggable={props.draggable === false ? false : 'controlled'}
-    pointerEvents={props.draggable === false ? false : true}
-    cursor={props.draggable ? 'pointer' : 'default'}
-  >
+  <Group>
+    <Arc
+      onDragMove={props.onDragMove}
+      radius={10}
+      stroke="transparent"
+      fill={props.draggable !== false ? 'black' : 'lightgrey'}
+      position={{ x: props.position.x - 10, y: props.position.y - 10 }}
+      draggable={props.draggable === false ? false : 'controlled'}
+      pointerEvents={props.draggable === false ? false : true}
+      cursor={props.draggable ? 'pointer' : 'default'}
+      hoverStyle={{
+        fill: 'white',
+        stroke: 'black',
+      }}
+    />
     {props.children}
-  </Arc>
+  </Group>
 )
 
 const VectorHandle = (props: {
@@ -55,16 +55,16 @@ const VectorHandle = (props: {
   draggable?: boolean
 }) => (
   <>
+    <Handle
+      onDragMove={dragPosition => props.updateOffset(dragPosition)}
+      position={props.position}
+      draggable={props.draggable}
+    />
     <Line
       points={[{ x: 0, y: 0 }, props.position]}
       lineDash={[10, 5]}
       pointerEvents={false}
       stroke={props.draggable !== false ? 'black' : 'lightgrey'}
-    />
-    <Handle
-      onDragMove={dragPosition => props.updateOffset(dragPosition)}
-      position={props.position}
-      draggable={props.draggable}
     />
   </>
 )
