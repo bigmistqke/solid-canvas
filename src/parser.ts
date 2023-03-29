@@ -1,4 +1,4 @@
-import { createTokenizer } from '@solid-primitives/jsx-tokenizer'
+import { createTokenizer, TokenElement } from '@solid-primitives/jsx-tokenizer'
 import { Accessor } from 'solid-js'
 import { CanvasMouseEvent } from './types'
 
@@ -23,6 +23,7 @@ export type Object2DToken = {
   debug: (ctx: CanvasRenderingContext2D) => void
   hitTest: (event: CanvasMouseEvent) => boolean
   paths: Accessor<Path2D[]>
+  tokens: TokenElement<CanvasToken>[]
 }
 
 export type StaticShape2D = {

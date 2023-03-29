@@ -47,8 +47,7 @@ function createObject2D<T>(options: {
   return createToken(parser, (props: T & Object2DProps) => {
     const canvas = useInternalContext()
     if (!canvas) throw 'CanvasTokens need to be included in Canvas'
-    const merged = mergeProps({ position: { x: 0, y: 0 } }, props) as T &
-      Object2DProps
+    const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
     const [dragPosition, dragEventHandler] = useDraggable(props)
 
@@ -112,7 +111,9 @@ function createObject2D<T>(options: {
         ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'
         ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height)
       }
-      options.render(canvas, merged, tokens())
+
+      // TODO:  should investigate better solution then this weird typecast
+      options.render(canvas, merged as Object2DProps & T, tokens())
 
       canvas?.ctx.restore()
       forEachReversed(tokens(), ({ data }) => {
@@ -163,6 +164,9 @@ function createObject2D<T>(options: {
       id: options.id,
       debug: () => {},
       hitTest,
+      get tokens() {
+        return tokens()
+      },
       paths: () => {
         return tokens()
           .map(({ data }) => {

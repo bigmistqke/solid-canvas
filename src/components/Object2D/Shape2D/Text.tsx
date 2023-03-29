@@ -1,5 +1,10 @@
-import { createToken, TokenComponent } from '@solid-primitives/jsx-tokenizer'
 import {
+  createToken,
+  TokenComponent,
+  TokenElement,
+} from '@solid-primitives/jsx-tokenizer'
+import {
+  Accessor,
   createEffect,
   createMemo,
   createSignal,
@@ -10,12 +15,19 @@ import {
 import { Rectangle } from 'src'
 
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasToken, parser } from 'src/parser'
-import { Dimensions, ExtendedColor, Normalize, Shape2DProps } from 'src/types'
 import { defaultShape2DProps } from 'src/defaultProps'
+import {
+  CanvasToken,
+  Object2DToken,
+  parser,
+  Shape2DToken,
+  StaticShape2D,
+} from 'src/parser'
+import { Dimensions, ExtendedColor, Shape2DProps } from 'src/types'
 import filterShape2DProps from 'src/utils/filterShape2DProps'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
-import { GroupProps } from '../Group'
+import { Normalize } from 'src/utils/typehelpers'
+import { Object2DProps } from '../createObject2D'
 import { RectangleProps } from './Path2D/Rectangle'
 
 type Rounded =
@@ -36,6 +48,8 @@ type TextProps = Normalize<
      * Currently not yet supported in firefox [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/roundRect#browser_compatibility)
      */
     rounded?: Rounded
+    isHovered?: boolean
+    isSelected?: boolean
   }
 >
 
@@ -63,35 +77,42 @@ const Text = createToken(parser, (props: TextProps) => {
   )
   const filteredProps = filterShape2DProps(merged)
 
-  const render = (ctx: CanvasRenderingContext2D) => {
-    const offset = canvas?.origin ?? { x: 0, y: 0 }
-    ctx.font = getFontString(props.size, props.fontFamily)
-
-    if (props.opacity) ctx.globalAlpha = props.opacity
-    ctx.fillStyle = resolveExtendedColor(merged.fill) ?? 'black'
-    ctx.strokeStyle = resolveExtendedColor(merged.stroke) ?? 'transparent'
-
-    // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
-    if (ctx.fillStyle !== 'transparent')
-      ctx.fillText(
-        merged.text,
-        merged.position.x + offset.x,
-        merged.position.y + offset.y + props.dimensions.height,
-      )
-    if (ctx.strokeStyle !== 'transparent')
-      ctx.strokeText(
-        merged.text,
-        merged.position.x + offset.x,
-        merged.position.y + offset.y + props.dimensions.height,
-      )
-  }
-
-  return {
+  const token: StaticShape2D = {
     props: filteredProps,
     type: 'StaticShape2D',
     id: 'Text',
-    render,
+    render: (ctx: CanvasRenderingContext2D) => {
+      const offset = canvas?.origin ?? { x: 0, y: 0 }
+      ctx.font = getFontString(props.size, props.fontFamily)
+
+      if (props.opacity) ctx.globalAlpha = props.opacity
+
+      ctx.fillStyle = resolveExtendedColor(merged.fill) ?? 'black'
+      ctx.strokeStyle = resolveExtendedColor(merged.stroke) ?? 'transparent'
+
+      if ((props.isHovered || props.isSelected) && merged.hoverStyle) {
+        ctx.fillStyle =
+          resolveExtendedColor(merged.hoverStyle.fill) ?? ctx.fillStyle
+        ctx.strokeStyle =
+          resolveExtendedColor(merged.hoverStyle.stroke) ?? ctx.strokeStyle
+      }
+
+      // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
+      if (ctx.fillStyle !== 'transparent')
+        ctx.fillText(
+          merged.text,
+          merged.position.x + offset.x,
+          merged.position.y + offset.y + props.dimensions.height,
+        )
+      if (ctx.strokeStyle !== 'transparent')
+        ctx.strokeText(
+          merged.text,
+          merged.position.x + offset.x,
+          merged.position.y + offset.y + props.dimensions.height,
+        )
+    },
   }
+  return token
 })
 
 function withRectangle<T extends TextProps, U extends unknown>(
@@ -100,28 +121,24 @@ function withRectangle<T extends TextProps, U extends unknown>(
   return (
     props: Omit<T, 'dimensions'> &
       Omit<RectangleProps, 'dimensions'> &
-      GroupProps & {
-        hover?: Omit<RectangleProps, 'dimensions'> & {
-          background: ExtendedColor
+      Object2DProps & {
+        hoverStyle?: Omit<RectangleProps, 'dimensions'> & {
+          background?: ExtendedColor
         }
+        padding?: number
       },
   ) => {
-    const [hover, setHover] = createSignal(false)
     const canvas = useInternalContext()
 
-    const [rectangleProps, textProps] = splitProps(props, [
+    const [rectangleProps, otherProps] = splitProps(props, [
       'rounded',
       'position',
       'clip',
       'onMouseDown',
       'onMouseMove',
       'onMouseUp',
+      'padding',
     ])
-
-    const mergedRectangleProps = mergeProps(
-      { stroke: 'transparent' },
-      rectangleProps,
-    )
 
     const [dimensions, setDimensions] = createSignal<Dimensions>()
 
@@ -138,32 +155,42 @@ function withRectangle<T extends TextProps, U extends unknown>(
       }, 0)
     })
 
-    const textPropsWithHover = createMemo(() =>
-      hover() ? { ...textProps, ...textProps.hover } : textProps,
-    )
+    const isHovered = () => {
+      const rectangle =
+        token().data.tokens[token().data.tokens.length - 1]?.data
+      return rectangle ? canvas?.isHovered(rectangle) : false
+    }
+    const isSelected = () => {
+      const rectangle =
+        token().data.tokens[token().data.tokens.length - 1]?.data
+      return rectangle ? canvas?.isSelected(rectangle) : false
+    }
 
-    return (
+    const token = (
       <Show when={dimensions()}>
         <Rectangle
-          {...mergedRectangleProps}
+          {...rectangleProps}
           position={rectangleProps.position}
-          lineWidth={textProps.padding}
-          fill={textPropsWithHover().background}
-          stroke={textPropsWithHover().background}
+          lineWidth={rectangleProps.padding}
+          fill={props.background ?? 'transparent'}
+          stroke={props.background ?? 'transparent'}
+          // fill="grey"
           dimensions={dimensions()!}
-          onMouseEnter={() => setHover(true)}
-          onMouseLeave={() => setHover(false)}
           composite={props.composite}
         >
           {props.children}
           <Component
-            {...(textPropsWithHover() as T)}
+            {...(otherProps as any as T)}
             composite={props.composite}
             dimensions={dimensions()!}
+            isHovered={isHovered()}
+            isSelected={isSelected()}
           />
         </Rectangle>
       </Show>
-    )
+    ) as any as Accessor<TokenElement<Object2DToken>>
+
+    return token
   }
 }
 
