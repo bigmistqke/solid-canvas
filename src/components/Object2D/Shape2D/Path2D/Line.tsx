@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, mergeProps } from 'solid-js'
+import { mergeProps } from 'solid-js'
 
 import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
@@ -53,29 +53,34 @@ const Line = createToken(
       return path2D
     }, matrix)
 
-    return {
+    const token: Shape2DToken = {
       type: 'Shape2D',
       id: 'Line',
-      render: (ctx: CanvasRenderingContext2D) => {
-        renderPath(ctx, merged, path(), canvas?.origin)
+      render: ctx => {
+        renderPath(
+          ctx,
+          merged,
+          path(),
+          canvas?.origin,
+          canvas?.isSelected(token) || canvas?.isHovered(token),
+        )
         handles?.render(ctx)
       },
-      debug: (ctx: CanvasRenderingContext2D) =>
+      debug: ctx =>
         renderPath(
           ctx,
           defaultBoundsProps,
           bounds().path,
           canvas?.origin,
-          (canvas?.selected && canvas?.selected === this) ||
-            (canvas?.hovered && canvas?.hovered === this),
+          false,
         ),
       path,
-      hitTest: function (event) {
-        const token: Shape2DToken = this
+      hitTest: event => {
         handles?.hitTest(event)
         return hitTest(token, event, canvas, merged)
       },
     }
+    return token
   },
 )
 

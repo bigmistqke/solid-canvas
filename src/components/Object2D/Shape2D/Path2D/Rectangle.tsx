@@ -78,29 +78,23 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     else props.onMouseLeave?.()
   })
 
-  return {
+  const token: Shape2DToken = {
     id: 'Rectangle',
     type: 'Shape2D',
-    render: (ctx: CanvasRenderingContext2D) => {
-      renderPath(ctx, merged, path(), canvas?.origin)
-    },
+    render: (ctx: CanvasRenderingContext2D) =>
+      renderPath(ctx, merged, path(), canvas?.origin, false),
     debug: (ctx: CanvasRenderingContext2D) =>
       renderPath(
         ctx,
         defaultBoundsProps,
         bounds().path,
         canvas?.origin,
-        (canvas?.selected && canvas?.selected === this) ||
-          (canvas?.hovered && canvas?.hovered === this),
+        canvas?.isSelected(token) || canvas?.isHovered(token),
       ),
     path,
-    hitTest: function (event) {
-      const token: Shape2DToken = this
-      const result = hitTest(token, event, canvas, merged)
-      setHover(result)
-      return result
-    },
+    hitTest: event => setHover(hitTest(token, event, canvas, merged)),
   }
+  return token
 })
 
 const GroupedRectangle = withGroup(Rectangle)

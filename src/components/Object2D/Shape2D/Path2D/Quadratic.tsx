@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createMemo, mapArray, mergeProps } from 'solid-js'
+import { mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
@@ -7,7 +7,6 @@ import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import hitTest from 'src/utils/hitTest'
-import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
 import { useBezierHandles } from 'src/utils/useHandles'
@@ -91,34 +90,34 @@ const Quadratic = createToken(
       return path2D
     }, matrix)
 
-    const debug = (ctx: CanvasRenderingContext2D) => {
-      if (!canvas) return
-      renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin)
-      canvas.ctx.restore()
-    }
-
-    return {
+    const token: Shape2DToken = {
       type: 'Shape2D',
       id: 'Bezier',
-      render: (ctx: CanvasRenderingContext2D) => {
+      path,
+      render: ctx => {
         renderPath(
           ctx,
           merged,
           path(),
           canvas?.origin,
-          (canvas?.selected && canvas?.selected === this) ||
-            (canvas?.hovered && canvas?.hovered === this),
+          canvas?.isHovered(token) || canvas?.isSelected(token),
         )
         handles.render(ctx)
       },
-      debug,
-      path,
-      hitTest: function (event) {
-        const token: Shape2DToken = this
+      debug: ctx =>
+        renderPath(
+          ctx,
+          defaultBoundsProps,
+          bounds().path,
+          canvas?.origin,
+          false,
+        ),
+      hitTest: event => {
         handles.hitTest(event)
         return hitTest(token, event, canvas, merged)
       },
     }
+    return token
   },
 )
 

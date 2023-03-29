@@ -3,10 +3,9 @@ import {
   Accessor,
   Component,
   createEffect,
-  createMemo,
+  createSelector,
   createSignal,
   JSX,
-  mapArray,
   on,
   onCleanup,
   onMount,
@@ -25,10 +24,9 @@ import {
   CursorStyle,
   Position,
 } from 'src/types'
-import { resolveColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
+import { resolveColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
-import useDraggable from 'src/utils/useDraggable'
 
 /**
  * All `solid-canvas`-components have to be inside a `Canvas`
@@ -76,6 +74,13 @@ export const Canvas: Component<{
   })
   const [selectedToken, setSelectedtoken] = createSignal<CanvasToken>()
   const [hoveredToken, setHoveredToken] = createSignal<CanvasToken>()
+
+  const isSelected = createSelector<CanvasToken | undefined, CanvasToken>(
+    selectedToken,
+  )
+  const isHovered = createSelector<CanvasToken | undefined, CanvasToken>(
+    hoveredToken,
+  )
 
   const [stats, setStats] = createStore<{
     fps?: number
@@ -126,6 +131,8 @@ export const Canvas: Component<{
             get selected() {
               return selectedToken()
             },
+            isSelected,
+            isHovered,
             get hovered() {
               return hoveredToken()
             },

@@ -8,6 +8,8 @@ export type InternalContextType = {
   debug: boolean
   selected: CanvasToken | undefined
   hovered: CanvasToken | undefined
+  isSelected: (token: CanvasToken) => boolean
+  isHovered: (token: CanvasToken) => boolean
   addEventListener: (
     type: CanvasMouseEvent['type'],
     callback: (event: CanvasMouseEvent) => void,

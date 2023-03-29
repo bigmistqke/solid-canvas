@@ -32,7 +32,7 @@ export default (
   ctx.lineCap = props.lineCap
   ctx.setLineDash(props.lineDash)
 
-  if (hover) {
+  if (hover && props.hoverStyle) {
     if (props.hoverStyle.stroke) {
       ctx.strokeStyle =
         resolveExtendedColor(props.hoverStyle.stroke) ?? ctx.strokeStyle

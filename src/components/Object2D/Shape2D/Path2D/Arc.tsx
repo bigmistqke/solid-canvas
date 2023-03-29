@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createSignal, mergeProps } from 'solid-js'
+import { mergeProps } from 'solid-js'
 
 import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
@@ -79,9 +79,7 @@ const Arc = createToken(
       matrix,
     )
 
-    let token: Shape2DToken
-
-    return {
+    const token: Shape2DToken = {
       id: 'Arc',
       type: 'Shape2D',
       render: function (ctx: CanvasRenderingContext2D) {
@@ -90,18 +88,23 @@ const Arc = createToken(
           merged,
           path(),
           canvas?.origin,
-          (canvas?.selected && canvas?.selected === this) ||
-            (canvas?.hovered && canvas?.hovered === this),
+          canvas?.isSelected(token) || canvas?.isHovered(token),
         )
       },
       debug: (ctx: CanvasRenderingContext2D) =>
-        renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin),
+        renderPath(
+          ctx,
+          defaultBoundsProps,
+          bounds().path,
+          canvas?.origin,
+          false,
+        ),
       path,
       hitTest: function (event) {
-        token = this
         return hitTest(token, event, canvas, merged)
       },
     }
+    return token
   },
 )
 const GroupedArc = withGroup(Arc)

@@ -1,25 +1,14 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import {
-  createEffect,
-  createMemo,
-  createSignal,
-  mapArray,
-  mergeProps,
-  onCleanup,
-} from 'solid-js'
-import { createStore, produce } from 'solid-js/store'
-import { Portal } from 'solid-js/web'
+import { mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { BezierPoint, Position, Shape2DProps } from 'src/types'
+import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import hitTest from 'src/utils/hitTest'
-import invertPosition from 'src/utils/invertPosition'
 import renderPath from 'src/utils/renderPath'
 import useBounds from 'src/utils/useBounds'
-import useDebugSvg from 'src/utils/useDebugSvg'
 import { useBezierHandles } from 'src/utils/useHandles'
 import useMatrix from 'src/utils/useMatrix'
 import useProcessedPoints from 'src/utils/useProcessedPoints'
@@ -95,36 +84,37 @@ const Bezier = createToken(
       return path2D
     }, matrix)
 
-    const debug = (ctx: CanvasRenderingContext2D) => {
-      if (!canvas) return
-      renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin)
-      handles.render(ctx)
-      canvas.ctx.restore()
-    }
-
-    let token: Shape2DToken
-    return {
+    const token: Shape2DToken = {
       type: 'Shape2D',
       id: 'Bezier',
-      render: (ctx: CanvasRenderingContext2D) => {
+      path,
+      render: ctx => {
         renderPath(
           ctx,
           merged,
           path(),
           canvas?.origin,
-          (canvas?.selected && canvas?.selected === this) ||
-            (canvas?.hovered && canvas?.hovered === this),
+          canvas?.isHovered(token) || canvas?.isSelected(token),
         )
         handles.render(ctx)
       },
-      debug,
-      path,
+      debug: ctx => {
+        renderPath(
+          ctx,
+          defaultBoundsProps,
+          bounds().path,
+          canvas?.origin,
+          false,
+        )
+        handles.render(ctx)
+        ctx.restore()
+      },
       hitTest: function (event) {
-        token = this
         handles.hitTest(event)
         return hitTest(token, event, canvas, merged)
       },
     }
+    return token
   },
 )
 
