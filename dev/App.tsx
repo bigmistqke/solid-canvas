@@ -1,5 +1,5 @@
 import { Component } from 'solid-js'
-import { Bezier, Canvas, Group, Quadratic, Text, useClock } from 'src'
+import { Bezier, Canvas, Group, Quadratic, Text } from 'src'
 
 const App: Component = () => {
   return (
