@@ -3,7 +3,7 @@ import {
   resolveTokens,
   TokenElement,
 } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, JSX, mergeProps } from 'solid-js'
+import { Accessor, createEffect, JSX, mergeProps } from 'solid-js'
 import {
   InternalContext,
   InternalContextType,
@@ -53,7 +53,7 @@ function createObject2D<T>(options: {
 
     const offset = () =>
       props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition()
-
+    createEffect(() => console.log('offset', options.id, offset().x))
     const context = {
       ...canvas,
       get selected() {
@@ -113,7 +113,7 @@ function createObject2D<T>(options: {
       }
 
       // TODO:  should investigate better solution then this weird typecast
-      options.render(canvas, merged as Object2DProps & T, tokens())
+      options.render(context, merged as Object2DProps & T, tokens())
 
       canvas?.ctx.restore()
       forEachReversed(tokens(), ({ data }) => {
