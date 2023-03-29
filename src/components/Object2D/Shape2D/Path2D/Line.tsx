@@ -61,7 +61,14 @@ const Line = createToken(
         handles?.render(ctx)
       },
       debug: (ctx: CanvasRenderingContext2D) =>
-        renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin),
+        renderPath(
+          ctx,
+          defaultBoundsProps,
+          bounds().path,
+          canvas?.origin,
+          (canvas?.selected && canvas?.selected === this) ||
+            (canvas?.hovered && canvas?.hovered === this),
+        ),
       path,
       hitTest: function (event) {
         const token: Shape2DToken = this

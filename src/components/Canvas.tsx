@@ -74,6 +74,9 @@ export const Canvas: Component<{
     onMouseMove: [],
     onMouseUp: [],
   })
+  const [selectedToken, setSelectedtoken] = createSignal<CanvasToken>()
+  const [hoveredToken, setHoveredToken] = createSignal<CanvasToken>()
+
   const [stats, setStats] = createStore<{
     fps?: number
     memory?: { used: number; total: number }
@@ -119,6 +122,12 @@ export const Canvas: Component<{
                     y: origin().y + props.origin.y,
                   }
                 : origin()
+            },
+            get selected() {
+              return selectedToken()
+            },
+            get hovered() {
+              return hoveredToken()
             },
             addEventListener: (
               type: CanvasMouseEvent['type'],
@@ -274,7 +283,20 @@ export const Canvas: Component<{
     })
 
     if (event.propagation) final(event)
+
     setCursorStyle(event.cursor)
+
+    if (type === 'onMouseDown' && event.target.length > 0) {
+      setSelectedtoken(event.target[0])
+    }
+    if (type === 'onMouseMove') {
+      if (event.target.length > 0) {
+        setHoveredToken(event.target[0])
+      } else {
+        setHoveredToken(undefined)
+      }
+    }
+    if (type === 'onMouseUp') setSelectedtoken(undefined)
 
     eventListeners[type].forEach(listener => listener(event))
 

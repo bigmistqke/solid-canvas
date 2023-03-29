@@ -107,8 +107,15 @@ const Bezier = createToken(
       type: 'Shape2D',
       id: 'Bezier',
       render: (ctx: CanvasRenderingContext2D) => {
+        renderPath(
+          ctx,
+          merged,
+          path(),
+          canvas?.origin,
+          (canvas?.selected && canvas?.selected === this) ||
+            (canvas?.hovered && canvas?.hovered === this),
+        )
         handles.render(ctx)
-        renderPath(ctx, merged, path(), canvas?.origin)
       },
       debug,
       path,

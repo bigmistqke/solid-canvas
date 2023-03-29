@@ -47,6 +47,12 @@ const Group = createToken(parser, (props: GroupProps) => {
 
   const context = {
     ...canvas,
+    get selected() {
+      return canvas?.selected
+    },
+    get hovered() {
+      return canvas?.hovered
+    },
     get origin() {
       return canvas
         ? {

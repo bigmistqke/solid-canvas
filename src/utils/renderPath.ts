@@ -6,6 +6,7 @@ export default (
   props: ResolvedShape2DProps,
   path: Path2D,
   origin: Position | undefined,
+  hover: boolean | undefined,
 ) => {
   ctx.save()
   if (props.shadow) {
@@ -30,6 +31,23 @@ export default (
   ctx.lineJoin = props.lineJoin
   ctx.lineCap = props.lineCap
   ctx.setLineDash(props.lineDash)
+
+  if (hover) {
+    if (props.hoverStyle.stroke) {
+      ctx.strokeStyle =
+        resolveExtendedColor(props.hoverStyle.stroke) ?? ctx.strokeStyle
+    }
+    if (props.hoverStyle.fill) {
+      ctx.fillStyle =
+        resolveExtendedColor(props.hoverStyle.fill) ?? ctx.fillStyle
+    }
+    if (props.hoverStyle.lineWidth) ctx.lineWidth = props.hoverStyle.lineWidth
+    if (props.hoverStyle.miterLimit)
+      ctx.miterLimit = props.hoverStyle.miterLimit
+    if (props.hoverStyle.lineJoin) ctx.lineJoin = props.hoverStyle.lineJoin
+    if (props.hoverStyle.lineCap) ctx.lineCap = props.hoverStyle.lineCap
+    if (props.hoverStyle.lineDash) ctx.setLineDash(props.hoverStyle.lineDash)
+  }
 
   ctx.fill(path)
   ctx.stroke(path)

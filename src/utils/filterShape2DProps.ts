@@ -6,6 +6,7 @@ const filterShape2DProps = <T extends Record<string, any>>(props: T) =>
     'dash',
     'stroke',
     'lineWidth',
+    'hoverStyle',
     'onMouseDown',
     'onMouseUp',
     'onMouseMove',

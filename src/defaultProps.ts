@@ -4,7 +4,7 @@ const defaultShape2DProps: ResolvedShape2DProps = {
   position: { x: 0, y: 0 },
   stroke: 'black',
   rotation: 0,
-  fill: 'transparent',
+  fill: undefined,
   lineDash: [],
   lineCap: 'butt',
   lineJoin: 'round',

@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { mergeProps } from 'solid-js'
+import { createSignal, mergeProps } from 'solid-js'
 
 import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
@@ -80,11 +80,20 @@ const Arc = createToken(
     )
 
     let token: Shape2DToken
+
     return {
       id: 'Arc',
       type: 'Shape2D',
-      render: (ctx: CanvasRenderingContext2D) =>
-        renderPath(ctx, merged, path(), canvas?.origin),
+      render: function (ctx: CanvasRenderingContext2D) {
+        renderPath(
+          ctx,
+          merged,
+          path(),
+          canvas?.origin,
+          (canvas?.selected && canvas?.selected === this) ||
+            (canvas?.hovered && canvas?.hovered === this),
+        )
+      },
       debug: (ctx: CanvasRenderingContext2D) =>
         renderPath(ctx, defaultBoundsProps, bounds().path, canvas?.origin),
       path,
