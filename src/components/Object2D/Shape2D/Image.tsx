@@ -3,14 +3,14 @@ import { mergeProps } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultShape2DProps } from 'src/defaultProps'
-import { parser, Shape2DToken } from 'src/parser'
+import { parser, Shape2DToken, StaticShape2D } from 'src/parser'
 import { Dimensions, ExtendedColor, ImageSource, Shape2DProps } from 'src/types'
 import filterShape2DProps from 'src/utils/filterShape2DProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
 import { Normalize } from 'src/utils/typehelpers'
-import useMatrix from 'src/utils/useMatrix'
-import useTransformedPath from 'src/utils/useTransformedPath'
+import { createMatrix } from 'src/utils/createMatrix'
+import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -45,9 +45,9 @@ const Image = createToken(
 
     const image = resolveImage(() => props.image)
 
-    const matrix = useMatrix(merged)
+    const matrix = createMatrix(merged)
 
-    const path = useTransformedPath(() => {
+    const path = createTransformedPath(() => {
       const path = new Path2D()
       path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
       return path
@@ -68,16 +68,15 @@ const Image = createToken(
       )
     }
 
-    return {
-      props: filteredProps,
+    const token: Shape2DToken = {
       type: 'Shape2D',
       id: 'Image',
       render,
-      hitTest: function (event) {
-        return hitTest(this as Shape2DToken, event, canvas, merged)
-      },
+      hitTest: event => hitTest(token, event, canvas, merged),
+      debug: () => {},
       path,
     }
+    return token
   },
 )
 

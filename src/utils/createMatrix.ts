@@ -1,8 +1,7 @@
-import { Accessor, createMemo } from 'solid-js'
-import { useInternalContext } from 'src/context/InternalContext'
-import { Shape2DProps, Position } from 'src/types'
+import { createMemo } from 'solid-js'
+import { Shape2DProps } from 'src/types'
 
-export default (props: Shape2DProps) => {
+const createMatrix = (props: Shape2DProps) => {
   // const canvas = useInternalContext()
   let position: { x: number; y: number }
   let matrix: DOMMatrix
@@ -34,3 +33,5 @@ export default (props: Shape2DProps) => {
     return matrix
   })
 }
+
+export { createMatrix }

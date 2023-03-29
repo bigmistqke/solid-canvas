@@ -16,7 +16,7 @@ import { isPointInShape2D } from 'src/utils/isPointInShape2D'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
-import useDraggable from 'src/utils/useDraggable'
+import { createDraggable } from 'src/utils/createDraggable'
 
 /**
  * Object2Ds (and clips) the component's children
@@ -49,7 +49,7 @@ function createObject2D<T>(options: {
     if (!canvas) throw 'CanvasTokens need to be included in Canvas'
     const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
-    const [dragPosition, dragEventHandler] = useDraggable(props)
+    const [dragPosition, dragEventHandler] = createDraggable(props)
 
     const offset = () =>
       props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition()

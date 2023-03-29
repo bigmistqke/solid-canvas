@@ -7,7 +7,7 @@ import {
   on,
   Show,
 } from 'solid-js'
-import { Arc, Bezier, Canvas, Group, useCanvas, useClock } from 'src'
+import { Arc, Bezier, Canvas, Group, useCanvas, createClock } from 'src'
 import { Position } from 'src/types'
 
 const randomColor = (alpha?: number) => ({
@@ -112,7 +112,7 @@ const App: Component = () => {
     ),
   )
 
-  const clock = useClock()
+  const clock = createClock()
   clock.start()
 
   const [cursor, setCursor] = createSignal<{ x: number; y: number }>()

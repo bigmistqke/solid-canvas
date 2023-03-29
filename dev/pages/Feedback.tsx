@@ -1,5 +1,5 @@
 import { Component, createMemo, createSignal, on, Show } from 'solid-js'
-import { Arc, Canvas, useCanvas, useClock } from 'src'
+import { Arc, Canvas, useCanvas, createClock } from 'src'
 import { Composite, Position } from 'src/types'
 
 const randomColor = (alpha?: number) => ({
@@ -104,7 +104,7 @@ const App: Component = () => {
   const [cursor, setCursor] = createSignal<{ x: number; y: number }>()
   const fill = randomColor(1)
 
-  const clock = useClock()
+  const clock = createClock()
   clock.start()
 
   const switchColor = createMemo(() => Math.floor(clock.clock() / 200))

@@ -1,6 +1,6 @@
 import { createSignal, onCleanup } from 'solid-js'
 
-const useClock = () => {
+const createClock = () => {
   const [clock, setClock] = createSignal(0)
   let last = performance.now()
   const tick = () => {
@@ -30,4 +30,4 @@ const useClock = () => {
   }
 }
 
-export { useClock }
+export { createClock }

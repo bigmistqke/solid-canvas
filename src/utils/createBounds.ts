@@ -1,7 +1,7 @@
 import { Accessor, createMemo } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 
-const getBounds = (
+const createBounds = (
   points: Accessor<{ x: number; y: number }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
@@ -60,4 +60,4 @@ const getBounds = (
   })
 }
 
-export default getBounds
+export { createBounds }

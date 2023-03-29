@@ -1,7 +1,7 @@
-import { Accessor, createSignal } from 'solid-js'
+import { createSignal } from 'solid-js'
 import { Portal } from 'solid-js/web'
 
-export default () => {
+const createDebugSvg = () => {
   const [svg, setSvg] = createSignal('')
   const portal = (
     <Portal>
@@ -22,3 +22,5 @@ export default () => {
   )
   return setSvg
 }
+
+export { createDebugSvg }

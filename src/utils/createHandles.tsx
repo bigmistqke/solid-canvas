@@ -102,7 +102,7 @@ const BezierHandles = (props: {
     </Group>
   )
 }
-function useLinearHandles(
+function createLinearHandles(
   points: Accessor<Position[]>,
   editable: Accessor<boolean | undefined>,
 ) {
@@ -140,7 +140,7 @@ function useLinearHandles(
     offsets,
   }
 }
-function useBezierHandles(
+function createBezierHandles(
   points: Accessor<(BezierPoint & { automatic: boolean })[]>,
   editable: Accessor<boolean | undefined>,
   type: 'cubic' | 'quadratic',
@@ -176,4 +176,4 @@ function useBezierHandles(
   }
 }
 
-export { useLinearHandles, useBezierHandles }
+export { createLinearHandles, createBezierHandles }

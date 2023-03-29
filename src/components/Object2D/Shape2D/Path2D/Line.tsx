@@ -7,10 +7,10 @@ import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import useBounds from 'src/utils/useBounds'
-import { useLinearHandles } from 'src/utils/useHandles'
-import useMatrix from 'src/utils/useMatrix'
-import useTransformedPath from 'src/utils/useTransformedPath'
+import { createBounds } from 'src/utils/createBounds'
+import { createLinearHandles } from 'src/utils/createHandles'
+import { createMatrix } from 'src/utils/createMatrix'
+import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -29,14 +29,14 @@ const Line = createToken(
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
 
-    const matrix = useMatrix(merged)
-    const bounds = useBounds(() => props.points, matrix)
-    const handles = useLinearHandles(
+    const matrix = createMatrix(merged)
+    const bounds = createBounds(() => props.points, matrix)
+    const handles = createLinearHandles(
       () => props.points,
       () => props.editable,
     )
 
-    const path = useTransformedPath(() => {
+    const path = createTransformedPath(() => {
       // calculate path
       const path2D = new Path2D()
       let point = props.points[0]

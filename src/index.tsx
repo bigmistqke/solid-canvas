@@ -13,4 +13,4 @@ export {
 export { Rectangle } from './components/Object2D/Shape2D/Path2D/Rectangle'
 export { Text } from './components/Object2D/Shape2D/Text'
 export { useUserContext as useCanvas } from './context/UserContext'
-export { useClock } from './utils/useClock'
+export { createClock } from './utils/createClock'

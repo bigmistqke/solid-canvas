@@ -7,9 +7,9 @@ import { parser, Shape2DToken } from 'src/parser'
 import { Dimensions, Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import useBounds from 'src/utils/useBounds'
-import useMatrix from 'src/utils/useMatrix'
-import useTransformedPath from 'src/utils/useTransformedPath'
+import { createBounds } from 'src/utils/createBounds'
+import { createMatrix } from 'src/utils/createMatrix'
+import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 export type RectangleProps = Shape2DProps & {
@@ -32,7 +32,7 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
   const canvas = useInternalContext()
   const merged = mergeProps({ ...defaultShape2DProps, close: true }, props)
 
-  const matrix = useMatrix(merged)
+  const matrix = createMatrix(merged)
 
   const getPath = () => {
     const path = new Path2D()
@@ -48,9 +48,9 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     return path
   }
 
-  const path = useTransformedPath(getPath, matrix)
+  const path = createTransformedPath(getPath, matrix)
 
-  const bounds = useBounds(
+  const bounds = createBounds(
     () => [
       {
         x: 0,

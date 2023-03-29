@@ -8,11 +8,11 @@ import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import useBounds from 'src/utils/useBounds'
-import { useBezierHandles } from 'src/utils/useHandles'
-import useMatrix from 'src/utils/useMatrix'
-import useProcessedPoints from 'src/utils/useProcessedPoints'
-import useTransformedPath from 'src/utils/useTransformedPath'
+import { createBounds } from 'src/utils/createBounds'
+import { createBezierHandles } from 'src/utils/createHandles'
+import { createMatrix } from 'src/utils/createMatrix'
+import { createProcessedPoints } from 'src/utils/createProcessedPoints'
+import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -33,11 +33,15 @@ const Quadratic = createToken(
     const canvas = useInternalContext()
     const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
 
-    const matrix = useMatrix(merged)
-    const points = useProcessedPoints(() => props.points, 'quadratic')
-    const handles = useBezierHandles(points, () => props.editable, 'quadratic')
+    const matrix = createMatrix(merged)
+    const points = createProcessedPoints(() => props.points, 'quadratic')
+    const handles = createBezierHandles(
+      points,
+      () => props.editable,
+      'quadratic',
+    )
 
-    const bounds = useBounds(() => {
+    const bounds = createBounds(() => {
       return points()
         .map((point, i) => {
           let result: Position[] = [point.point]
@@ -55,7 +59,7 @@ const Quadratic = createToken(
         .flat()
     }, matrix)
 
-    const path = useTransformedPath(() => {
+    const path = createTransformedPath(() => {
       const values = points()
 
       let value = values[0]

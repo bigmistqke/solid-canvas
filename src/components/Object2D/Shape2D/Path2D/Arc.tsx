@@ -8,9 +8,9 @@ import { Shape2DProps } from 'src/types'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import { Normalize } from 'src/utils/typehelpers'
-import useBounds from 'src/utils/useBounds'
-import useMatrix from 'src/utils/useMatrix'
-import useTransformedPath from 'src/utils/useTransformedPath'
+import { createBounds } from 'src/utils/createBounds'
+import { createMatrix } from 'src/utils/createMatrix'
+import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
 
 /**
@@ -42,7 +42,7 @@ const Arc = createToken(
       props,
     )
 
-    const matrix = useMatrix(merged)
+    const matrix = createMatrix(merged)
 
     const getPath = () => {
       const path = new Path2D()
@@ -56,9 +56,9 @@ const Arc = createToken(
       return path
     }
 
-    const path = useTransformedPath(getPath, matrix)
+    const path = createTransformedPath(getPath, matrix)
 
-    const bounds = useBounds(
+    const bounds = createBounds(
       () => [
         {
           x: 0,

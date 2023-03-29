@@ -4,7 +4,7 @@ import { BezierPoint, Position } from 'src/types'
 import addPositions from './addPositions'
 import invertPosition from './invertPosition'
 
-const useProcessedPoints = (
+const createProcessedPoints = (
   inputs: Accessor<BezierPoint[]>,
   type: 'quadratic' | 'cubic',
 ) => {
@@ -105,4 +105,4 @@ const useProcessedPoints = (
   return points
 }
 
-export default useProcessedPoints
+export { createProcessedPoints }
