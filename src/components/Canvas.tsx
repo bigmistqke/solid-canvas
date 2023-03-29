@@ -132,7 +132,8 @@ export const Canvas: Component<{
               return selectedToken()
             },
             isSelected,
-            isHovered,
+            isHovered: (token: CanvasToken) =>
+              !selectedToken() && isHovered(token),
             get hovered() {
               return hoveredToken()
             },
