@@ -9,7 +9,7 @@ import {
   untrack,
 } from 'solid-js'
 import { Arc, Group, Line } from 'src'
-import { GroupToken } from 'src/parser'
+import { Object2DToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
 
 type BezierPoint = {
@@ -128,7 +128,7 @@ function useLinearHandles(
         )}
       </For>
     </Group>
-  ) as any as TokenElement<GroupToken>
+  ) as any as TokenElement<Object2DToken>
 
   return {
     render: (ctx: CanvasRenderingContext2D) => {
@@ -164,7 +164,7 @@ function useBezierHandles(
         </Index>
       </Group>
     </Show>
-  ) as any as Accessor<TokenElement<GroupToken>>
+  ) as any as Accessor<TokenElement<Object2DToken>>
 
   return {
     render: (ctx: CanvasRenderingContext2D) => {
