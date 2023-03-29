@@ -24,7 +24,7 @@ https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Feedback.tsx)
 
-https://user-images.githubusercontent.com/10504064/228171739-af63dc8c-91da-4098-91d6-4a71eb628e72.mp4
+https://user-images.githubusercontent.com/10504064/228581332-99389055-2a5e-4afa-8dea-4fa58c27aa27.mp4
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/EditableCurves.tsx)
 
