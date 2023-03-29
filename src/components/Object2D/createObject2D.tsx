@@ -3,20 +3,27 @@ import {
   resolveTokens,
   TokenElement,
 } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createEffect, JSX, mergeProps } from 'solid-js'
+import { Accessor, createEffect, createMemo, JSX, mergeProps } from 'solid-js'
 import {
   InternalContext,
   InternalContextType,
   useInternalContext,
 } from 'src/context/InternalContext'
+import { ControllerEvents } from 'src/controllers/Drag'
 
 import { CanvasToken, parser } from 'src/parser'
-import { CanvasMouseEvent, Composite, ExtendedColor, Position } from 'src/types'
+import {
+  CanvasMouseEvent,
+  CanvasMouseEventTypes,
+  Composite,
+  ExtendedColor,
+  Position,
+  Shape2DProps,
+} from 'src/types'
+import forEachReversed from 'src/utils/forEachReversed'
 import { isPointInShape2D } from 'src/utils/isPointInShape2D'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
-import forEachReversed from 'src/utils/forEachReversed'
 import withContext from 'src/utils/withContext'
-import { createDraggable } from 'src/utils/createDraggable'
 
 /**
  * Object2Ds (and clips) the component's children
@@ -34,6 +41,7 @@ export type Object2DProps = {
   clip?: Accessor<JSX.Element | JSX.Element[]>
   draggable?: boolean | 'controlled'
   onDragMove?: (position: Position, event: CanvasMouseEvent) => void
+  controllers?: ((props: Shape2DProps, events: ControllerEvents) => any)[]
 }
 
 function createObject2D<T>(options: {
@@ -49,11 +57,36 @@ function createObject2D<T>(options: {
     if (!canvas) throw 'CanvasTokens need to be included in Canvas'
     const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
-    const [dragPosition, dragEventHandler] = createDraggable(props)
+    // const [dragPosition, dragEventHandler] = createDraggable(props)
 
-    const offset = () =>
-      props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition()
-    createEffect(() => console.log('offset', options.id, offset().x))
+    const events: Record<
+      CanvasMouseEventTypes,
+      ((event: CanvasMouseEvent) => void)[]
+    > = {
+      onMouseDown: [],
+      onMouseMove: [],
+      onMouseUp: [],
+      onMouseLeave: [],
+      onMouseEnter: [],
+    }
+
+    const controlledProps = createMemo(() => {
+      let temp = { ...merged }
+      props.controllers?.forEach(controller => {
+        temp = controller(temp, {
+          onMouseDown: callback => events.onMouseDown.push(callback),
+          onMouseMove: callback => events.onMouseDown.push(callback),
+          onMouseUp: callback => events.onMouseDown.push(callback),
+          onMouseLeave: callback => events.onMouseDown.push(callback),
+          onMouseEnter: callback => events.onMouseDown.push(callback),
+        })
+      })
+      return temp
+    })
+
+    /* const offset = () =>
+      props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition() */
+    // createEffect(() => console.log('offset', options.id, offset().x))
     const context = {
       ...canvas,
       get selected() {
@@ -65,10 +98,10 @@ function createObject2D<T>(options: {
       get origin() {
         return canvas
           ? {
-              x: merged.position.x + canvas.origin.x + offset().x,
-              y: merged.position.y + canvas.origin.y + offset().y,
+              x: controlledProps().position.x + canvas.origin.x,
+              y: controlledProps().position.y + canvas.origin.y,
             }
-          : merged.position
+          : controlledProps().position
       },
     }
 
@@ -101,10 +134,10 @@ function createObject2D<T>(options: {
         })
         ctx.clip(path)
       }
-      if (merged.composite) {
+      if (controlledProps().composite) {
         // TODO:  to accurately composite `Object2D` we should render the contents of `Object2D`
         //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
-        ctx.globalCompositeOperation = merged.composite
+        ctx.globalCompositeOperation = controlledProps().composite
       }
       if (props.opacity) ctx.globalAlpha = props.opacity
       if (props.fill) {
@@ -113,7 +146,7 @@ function createObject2D<T>(options: {
       }
 
       // TODO:  should investigate better solution then this weird typecast
-      options.render(context, merged as Object2DProps & T, tokens())
+      options.render(context, controlledProps() as Object2DProps & T, tokens())
 
       canvas?.ctx.restore()
       forEachReversed(tokens(), ({ data }) => {
@@ -129,7 +162,7 @@ function createObject2D<T>(options: {
           path.addPath(data.path())
         }
       })
-      return isPointInShape2D(event, merged, path)
+      return isPointInShape2D(event, controlledProps(), path)
     }
 
     const hitTest = (event: CanvasMouseEvent) => {
@@ -146,11 +179,14 @@ function createObject2D<T>(options: {
           }
         }
       })
+      if (result[0] === tokens()[tokens().length - 1])
+        events[event.type].forEach(callback => callback(event))
+
       if (
         (result[0] === tokens()[tokens().length - 1] || event.propagation) &&
         props.draggable
       ) {
-        dragEventHandler(event)
+        // dragEventHandler(event)
       }
       return false
     }

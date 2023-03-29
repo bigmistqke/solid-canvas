@@ -189,9 +189,16 @@ export type ResolvedShape2DProps = RequiredPartially<
   | 'hoverStyle'
 >
 
+export type CanvasMouseEventTypes =
+  | 'onMouseDown'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'onMouseLeave'
+  | 'onMouseEnter'
+
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
-  type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp'
+  type: CanvasMouseEventTypes
   position: Position
   delta: Position
   propagation: boolean
