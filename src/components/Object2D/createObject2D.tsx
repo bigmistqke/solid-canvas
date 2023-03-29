@@ -137,21 +137,17 @@ function createObject2D<T>(options: {
         if (!hitTestClip(event)) return false
       }
       let result: TokenElement<CanvasToken>[] = []
-      let stop = false
-      // const stopPropagation = () => (stop = true)
       forEachReversed(tokens(), token => {
         if (!event.propagation) return
         if ('hitTest' in token.data) {
           const hit = token.data.hitTest(event)
           if (hit) {
             result.push(token)
-            event.propagation = false
           }
         }
       })
       if (
-        result.length === 1 &&
-        result[0] === tokens()[tokens().length - 1] &&
+        (result[0] === tokens()[tokens().length - 1] || event.propagation) &&
         props.draggable
       ) {
         dragEventHandler(event)
