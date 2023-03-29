@@ -199,16 +199,10 @@ export type CanvasMouseEvent = {
   cursor: CursorStyle
 }
 
-export type BezierPoint = CubicPoint | QuadraticPoint
-
-export type CubicPoint = {
-  point: Position
-  control: Position
-  oppositeControl?: Position
-}
-export type QuadraticPoint = {
+export type BezierPoint = {
   point: Position
   control?: Position
+  oppositeControl?: Position
 }
 
 export type CursorStyle =
