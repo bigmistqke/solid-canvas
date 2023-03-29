@@ -1,5 +1,6 @@
 import { JSX } from 'solid-js'
 import { CanvasToken } from './parser'
+import { RequiredPartially } from './utils/typehelpers'
 
 export type Position = {
   x: number
@@ -174,32 +175,19 @@ export type Shape2DProps = Shape2DStyle & {
   hoverStyle?: Shape2DStyle
 }
 
-export type ResolvedShape2DProps = Required<
-  Omit<
-    Shape2DProps,
-    | 'onDragMove'
-    | 'onMouseDown'
-    | 'onMouseMove'
-    | 'onMouseUp'
-    | 'composite'
-    | 'shadow'
-    | 'editable'
-    | 'cursor'
-    | 'hoverStyle'
-  >
-> &
-  Pick<
-    Shape2DProps,
-    | 'onDragMove'
-    | 'onMouseDown'
-    | 'onMouseMove'
-    | 'onMouseUp'
-    | 'composite'
-    | 'shadow'
-    | 'editable'
-    | 'cursor'
-    | 'hoverStyle'
-  >
+export type ResolvedShape2DProps = RequiredPartially<
+  Shape2DProps,
+  | 'onDragMove'
+  | 'onMouseDown'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'composite'
+  | 'fill'
+  | 'shadow'
+  | 'editable'
+  | 'cursor'
+  | 'hoverStyle'
+>
 
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
@@ -236,7 +224,3 @@ export type CursorStyle =
   | 'pointer'
   | 'none'
   | undefined
-
-export type Normalize<T> = T extends (...args: infer A) => infer R
-  ? (...args: Normalize<A>) => Normalize<R>
-  : { [K in keyof T]: T[K] }

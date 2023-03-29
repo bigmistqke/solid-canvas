@@ -4,16 +4,11 @@ import { useInternalContext } from 'src/context/InternalContext'
 
 import { defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import {
-  Dimensions,
-  ExtendedColor,
-  ImageSource,
-  Normalize,
-  Shape2DProps,
-} from 'src/types'
+import { Dimensions, ExtendedColor, ImageSource, Shape2DProps } from 'src/types'
 import filterShape2DProps from 'src/utils/filterShape2DProps'
 import hitTest from 'src/utils/hitTest'
 import resolveImage from 'src/utils/resolveImageSource'
+import { Normalize } from 'src/utils/typehelpers'
 import useMatrix from 'src/utils/useMatrix'
 import useTransformedPath from 'src/utils/useTransformedPath'
 import withGroup from 'src/utils/withGroup'
