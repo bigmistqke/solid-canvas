@@ -73,7 +73,7 @@ export type Composite =
   | 'difference'
   | 'exclusion'
 
-export type Shape2DProps = {
+type Shape2DStyle = {
   /**
    * Default: 'transparent'
    */
@@ -135,13 +135,11 @@ export type Shape2DProps = {
    * Sets ctx.globalAlpha. Default: 1
    */
   opacity?: number
+}
 
+export type Shape2DProps = Shape2DStyle & {
   // Mouse-Events
 
-  /**
-   * Makes shape draggable. Default: false
-   */
-  /* draggable?: boolean */
   /**
    * Ignore all pointer-events. Default: false
    */
@@ -169,6 +167,11 @@ export type Shape2DProps = {
    * Set cursor-style when hovering
    */
   cursor?: CursorStyle
+
+  /**
+   * Set cursor-style when hovering
+   */
+  hoverStyle?: Shape2DStyle
 }
 
 export type ResolvedShape2DProps = Required<
@@ -182,6 +185,7 @@ export type ResolvedShape2DProps = Required<
     | 'shadow'
     | 'editable'
     | 'cursor'
+    | 'hoverStyle'
   >
 > &
   Pick<
@@ -194,6 +198,7 @@ export type ResolvedShape2DProps = Required<
     | 'shadow'
     | 'editable'
     | 'cursor'
+    | 'hoverStyle'
   >
 
 export type CanvasMouseEvent = {
