@@ -17,6 +17,7 @@ import {
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
+import { SingleOrArray } from './typehelpers'
 
 /**
  * Object2Ds (and clips) the component's children
@@ -52,8 +53,8 @@ export type Object2DProps = {
 }
 
 function createParenthood<T>(
-  props: Shape2DProps,
-  context?: InternalContextType,
+  props: { children: SingleOrArray<JSX.Element> },
+  context: InternalContextType,
 ) {
   ;[props] = splitProps(props, ['children'])
 
@@ -67,7 +68,7 @@ function createParenthood<T>(
       if ('render' in data) data.render?.(ctx)
     })
     forEachReversed(tokens(), ({ data }) => {
-      if ('debug' in data) data.debug(ctx)
+      if ('debug' in data && context.debug) data.debug(ctx)
     })
   }
 
