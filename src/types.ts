@@ -174,7 +174,7 @@ type Shape2DStyle = {
   opacity?: number
 }
 
-export type Shape2DProps<T = {}> = Shape2DStyle &
+export type Shape2DProps<T = Object> = Shape2DStyle &
   Shape2DEvents & {
     /**
      * Ignore all pointer-events. Default: false
