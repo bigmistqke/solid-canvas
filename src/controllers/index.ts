@@ -2,6 +2,7 @@ import { CanvasMouseEvent, CanvasMouseEventTypes } from 'src/types'
 
 export { Drag } from './Drag'
 export { BezierHandle } from './Handle'
+export { Noop } from './Noop'
 
 export type ControllerEvents = {
   [K in CanvasMouseEventTypes]: (event: CanvasMouseEvent) => void
