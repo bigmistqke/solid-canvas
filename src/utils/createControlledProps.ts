@@ -1,5 +1,6 @@
 import { createLazyMemo } from '@solid-primitives/memo'
-import { Accessor, createEffect, createRoot, mapArray } from 'solid-js'
+import { Accessor, mapArray } from 'solid-js'
+import { GroupProps } from 'src/components/Object2D/Group'
 import { ControllerEvents } from 'src/controllers'
 import { ResolvedShape2DProps } from 'src/types'
 
@@ -7,7 +8,7 @@ const createControlledProps = <
   T extends Record<string, any>,
   U extends ResolvedShape2DProps<T>,
 >(
-  props: U,
+  props: U | Omit<GroupProps, 'children'>,
 ) => {
   const events: {
     [K in keyof ControllerEvents]: ControllerEvents[K][]
