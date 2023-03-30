@@ -52,12 +52,12 @@ export type Object2DProps = {
 }
 
 function createParenthood<T>(
-  props: () => Shape2DProps,
+  props: Shape2DProps,
   context?: InternalContextType,
 ) {
   const tokens = resolveTokens(
     parser,
-    withContext(() => props().children, InternalContext, context),
+    withContext(() => props.children, InternalContext, context),
   )
 
   const render = (ctx: CanvasRenderingContext2D) => {
@@ -81,7 +81,7 @@ function createParenthood<T>(
       }
     })
 
-    const eventHandler = props()[event.type]
+    const eventHandler = props[event.type]
 
     if (
       event.target[0] === tokens()[tokens().length - 1]?.data &&

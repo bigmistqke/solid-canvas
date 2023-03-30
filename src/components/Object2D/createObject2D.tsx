@@ -1,25 +1,22 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
+// DEPRECATED: ONLY HERE FOR BITS AND PIECES
+
 import {
   createToken,
   resolveTokens,
   TokenElement,
 } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createEffect, createMemo, JSX, mergeProps } from 'solid-js'
+import { mergeProps } from 'solid-js'
 import {
   InternalContext,
   InternalContextType,
   useInternalContext,
 } from 'src/context/InternalContext'
-import { ControllerEvents } from 'src/controllers/Drag'
 
 import { CanvasToken, parser } from 'src/parser'
-import {
-  CanvasMouseEvent,
-  CanvasMouseEventTypes,
-  Composite,
-  ExtendedColor,
-  Position,
-  Shape2DProps,
-} from 'src/types'
+import { CanvasMouseEvent, Object2DProps } from 'src/types'
 import forEachReversed from 'src/utils/forEachReversed'
 import { isPointInShape2D } from 'src/utils/isPointInShape2D'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
@@ -28,35 +25,6 @@ import withContext from 'src/utils/withContext'
 /**
  * Object2Ds (and clips) the component's children
  */
-
-export type Object2DProps = {
-  /**
-   * Defaults to { x: 0, y: 0}
-   */
-  position?: Position
-  children?: JSX.Element | JSX.Element[]
-  opacity?: number
-  fill?: ExtendedColor
-  composite?: Composite
-  clip?: Accessor<JSX.Element | JSX.Element[]>
-  draggable?: boolean | 'controlled'
-  controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
-  onMouseDown?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseUp?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseMove?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseEnter?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseLeave?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-}
 
 function createObject2D<T>(options: {
   id: string

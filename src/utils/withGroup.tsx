@@ -1,3 +1,8 @@
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-nocheck
+
+// DEPRECATED: ONLY HERE FOR BITS AND PIECES
+
 import { TokenComponent } from '@solid-primitives/jsx-tokenizer'
 import { createLazyMemo } from '@solid-primitives/memo'
 import { Accessor, mapArray, splitProps } from 'solid-js'

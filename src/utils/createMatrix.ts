@@ -8,10 +8,10 @@ const createMatrix = (props: Shape2DProps) => {
   const point = new DOMPoint()
   let offset: DOMPoint
   return createMemo(() => {
-    position = {
+    /* position = {
       x: props.position?.x ?? 0,
       y: props.position?.y ?? 0,
-    }
+    } */
 
     matrix = new DOMMatrix()
 
@@ -19,13 +19,10 @@ const createMatrix = (props: Shape2DProps) => {
     matrix.skewYSelf(props.skewY)
 
     // NOTE:  skewing causes a horizontal/vertical offset
-    point.x = position.x
-    point.y = position.y
+    point.x = 0
+    point.y = 0
     offset = point.matrixTransform(matrix)
-    matrix.translateSelf(
-      position.x + point.x - offset.x,
-      position.y + point.y - offset.y,
-    )
+    matrix.translateSelf(point.x - offset.x, point.y - offset.y)
 
     // NOTE:  the rotation should not be included in this offset-calculation
     matrix.rotateSelf(props.rotation)

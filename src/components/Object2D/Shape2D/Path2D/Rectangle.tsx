@@ -11,6 +11,9 @@ import { createBounds } from 'src/utils/createBounds'
 import { createMatrix } from 'src/utils/createMatrix'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { createParenthood } from 'src/utils/createParenthood'
 
 export type RectangleProps = Shape2DProps & {
   dimensions: Dimensions
@@ -29,26 +32,34 @@ export type RectangleProps = Shape2DProps & {
  */
 
 const Rectangle = createToken(parser, (props: RectangleProps) => {
-  const canvas = useInternalContext()
-  const merged = mergeProps({ ...defaultShape2DProps, close: true }, props)
+  // const canvas = useInternalContext()
+  const resolvedProps = resolveShape2DProps(props, {
+    close: true,
+    dimensions: { width: 100, height: 100 },
+  })
+  const context = createUpdatedContext(resolvedProps)
+  const parenthood = createParenthood(resolvedProps, context)
 
-  const matrix = createMatrix(merged)
-
-  const getPath = () => {
+  const matrix = createMatrix(resolvedProps)
+  const path = createTransformedPath(() => {
     const path = new Path2D()
     if (props.rounded && 'roundRect' in path)
       path.roundRect(
         0,
         0,
-        merged.dimensions.width,
-        merged.dimensions.height,
+        resolvedProps.dimensions.width,
+        resolvedProps.dimensions.height,
         props.rounded,
       )
-    else path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
+    else
+      path.rect(
+        0,
+        0,
+        resolvedProps.dimensions.width,
+        resolvedProps.dimensions.height,
+      )
     return path
-  }
-
-  const path = createTransformedPath(getPath, matrix)
+  }, matrix)
 
   const bounds = createBounds(
     () => [
@@ -81,22 +92,22 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
   const token: Shape2DToken = {
     id: 'Rectangle',
     type: 'Shape2D',
-    render: (ctx: CanvasRenderingContext2D) =>
-      renderPath(ctx, merged, path(), canvas?.origin, false),
+    render: (ctx: CanvasRenderingContext2D) => {
+      renderPath(ctx, resolvedProps, path(), context.origin, false)
+      parenthood.render(ctx)
+    },
     debug: (ctx: CanvasRenderingContext2D) =>
       renderPath(
         ctx,
         defaultBoundsProps,
         bounds().path,
-        canvas?.origin,
-        canvas?.isSelected(token) || canvas?.isHovered(token),
+        context.origin,
+        context.isSelected(token) || context.isHovered(token),
       ),
     path,
-    hitTest: event => setHover(hitTest(token, event, canvas, merged)),
+    hitTest: event => setHover(hitTest(token, event, context, resolvedProps)),
   }
   return token
 })
 
-const GroupedRectangle = withGroup(Rectangle)
-
-export { GroupedRectangle as Rectangle }
+export { Rectangle }

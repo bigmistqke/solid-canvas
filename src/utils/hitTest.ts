@@ -23,7 +23,11 @@ export default (
   canvas.ctx.restore()
 
   if (hit) {
-    props[event.type]?.(event)
+    let listeners = props[event.type]
+    if (listeners) {
+      listeners = Array.isArray(listeners) ? listeners : [listeners]
+      listeners.forEach(listener => listener(event))
+    }
     event.target.push(token)
     if (props.cursor) event.cursor = props.cursor
   }

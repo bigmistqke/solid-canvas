@@ -1,17 +1,18 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { mergeProps } from 'solid-js'
 
-import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Shape2DProps } from 'src/types'
-import hitTest from 'src/utils/hitTest'
-import renderPath from 'src/utils/renderPath'
-import { Normalize } from 'src/utils/typehelpers'
 import { createBounds } from 'src/utils/createBounds'
 import { createMatrix } from 'src/utils/createMatrix'
+import { createParenthood } from 'src/utils/createParenthood'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
-import withGroup from 'src/utils/withGroup'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import hitTest from 'src/utils/hitTest'
+import renderPath from 'src/utils/renderPath'
+import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { Normalize } from 'src/utils/typehelpers'
 
 /**
  * Paints a rectangle to the canvas
@@ -23,6 +24,7 @@ const Arc = createToken(
   (
     props: Normalize<
       Shape2DProps & {
+        close?: boolean
         radius?: number
         angle?: {
           start: number
@@ -31,32 +33,26 @@ const Arc = createToken(
       }
     >,
   ) => {
-    const canvas = useInternalContext()
-    const merged = mergeProps(
-      {
-        ...defaultShape2DProps,
-        close: true,
-        radius: 10,
-        angle: { start: 0, end: 2 * Math.PI },
-      },
-      props,
-    )
+    const resolvedProps = resolveShape2DProps(props, {
+      close: true,
+      radius: 10,
+      angle: { start: 0, end: 2 * Math.PI },
+    })
+    const context = createUpdatedContext(resolvedProps)
+    const parenthood = createParenthood(resolvedProps, context)
 
-    const matrix = createMatrix(merged)
-
-    const getPath = () => {
+    const matrix = createMatrix(resolvedProps)
+    const path = createTransformedPath(() => {
       const path = new Path2D()
       path.arc(
-        merged.radius,
-        merged.radius,
-        merged.radius,
-        merged.angle.start,
-        merged.angle.end,
+        resolvedProps.radius,
+        resolvedProps.radius,
+        resolvedProps.radius,
+        resolvedProps.angle.start,
+        resolvedProps.angle.end,
       )
       return path
-    }
-
-    const path = createTransformedPath(getPath, matrix)
+    }, matrix)
 
     const bounds = createBounds(
       () => [
@@ -65,16 +61,16 @@ const Arc = createToken(
           y: 0,
         },
         {
-          x: merged.radius * 2,
+          x: resolvedProps.radius * 2,
           y: 0,
         },
         {
-          x: merged.radius * 2,
-          y: merged.radius * 2,
+          x: resolvedProps.radius * 2,
+          y: resolvedProps.radius * 2,
         },
         {
           x: 0,
-          y: merged.radius * 2,
+          y: resolvedProps.radius * 2,
         },
       ],
       matrix,
@@ -86,28 +82,28 @@ const Arc = createToken(
       render: function (ctx: CanvasRenderingContext2D) {
         renderPath(
           ctx,
-          merged,
+          resolvedProps,
           path(),
-          canvas?.origin,
-          canvas?.isSelected(token) || canvas?.isHovered(token),
+          context.origin,
+          context.isSelected(token) || context.isHovered(token),
         )
+        parenthood.render(ctx)
       },
       debug: (ctx: CanvasRenderingContext2D) =>
         renderPath(
           ctx,
           defaultBoundsProps,
           bounds().path,
-          canvas?.origin,
+          context.origin,
           false,
         ),
       path,
       hitTest: function (event) {
-        return hitTest(token, event, canvas, merged)
+        return hitTest(token, event, context, resolvedProps)
       },
     }
     return token
   },
 )
-const GroupedArc = withGroup(Arc)
 
-export { GroupedArc as Arc }
+export { Arc }

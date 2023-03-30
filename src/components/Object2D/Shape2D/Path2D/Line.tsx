@@ -1,17 +1,17 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { mergeProps } from 'solid-js'
 
-import { useInternalContext } from 'src/context/InternalContext'
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
+import { defaultBoundsProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
-import hitTest from 'src/utils/hitTest'
-import renderPath from 'src/utils/renderPath'
 import { createBounds } from 'src/utils/createBounds'
 import { createLinearHandles } from 'src/utils/createHandles'
 import { createMatrix } from 'src/utils/createMatrix'
+import { createParenthood } from 'src/utils/createParenthood'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
-import withGroup from 'src/utils/withGroup'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import hitTest from 'src/utils/hitTest'
+import renderPath from 'src/utils/renderPath'
+import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
 
 /**
  * Paints a straight line to the canvas
@@ -26,11 +26,12 @@ const Line = createToken(
       close?: boolean
     },
   ) => {
-    const canvas = useInternalContext()
-    const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-
-    const matrix = createMatrix(merged)
+    const resolvedProps = resolveShape2DProps(props, { close: false })
+    const context = createUpdatedContext(resolvedProps)
+    const parenthood = createParenthood(resolvedProps, context)
+    const matrix = createMatrix(resolvedProps)
     const bounds = createBounds(() => props.points, matrix)
+
     const handles = createLinearHandles(
       () => props.points,
       () => props.editable,
@@ -48,7 +49,7 @@ const Line = createToken(
         path2D.lineTo(point.x + (offset?.x ?? 0), point.y + (offset?.y ?? 0))
         i++
       }
-      if (merged.close) path2D.closePath()
+      if (resolvedProps.close) path2D.closePath()
 
       return path2D
     }, matrix)
@@ -59,31 +60,31 @@ const Line = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          merged,
+          resolvedProps,
           path(),
-          canvas?.origin,
-          canvas?.isSelected(token) || canvas?.isHovered(token),
+          context.origin,
+          context.isSelected(token) || context.isHovered(token),
         )
         handles?.render(ctx)
+        parenthood.render(ctx)
       },
       debug: ctx =>
         renderPath(
           ctx,
           defaultBoundsProps,
           bounds().path,
-          canvas?.origin,
+          context.origin,
           false,
         ),
       path,
       hitTest: event => {
         handles?.hitTest(event)
-        return hitTest(token, event, canvas, merged)
+        return hitTest(token, event, context, resolvedProps)
       },
     }
+
     return token
   },
 )
 
-const GroupedLine = withGroup(Line)
-
-export { GroupedLine as Line }
+export { Line }

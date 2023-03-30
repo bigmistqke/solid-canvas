@@ -12,6 +12,9 @@ import { Normalize } from 'src/utils/typehelpers'
 import { createMatrix } from 'src/utils/createMatrix'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { createParenthood } from 'src/utils/createParenthood'
 
 /**
  * Paints an image to the canvas
@@ -30,49 +33,49 @@ const Image = createToken(
       }
     >,
   ) => {
-    const canvas = useInternalContext()
-    const merged = mergeProps(
-      {
-        ...defaultShape2DProps,
-        close: true,
-        fontFamily: 'arial',
-        size: 10,
-        dimensions: { width: 100, height: 100 },
-      },
-      props,
-    )
-    const filteredProps = filterShape2DProps(merged)
-
+    const resolvedProps = resolveShape2DProps(props, {
+      close: true,
+      fontFamily: 'arial',
+      size: 10,
+      dimensions: { width: 100, height: 100 },
+    })
+    const context = createUpdatedContext(resolvedProps)
+    const parenthood = createParenthood(resolvedProps)
     const image = resolveImage(() => props.image)
 
-    const matrix = createMatrix(merged)
+    const matrix = createMatrix(resolvedProps)
 
     const path = createTransformedPath(() => {
       const path = new Path2D()
-      path.rect(0, 0, merged.dimensions.width, merged.dimensions.height)
+      path.rect(
+        0,
+        0,
+        resolvedProps.dimensions.width,
+        resolvedProps.dimensions.height,
+      )
       return path
     }, matrix)
-
-    const render = (ctx: CanvasRenderingContext2D) => {
-      const img = image()
-      if (!img) return
-
-      const origin = canvas?.origin ?? { x: 0, y: 0 }
-      if (props.opacity) ctx.globalAlpha = props.opacity
-      ctx.drawImage(
-        img,
-        origin.x + merged.position.x,
-        origin.y + merged.position.y,
-        merged.dimensions.width,
-        merged.dimensions.height,
-      )
-    }
 
     const token: Shape2DToken = {
       type: 'Shape2D',
       id: 'Image',
-      render,
-      hitTest: event => hitTest(token, event, canvas, merged),
+      render: ctx => {
+        const img = image()
+        if (!img) return
+
+        const origin = context.origin ?? { x: 0, y: 0 }
+        if (props.opacity) ctx.globalAlpha = props.opacity
+        ctx.drawImage(
+          img,
+          origin.x + resolvedProps.position.x,
+          origin.y + resolvedProps.position.y,
+          resolvedProps.dimensions.width,
+          resolvedProps.dimensions.height,
+        )
+
+        parenthood.render(ctx)
+      },
+      hitTest: event => hitTest(token, event, context, resolvedProps),
       debug: () => {},
       path,
     }
@@ -80,6 +83,4 @@ const Image = createToken(
   },
 )
 
-const GroupedImage = withGroup(Image)
-
-export { GroupedImage as Image }
+export { Image }

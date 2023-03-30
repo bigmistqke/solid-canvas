@@ -1,7 +1,6 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js'
-import { Object2DProps } from 'src/components/Object2D/createObject2D'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Position } from 'src/types'
+import { CanvasMouseEvent, Object2DProps, Position } from 'src/types'
 import { ControllerEvents, RegisterControllerEvents } from '.'
 
 type DragOptions = {

@@ -15,7 +15,6 @@ import {
 import { createStore } from 'solid-js/store'
 import { InternalContext } from 'src/context/InternalContext'
 import { UserContext } from 'src/context/UserContext'
-import { ControllerEvents } from 'src/controllers/Drag'
 
 import { CanvasToken, parser } from 'src/parser'
 import {

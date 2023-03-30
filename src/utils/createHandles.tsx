@@ -38,7 +38,6 @@ const Handle = (props: {
       stroke="transparent"
       fill={props.draggable !== false ? 'black' : 'lightgrey'}
       position={{ x: props.position.x - 10, y: props.position.y - 10 }}
-      draggable={props.draggable === false ? false : 'controlled'}
       pointerEvents={props.draggable === false ? false : true}
       cursor={props.draggable ? 'pointer' : 'default'}
       hoverStyle={{
