@@ -13,6 +13,7 @@ import { createTransformedPath } from 'src/utils/createTransformedPath'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
+import { createControlledProps } from 'src/utils/createControlledProps'
 import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
 
 /**
@@ -30,13 +31,16 @@ const Quadratic = createToken(
       close?: boolean
     },
   ) => {
-    const resolvedProps = resolveShape2DProps(props, { close: false })
-    const context = createUpdatedContext(resolvedProps)
+    const controlled = createControlledProps(
+      resolveShape2DProps(props, { close: false }),
+    )
+
+    const context = createUpdatedContext(() => controlled.props)
     const parenthood = createParenthood(props, context)
 
     const mutablePoints = createProcessedPoints(() => props.points, 'quadratic')
 
-    const matrix = createMatrix(resolvedProps)
+    const matrix = createMatrix(controlled.props)
     const path = createTransformedPath(() => {
       const values = mutablePoints()
 
@@ -67,7 +71,7 @@ const Quadratic = createToken(
 
       const path2D = new Path2D(svg)
 
-      if (resolvedProps.close) path2D.closePath()
+      if (controlled.props().close) path2D.closePath()
 
       return path2D
     }, matrix)
@@ -103,7 +107,7 @@ const Quadratic = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          resolvedProps,
+          controlled.props(),
           path(),
           context.origin,
           context.isHovered(token) || context.isSelected(token),
@@ -121,7 +125,7 @@ const Quadratic = createToken(
         ),
       hitTest: event => {
         handles.hitTest(event)
-        return hitTest(token, event, context, resolvedProps)
+        return hitTest(token, event, context, controlled.props())
       },
     }
     return token

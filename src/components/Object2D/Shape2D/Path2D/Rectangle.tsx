@@ -14,6 +14,7 @@ import withGroup from 'src/utils/withGroup'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
 import { createParenthood } from 'src/utils/createParenthood'
+import { createControlledProps } from 'src/utils/createControlledProps'
 
 export type RectangleProps = Shape2DProps & {
   dimensions: Dimensions
@@ -32,31 +33,31 @@ export type RectangleProps = Shape2DProps & {
  */
 
 const Rectangle = createToken(parser, (props: RectangleProps) => {
-  // const canvas = useInternalContext()
-  const resolvedProps = resolveShape2DProps(props, {
-    close: true,
-    dimensions: { width: 100, height: 100 },
-  })
-  const context = createUpdatedContext(resolvedProps)
-  const parenthood = createParenthood(resolvedProps, context)
+  const controlled = createControlledProps(
+    resolveShape2DProps(props, {
+      dimensions: { width: 10, height: 10 },
+    }),
+  )
+  const context = createUpdatedContext(() => controlled.props)
+  const parenthood = createParenthood(props, context)
 
-  const matrix = createMatrix(resolvedProps)
+  const matrix = createMatrix(controlled.props)
   const path = createTransformedPath(() => {
     const path = new Path2D()
     if (props.rounded && 'roundRect' in path)
       path.roundRect(
         0,
         0,
-        resolvedProps.dimensions.width,
-        resolvedProps.dimensions.height,
+        controlled.props.dimensions.width,
+        controlled.props.dimensions.height,
         props.rounded,
       )
     else
       path.rect(
         0,
         0,
-        resolvedProps.dimensions.width,
-        resolvedProps.dimensions.height,
+        controlled.props.dimensions.width,
+        controlled.props.dimensions.height,
       )
     return path
   }, matrix)
@@ -93,7 +94,7 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     id: 'Rectangle',
     type: 'Shape2D',
     render: (ctx: CanvasRenderingContext2D) => {
-      renderPath(ctx, resolvedProps, path(), context.origin, false)
+      renderPath(ctx, controlled.props, path(), context.origin, false)
       parenthood.render(ctx)
     },
     debug: (ctx: CanvasRenderingContext2D) =>
@@ -105,7 +106,8 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
         context.isSelected(token) || context.isHovered(token),
       ),
     path,
-    hitTest: event => setHover(hitTest(token, event, context, resolvedProps)),
+    hitTest: event =>
+      setHover(hitTest(token, event, context, controlled.props)),
   }
   return token
 })

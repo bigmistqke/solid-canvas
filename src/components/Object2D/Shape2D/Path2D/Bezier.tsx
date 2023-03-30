@@ -14,9 +14,13 @@ import { createMatrix } from 'src/utils/createMatrix'
 import { createProcessedPoints } from 'src/utils/createProcessedPoints'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import { createParenthood } from 'src/utils/createParenthood'
+import { createControlledProps } from 'src/utils/createControlledProps'
+import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
 
 /**
- * Paints a cubic bezier to the canvas
+ * Paints a cubic bezier to the context
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo)
  */
 const Bezier = createToken(
@@ -31,21 +35,17 @@ const Bezier = createToken(
       close?: boolean
     },
   ) => {
-    const canvas = useInternalContext()
-    const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-
-    const matrix = createMatrix(merged)
+    const controlled = createControlledProps(
+      resolveShape2DProps(props, {
+        close: false,
+      }),
+    )
+    const context = createUpdatedContext(() => controlled.props)
+    const parenthood = createParenthood(props, context)
 
     const points = createProcessedPoints(() => props.points, 'cubic')
-    const handles = createBezierHandles(points, () => !!props.editable, 'cubic')
 
-    const bounds = createBounds(() => {
-      return points()
-        .map(Object.values)
-        .flat()
-        .filter(v => typeof v === 'object')
-    }, matrix)
-
+    const matrix = createMatrix(controlled.props)
     const path = createTransformedPath(() => {
       const values = points()
 
@@ -79,10 +79,19 @@ const Bezier = createToken(
       }
 
       const path2D = new Path2D(svgString)
-      if (merged.close) path2D.closePath()
+      if (controlled.props.close) path2D.closePath()
 
       return path2D
     }, matrix)
+
+    const bounds = createBounds(() => {
+      return points()
+        .map(Object.values)
+        .flat()
+        .filter(v => typeof v === 'object')
+    }, matrix)
+
+    const handles = createBezierHandles(points, () => !!props.editable, 'cubic')
 
     const token: Shape2DToken = {
       type: 'Shape2D',
@@ -91,19 +100,20 @@ const Bezier = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          merged,
+          controlled.props,
           path(),
-          canvas?.origin,
-          canvas?.isHovered(token) || canvas?.isSelected(token),
+          context.origin,
+          context.isHovered(token) || context.isSelected(token),
         )
         handles.render(ctx)
+        parenthood.render(ctx)
       },
       debug: ctx => {
         renderPath(
           ctx,
           defaultBoundsProps,
           bounds().path,
-          canvas?.origin,
+          context.origin,
           false,
         )
         handles.render(ctx)
@@ -111,7 +121,7 @@ const Bezier = createToken(
       },
       hitTest: function (event) {
         handles.hitTest(event)
-        return hitTest(token, event, canvas, merged)
+        return hitTest(token, event, context, controlled.props)
       },
     }
     return token

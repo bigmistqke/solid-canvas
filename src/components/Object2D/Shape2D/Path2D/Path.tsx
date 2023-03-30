@@ -12,6 +12,7 @@ import { createTransformedPath } from 'src/utils/createTransformedPath'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
+import { createControlledProps } from 'src/utils/createControlledProps'
 import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
 
 /**
@@ -27,14 +28,18 @@ const Path = createToken(
       close: boolean
     },
   ) => {
-    const canvas = useInternalContext()
-    const resolvedProps = resolveShape2DProps(props, { close: false })
-    const matrix = createMatrix(resolvedProps)
-    const context = createUpdatedContext(resolvedProps)
-    const parenthood = createParenthood(resolvedProps, context)
+    const controlled = createControlledProps(
+      resolveShape2DProps(props, {
+        close: false,
+      }),
+    )
+    const context = createUpdatedContext(() => controlled.props)
+    const parenthood = createParenthood(props, context)
+
+    const matrix = createMatrix(controlled.props)
     const path = createTransformedPath(() => {
       const path2D = new Path2D(props.d.string)
-      if (resolvedProps.close) path2D.closePath()
+      if (controlled.props.close) path2D.closePath()
       return path2D
     }, matrix)
 
@@ -44,17 +49,17 @@ const Path = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          resolvedProps,
+          controlled.props,
           path(),
-          canvas?.origin,
-          canvas?.isSelected(token) || canvas?.isHovered(token),
+          context.origin,
+          context.isSelected(token) || context.isHovered(token),
         )
         parenthood.render(ctx)
       },
       debug: ctx => {},
       path,
       hitTest: event => {
-        return hitTest(token, event, canvas, resolvedProps)
+        return hitTest(token, event, context, controlled.props)
       },
     }
     return token

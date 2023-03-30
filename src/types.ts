@@ -1,7 +1,7 @@
 import { Accessor, JSX } from 'solid-js'
-import { ControllerEvents } from './controllers'
+import { RegisterControllerEvents } from './controllers'
 import { CanvasToken } from './parser'
-import { RequiredPartially } from './utils/typehelpers'
+import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 
 export type Position = {
   x: number
@@ -85,40 +85,30 @@ export type Object2DProps = {
   fill?: ExtendedColor
   composite?: Composite
   clip?: Accessor<JSX.Element | JSX.Element[]>
-  controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
+  // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
 }
 
 type Shape2DEvents = {
   /**
    * Set onMouseDown-eventhandler.
    */
-  onMouseDown?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
+  onMouseDown?: SingleOrArray<(event: CanvasMouseEvent) => void>
   /**
    * Set onMouseUp-eventhandler.
    */
-  onMouseUp?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
+  onMouseUp?: SingleOrArray<(event: CanvasMouseEvent) => void>
   /**
    * Set onMouseMove-eventhandler.
    */
-  onMouseMove?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
+  onMouseMove?: SingleOrArray<(event: CanvasMouseEvent) => void>
   /**
    * Set onMouseEnter-eventhandler.
    */
-  onMouseEnter?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
+  onMouseEnter?: SingleOrArray<(event: CanvasMouseEvent) => void>
   /**
    * Set onMouseLeave-eventhandler.
    */
-  onMouseLeave?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
+  onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
 }
 
 type Shape2DStyle = {
@@ -184,7 +174,7 @@ type Shape2DStyle = {
   opacity?: number
 }
 
-export type Shape2DProps = Shape2DStyle &
+export type Shape2DProps<T = {}> = Shape2DStyle &
   Shape2DEvents & {
     /**
      * Ignore all pointer-events. Default: false
@@ -210,11 +200,14 @@ export type Shape2DProps = Shape2DStyle &
     fill?: ExtendedColor
     composite?: Composite
     clip?: Accessor<JSX.Element | JSX.Element[]>
-    controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
+    controllers?: ((
+      props: ResolvedShape2DProps<T>,
+      events: RegisterControllerEvents,
+    ) => Accessor<ResolvedShape2DProps<T>>)[]
   }
 
-export type ResolvedShape2DProps = RequiredPartially<
-  Shape2DProps,
+export type ResolvedShape2DProps<T = {}> = RequiredPartially<
+  Shape2DProps<T>,
   | CanvasMouseEventTypes
   | 'composite'
   | 'fill'

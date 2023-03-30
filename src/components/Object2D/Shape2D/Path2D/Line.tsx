@@ -12,7 +12,7 @@ import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
-
+import { createControlledProps } from 'src/utils/createControlledProps'
 /**
  * Paints a straight line to the canvas
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
@@ -26,10 +26,15 @@ const Line = createToken(
       close?: boolean
     },
   ) => {
-    const resolvedProps = resolveShape2DProps(props, { close: false })
-    const context = createUpdatedContext(resolvedProps)
-    const parenthood = createParenthood(resolvedProps, context)
-    const matrix = createMatrix(resolvedProps)
+    const controlled = createControlledProps(
+      resolveShape2DProps(props, {
+        close: false,
+      }),
+    )
+    const context = createUpdatedContext(() => controlled.props)
+    const parenthood = createParenthood(props, context)
+
+    const matrix = createMatrix(controlled.props)
     const bounds = createBounds(() => props.points, matrix)
 
     const handles = createLinearHandles(
@@ -49,7 +54,7 @@ const Line = createToken(
         path2D.lineTo(point.x + (offset?.x ?? 0), point.y + (offset?.y ?? 0))
         i++
       }
-      if (resolvedProps.close) path2D.closePath()
+      if (controlled.props.close) path2D.closePath()
 
       return path2D
     }, matrix)
@@ -60,7 +65,7 @@ const Line = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          resolvedProps,
+          controlled.props,
           path(),
           context.origin,
           context.isSelected(token) || context.isHovered(token),
@@ -79,7 +84,7 @@ const Line = createToken(
       path,
       hitTest: event => {
         handles?.hitTest(event)
-        return hitTest(token, event, context, resolvedProps)
+        return hitTest(token, event, context, controlled.props)
       },
     }
 

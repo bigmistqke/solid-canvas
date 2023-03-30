@@ -22,6 +22,7 @@ import {
 import { createParenthood } from 'src/utils/createParenthood'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
+import { createControlledProps } from 'src/utils/createControlledProps'
 import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
 import { Normalize } from 'src/utils/typehelpers'
 import { RectangleProps } from './Path2D/Rectangle'
@@ -58,55 +59,53 @@ const getFontString = (size?: number, fontFamily?: string) =>
  */
 
 const Text = createToken(parser, (props: TextProps) => {
-  const resolvedProps = resolveShape2DProps(props, {
-    close: true,
-    fontFamily: 'arial',
-    size: 10,
-    fill: 'black',
-    stroke: 'transparent',
-    padding: 0,
-  })
-
-  const context = createUpdatedContext(resolvedProps)
+  const controlled = createControlledProps(
+    resolveShape2DProps(props, {
+      text: '',
+    }),
+  )
+  const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(props, context)
 
-  // const filteredProps = filterShape2DProps(merged)
-
   const token: StaticShape2D = {
-    props: resolvedProps,
+    props: controlled.props,
     type: 'StaticShape2D',
     id: 'Text',
     render: (ctx: CanvasRenderingContext2D) => {
       const offset = context.origin ?? { x: 0, y: 0 }
-      if (props.text) {
+      if (props.text !== '') {
         ctx.font = getFontString(props.size, props.fontFamily)
 
         if (props.opacity) ctx.globalAlpha = props.opacity
 
-        ctx.fillStyle = resolveExtendedColor(resolvedProps.fill) ?? 'black'
+        ctx.fillStyle = resolveExtendedColor(controlled.props.fill) ?? 'black'
         ctx.strokeStyle =
-          resolveExtendedColor(resolvedProps.stroke) ?? 'transparent'
+          resolveExtendedColor(controlled.props.stroke) ?? 'transparent'
 
-        if ((props.isHovered || props.isSelected) && resolvedProps.hoverStyle) {
+        if (
+          (props.isHovered || props.isSelected) &&
+          controlled.props.hoverStyle
+        ) {
           ctx.fillStyle =
-            resolveExtendedColor(resolvedProps.hoverStyle.fill) ?? ctx.fillStyle
+            resolveExtendedColor(controlled.props.hoverStyle.fill) ??
+            ctx.fillStyle
           ctx.strokeStyle =
-            resolveExtendedColor(resolvedProps.hoverStyle.stroke) ??
+            resolveExtendedColor(controlled.props.hoverStyle.stroke) ??
             ctx.strokeStyle
         }
 
         // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
         if (ctx.fillStyle !== 'transparent')
           ctx.fillText(
-            resolvedProps.text,
-            resolvedProps.position.x + offset.x,
-            resolvedProps.position.y + offset.y + props.dimensions.height,
+            controlled.props.text,
+            controlled.props.position.x + offset.x,
+            controlled.props.position.y + offset.y + props.dimensions.height,
           )
         if (ctx.strokeStyle !== 'transparent')
           ctx.strokeText(
-            resolvedProps.text,
-            resolvedProps.position.x + offset.x,
-            resolvedProps.position.y + offset.y + props.dimensions.height,
+            controlled.props.text,
+            controlled.props.position.x + offset.x,
+            controlled.props.position.y + offset.y + props.dimensions.height,
           )
       }
       parenthood.render(ctx)
