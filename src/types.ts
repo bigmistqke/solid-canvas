@@ -201,7 +201,7 @@ export type Shape2DProps<T = Object> = Shape2DStyle &
     composite?: Composite
     clip?: Accessor<JSX.Element | JSX.Element[]>
     controllers?: ((
-      props: ResolvedShape2DProps<T>,
+      props: Accessor<ResolvedShape2DProps<T>>,
       events: RegisterControllerEvents,
     ) => Accessor<ResolvedShape2DProps<T>>)[]
   }
