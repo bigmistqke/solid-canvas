@@ -1,39 +1,36 @@
 import { Accessor } from 'solid-js'
-import { Shape2DProps } from 'src/types'
+import { ResolvedShape2DProps } from 'src/types'
 import { RegisterControllerEvents } from '.'
 
 const createController = <ControllerOptions extends Record<string, any>>(
   callback: (
-    props: Shape2DProps,
+    props: Accessor<ResolvedShape2DProps>,
     events: RegisterControllerEvents,
     options: ControllerOptions,
   ) => void,
 ) => {
   function Controller(options?: ControllerOptions): any
   function Controller(
-    props: Accessor<Shape2DProps>,
+    props: Accessor<ResolvedShape2DProps>,
     events: RegisterControllerEvents,
     options: ControllerOptions,
   ): any
   function Controller(
-    propsOrOptions?: Accessor<Shape2DProps> | ControllerOptions,
+    propsOrOptions?: Accessor<ResolvedShape2DProps> | ControllerOptions,
     events?: RegisterControllerEvents,
     options?: ControllerOptions,
   ) {
-    if (!events || !options) {
-      let options = (propsOrOptions as ControllerOptions) ?? {
-        active: true,
-        controlled: false,
-      }
+    if (!events) {
       return (
-        props: Accessor<Shape2DProps>,
+        props: Accessor<ResolvedShape2DProps>,
         events: RegisterControllerEvents,
-      ) => Controller(props, events, options)
+      ) => Controller(props, events, propsOrOptions as ControllerOptions)
     }
+
     return callback(
-      (propsOrOptions as Accessor<Shape2DProps>)(),
+      propsOrOptions as Accessor<ResolvedShape2DProps>,
       events,
-      options,
+      options!,
     )
   }
   return Controller

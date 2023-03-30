@@ -1,6 +1,7 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
 import { CanvasMouseEvent, Position } from 'src/types'
+import { mergeGetters } from 'src/utils/mergeGetters'
 import { createController } from './createController'
 
 type DragOptions = {
@@ -13,7 +14,11 @@ const Drag = createController<DragOptions>((props, events, options) => {
   const [selected, setSelected] = createSignal(false)
   const internalContext = useInternalContext()
 
-  // console.log('events', events)
+  options = {
+    active: true,
+    controlled: false,
+    ...options,
+  }
 
   createEffect(() => {
     if (!internalContext) return
@@ -56,15 +61,13 @@ const Drag = createController<DragOptions>((props, events, options) => {
 
   events.onMouseDown(dragEventHandler)
 
-  return () => ({
-    ...props,
-    position: options.controlled
-      ? props.position
-      : {
-          x: (props.position ? props.position.x : 0) + dragPosition().x,
-          y: (props.position ? props.position.y : 0) + dragPosition().y,
-        },
-  })
+  return () =>
+    mergeGetters(props(), {
+      position: {
+        x: (props().position?.x || 0) + dragPosition().x,
+        y: (props().position?.y || 0) + dragPosition().y,
+      },
+    })
 })
 
 export { Drag }
