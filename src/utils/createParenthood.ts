@@ -1,5 +1,5 @@
 import { resolveTokens, TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, createEffect, JSX } from 'solid-js'
+import { Accessor, createEffect, JSX, splitProps } from 'solid-js'
 import {
   InternalContext,
   InternalContextType,
@@ -55,6 +55,8 @@ function createParenthood<T>(
   props: Shape2DProps,
   context?: InternalContextType,
 ) {
+  ;[props] = splitProps(props, ['children'])
+
   const tokens = resolveTokens(
     parser,
     withContext(() => props.children, InternalContext, context),
@@ -80,19 +82,6 @@ function createParenthood<T>(
         }
       }
     })
-
-    const eventHandler = props[event.type]
-
-    if (
-      event.target[0] === tokens()[tokens().length - 1]?.data &&
-      eventHandler
-    ) {
-      if (Array.isArray(eventHandler)) {
-        eventHandler.forEach(handler => handler(event))
-      } else {
-        eventHandler(event)
-      }
-    }
 
     return false
   }
