@@ -17,7 +17,7 @@ const createDraggable = (props: Object2DProps) => {
           x: position.x + event.delta.x,
           y: position.y + event.delta.y,
         }))
-        props.onDragMove?.(dragPosition(), event)
+        // props.onDragMove?.(dragPosition(), event)
         event.propagation = false
       }
       const handleMouseUp = (event: CanvasMouseEvent) => {

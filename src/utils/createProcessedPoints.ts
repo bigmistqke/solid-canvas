@@ -1,6 +1,6 @@
 import { createLazyMemo } from '@solid-primitives/memo'
 import { mapArray, createSignal, Accessor } from 'solid-js'
-import { BezierPoint, Position } from 'src/types'
+import { BezierPoint, CubicPoint, Position } from 'src/types'
 import addPositions from './addPositions'
 import invertPosition from './invertPosition'
 
@@ -60,7 +60,7 @@ const createProcessedPoints = (
             if (index() === 0 || index() === inputs().length - 1)
               return undefined
             return addPositions(
-              value.oppositeControl ?? { x: 0, y: 0 },
+              (value as CubicPoint).oppositeControl ?? { x: 0, y: 0 },
               'oppositeControl' in value
                 ? offsetOppositeControl()
                 : invertPosition(control()),

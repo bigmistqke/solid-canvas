@@ -9,6 +9,7 @@ import {
   untrack,
 } from 'solid-js'
 import { Arc, Group, Line } from 'src'
+import { Drag } from 'src/controllers/Drag'
 import { Object2DToken } from 'src/parser'
 import { CanvasMouseEvent, Position } from 'src/types'
 
@@ -32,7 +33,7 @@ const Handle = (props: {
 }) => (
   <Group>
     <Arc
-      onDragMove={props.onDragMove}
+      // onDragMove={props.onDragMove}
       radius={10}
       stroke="transparent"
       fill={props.draggable !== false ? 'black' : 'lightgrey'}
@@ -44,6 +45,7 @@ const Handle = (props: {
         fill: 'white',
         stroke: 'black',
       }}
+      controllers={[Drag({ active: true, onDragMove: props.onDragMove })]}
     />
     {props.children}
   </Group>

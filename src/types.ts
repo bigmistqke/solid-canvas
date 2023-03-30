@@ -150,8 +150,6 @@ export type Shape2DProps = Shape2DStyle & {
    */
   editable?: boolean
 
-  onDragMove?: (position: Position, event: CanvasMouseEvent) => void
-
   /**
    * Set onMouseDown-eventhandler.
    */
@@ -165,6 +163,14 @@ export type Shape2DProps = Shape2DStyle & {
    */
   onMouseUp?: (event: CanvasMouseEvent) => void
   /**
+   * Set onMouseEnter-eventhandler.
+   */
+  onMouseEnter?: (event: CanvasMouseEvent) => void
+  /**
+   * Set onMouseLeave-eventhandler.
+   */
+  onMouseLeave?: (event: CanvasMouseEvent) => void
+  /**
    * Set cursor-style when hovering
    */
   cursor?: CursorStyle
@@ -177,10 +183,7 @@ export type Shape2DProps = Shape2DStyle & {
 
 export type ResolvedShape2DProps = RequiredPartially<
   Shape2DProps,
-  | 'onDragMove'
-  | 'onMouseDown'
-  | 'onMouseMove'
-  | 'onMouseUp'
+  | CanvasMouseEventTypes
   | 'composite'
   | 'fill'
   | 'shadow'
