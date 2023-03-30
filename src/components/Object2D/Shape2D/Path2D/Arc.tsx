@@ -90,7 +90,7 @@ const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) => {
     debug: (ctx: CanvasRenderingContext2D) =>
       renderPath(ctx, defaultBoundsProps, bounds().path, context.origin, false),
     path,
-    hitTest: function (event) {
+    hitTest: event => {
       const hit = hitTest(token, event, context, controlled.props)
       if (hit) {
         controlled.events[event.type].forEach(callback => callback(event))
