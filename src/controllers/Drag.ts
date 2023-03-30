@@ -1,38 +1,17 @@
 import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Object2DProps, Position } from 'src/types'
-import { RegisterControllerEvents } from '.'
+import { CanvasMouseEvent, Position } from 'src/types'
+import { createController } from './createController'
 
 type DragOptions = {
   active?: boolean
   controlled?: boolean
   onDragMove?: (position: Position, event: CanvasMouseEvent) => void
 }
-
-function Drag(options?: DragOptions): any
-function Drag(
-  props: Object2DProps,
-  events: RegisterControllerEvents,
-  options: DragOptions,
-): any
-function Drag(
-  propsOrOptions?: Object2DProps | DragOptions,
-  events?: RegisterControllerEvents,
-  options?: DragOptions,
-) {
-  if (!events || !options) {
-    let options = (propsOrOptions as DragOptions) ?? {
-      active: true,
-      controlled: false,
-    }
-    return (props: Object2DProps, events: RegisterControllerEvents) =>
-      Drag(props, events, options)
-  }
-  const canvas = useInternalContext()
-  const props = propsOrOptions as Object2DProps
-
+const Drag = createController<DragOptions>((props, events, options) => {
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
+  const canvas = useInternalContext()
 
   createEffect(() => {
     if (!canvas) return
@@ -84,6 +63,6 @@ function Drag(
           y: (props.position ? props.position.y : 0) + dragPosition().y,
         },
   })
-}
+})
 
 export { Drag }

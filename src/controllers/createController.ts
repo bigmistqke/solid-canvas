@@ -30,7 +30,11 @@ const createController = <ControllerOptions extends Record<string, any>>(
         events: RegisterControllerEvents,
       ) => Controller(props, events, options)
     }
-    callback((propsOrOptions as Accessor<Shape2DProps>)(), events, options)
+    return callback(
+      (propsOrOptions as Accessor<Shape2DProps>)(),
+      events,
+      options,
+    )
   }
   return Controller
 }
