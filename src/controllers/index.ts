@@ -18,6 +18,6 @@ export type RegisterControllerEvents = {
   onMouseUp: (callback: (event: CanvasMouseEvent) => void) => void
   onMouseLeave: (callback: (event: CanvasMouseEvent) => void) => void
   onMouseEnter: (callback: (event: CanvasMouseEvent) => void) => void
-  onFrame: (callback: (ctx: CanvasRenderingContext2D) => void) => void
+  onRender: (callback: (ctx: CanvasRenderingContext2D) => void) => void
   onHitTest: (callback: (event: CanvasMouseEvent) => void) => void
 }

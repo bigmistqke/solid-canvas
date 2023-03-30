@@ -155,7 +155,6 @@ function createLinearHandles(
 type HandleOptions = {
   active?: boolean
   controlled?: boolean
-  // points: Accessor<(BezierPoint & { automatic: boolean })[]>
   type: 'cubic' | 'quadratic'
 }
 
@@ -209,19 +208,19 @@ const createBezierHandle = createController<
     }),
   ) as any as Accessor<Accessor<TokenElement<Object2DToken>>>
 
-  events.onFrame(ctx => {
+  events.onRender(ctx => {
     if (options.active) handles()().data.render(ctx)
   })
   events.onHitTest(event => {
     if (options.active) handles()().data.hitTest(event)
   })
 
-  return () =>
-    mergeGetters(props(), {
-      get points() {
-        return processedPoints()
-      },
-    })
+  const result = mergeGetters(props(), {
+    get points() {
+      return processedPoints()
+    },
+  })
+  return () => result
 })
 
 export { createBezierHandle as BezierHandle }

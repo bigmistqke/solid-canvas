@@ -61,17 +61,19 @@ const Drag = createController<DragOptions>((props, events, options) => {
 
   events.onMouseDown(dragEventHandler)
 
-  return () =>
-    mergeGetters(props(), {
-      position: {
+  const result = mergeGetters(props(), {
+    get position() {
+      return {
         x: options.controlled
           ? props().position?.x
           : (props().position?.x || 0) + dragPosition().x,
         y: options.controlled
           ? props().position?.y
           : (props().position?.y || 0) + dragPosition().y,
-      },
-    })
+      }
+    },
+  })
+  return () => result
 })
 
 export { Drag }

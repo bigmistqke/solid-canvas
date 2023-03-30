@@ -51,7 +51,7 @@ const createControlledProps = <
               onMouseUp: callback => events.onMouseUp.push(callback),
               onMouseLeave: callback => events.onMouseLeave.push(callback),
               onMouseEnter: callback => events.onMouseEnter.push(callback),
-              onFrame: callback => events.onRender.push(callback),
+              onRender: callback => events.onRender.push(callback),
               onHitTest: callback => events.onHitTest.push(callback),
             },
           )
