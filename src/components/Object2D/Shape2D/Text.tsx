@@ -72,11 +72,10 @@ const Text = createToken(
       isSelected?: boolean
     },
   ) => {
-    console.log('mounted text')
-
     const controlled = createControlledProps(
       mergeShape2DProps(props, {
         text: '',
+        stroke: 'transparent',
       }),
     )
 
