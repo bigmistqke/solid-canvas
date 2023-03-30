@@ -59,7 +59,11 @@ const Path = createToken(
       debug: ctx => {},
       path,
       hitTest: event => {
-        return hitTest(token, event, context, controlled.props)
+        const hit = hitTest(token, event, context, controlled.props)
+        if (hit) {
+          controlled.events[event.type].forEach(callback => callback(event))
+        }
+        return hit
       },
     }
     return token

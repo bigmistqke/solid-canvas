@@ -71,7 +71,7 @@ const Quadratic = createToken(
 
       const path2D = new Path2D(svg)
 
-      if (controlled.props().close) path2D.closePath()
+      if (controlled.props.close) path2D.closePath()
 
       return path2D
     }, matrix)
@@ -107,12 +107,12 @@ const Quadratic = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          controlled.props(),
+          controlled.props,
           path(),
           context.origin,
           context.isHovered(token) || context.isSelected(token),
         )
-        handles.render(ctx)
+        // handles.render(ctx)
         parenthood.render(ctx)
       },
       debug: ctx =>
@@ -124,8 +124,11 @@ const Quadratic = createToken(
           false,
         ),
       hitTest: event => {
-        handles.hitTest(event)
-        return hitTest(token, event, context, controlled.props())
+        const hit = hitTest(token, event, context, controlled.props)
+        if (hit) {
+          controlled.events[event.type].forEach(callback => callback(event))
+        }
+        return hit
       },
     }
     return token

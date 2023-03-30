@@ -106,8 +106,13 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
         context.isSelected(token) || context.isHovered(token),
       ),
     path,
-    hitTest: event =>
-      setHover(hitTest(token, event, context, controlled.props)),
+    hitTest: event => {
+      const hit = hitTest(token, event, context, controlled.props)
+      if (hit) {
+        controlled.events[event.type].forEach(callback => callback(event))
+      }
+      return hit
+    },
   }
   return token
 })
