@@ -5,6 +5,7 @@ import { CanvasMouseEvent, CanvasMouseEventTypes, Position } from 'src/types'
 
 type DragOptions = {
   active?: boolean
+  controlled?: boolean
   onDragMove?: (position: Position, event: CanvasMouseEvent) => void
 }
 
@@ -38,13 +39,13 @@ function Drag(
     if (!canvas) return
     if (selected()) {
       const handleMouseMove = (event: CanvasMouseEvent) => {
+        event.propagation = false
         setDragPosition(position => ({
           x: position.x + event.delta.x,
           y: position.y + event.delta.y,
         }))
 
         options.onDragMove?.(dragPosition(), event)
-        event.propagation = false
       }
       const handleMouseUp = (event: CanvasMouseEvent) => {
         setSelected(false)
@@ -55,6 +56,7 @@ function Drag(
 
       onCleanup(() => {
         canvas.removeEventListener('onMouseMove', handleMouseMove)
+        canvas.removeEventListener('onMouseUp', handleMouseUp)
       })
     }
   })
@@ -77,10 +79,12 @@ function Drag(
   return () => ({
     ...props,
     get position() {
-      return {
-        x: (props.position ? props.position.x : 0) + dragPosition().x,
-        y: (props.position ? props.position.y : 0) + dragPosition().y,
-      }
+      return options.controlled
+        ? props.position
+        : {
+            x: (props.position ? props.position.x : 0) + dragPosition().x,
+            y: (props.position ? props.position.y : 0) + dragPosition().y,
+          }
     },
   })
 }

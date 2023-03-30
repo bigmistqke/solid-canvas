@@ -45,7 +45,9 @@ const Handle = (props: {
         fill: 'white',
         stroke: 'black',
       }}
-      controllers={[Drag({ active: true, onDragMove: props.onDragMove })]}
+      controllers={[
+        Drag({ active: true, onDragMove: props.onDragMove, controlled: true }),
+      ]}
     />
     {props.children}
   </Group>
