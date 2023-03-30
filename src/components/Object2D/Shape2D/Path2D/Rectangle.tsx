@@ -1,20 +1,18 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect, createSignal, mergeProps } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
-import { useInternalContext } from 'src/context/InternalContext'
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
+import { defaultBoundsProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Dimensions, Shape2DProps } from 'src/types'
+import { createBounds } from 'src/utils/createBounds'
+import { createControlledProps } from 'src/utils/createControlledProps'
+import { createMatrix } from 'src/utils/createMatrix'
+import { createParenthood } from 'src/utils/createParenthood'
+import { createTransformedPath } from 'src/utils/createTransformedPath'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import { createBounds } from 'src/utils/createBounds'
-import { createMatrix } from 'src/utils/createMatrix'
-import { createTransformedPath } from 'src/utils/createTransformedPath'
-import withGroup from 'src/utils/withGroup'
-import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
-import { createParenthood } from 'src/utils/createParenthood'
-import { createControlledProps } from 'src/utils/createControlledProps'
 
 export type RectangleProps = Shape2DProps & {
   dimensions: Dimensions
@@ -96,6 +94,7 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
     render: (ctx: CanvasRenderingContext2D) => {
       renderPath(ctx, controlled.props, path(), context.origin, false)
       parenthood.render(ctx)
+      controlled.emit.onRender(ctx)
     },
     debug: (ctx: CanvasRenderingContext2D) =>
       renderPath(
@@ -107,9 +106,11 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
       ),
     path,
     hitTest: event => {
+      controlled.emit.onHitTest(event)
+      if (!event.propagation) return false
       const hit = hitTest(token, event, context, controlled.props)
       if (hit) {
-        controlled.events[event.type].forEach(callback => callback(event))
+        controlled.emit[event.type](event)
       }
       return hit
     },

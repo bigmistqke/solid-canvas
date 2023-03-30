@@ -17,8 +17,24 @@ const createControlledProps = <
     onMouseUp: [],
     onMouseLeave: [],
     onMouseEnter: [],
-    onFrame: [],
+    onRender: [],
     onHitTest: [],
+  }
+
+  const emit: {
+    [K in keyof ControllerEvents]: ControllerEvents[K]
+  } = {
+    onMouseDown: event =>
+      events.onMouseDown.forEach(callback => callback(event)),
+    onMouseMove: event =>
+      events.onMouseMove.forEach(callback => callback(event)),
+    onMouseUp: event => events.onMouseUp.forEach(callback => callback(event)),
+    onMouseLeave: event =>
+      events.onMouseLeave.forEach(callback => callback(event)),
+    onMouseEnter: event =>
+      events.onMouseEnter.forEach(callback => callback(event)),
+    onRender: event => events.onRender.forEach(callback => callback(event)),
+    onHitTest: event => events.onHitTest.forEach(callback => callback(event)),
   }
 
   const controllers: Accessor<Accessor<ResolvedShape2DProps<T>>[]> =
@@ -35,7 +51,7 @@ const createControlledProps = <
               onMouseUp: callback => events.onMouseUp.push(callback),
               onMouseLeave: callback => events.onMouseLeave.push(callback),
               onMouseEnter: callback => events.onMouseEnter.push(callback),
-              onFrame: callback => events.onFrame.push(callback),
+              onFrame: callback => events.onRender.push(callback),
               onHitTest: callback => events.onHitTest.push(callback),
             },
           )
@@ -47,7 +63,7 @@ const createControlledProps = <
     get props() {
       return (controllers()[controllers().length - 1]?.() ?? props) as U
     },
-    events,
+    emit,
   }
 }
 

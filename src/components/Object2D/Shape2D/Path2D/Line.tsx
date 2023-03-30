@@ -37,21 +37,14 @@ const Line = createToken(
     const matrix = createMatrix(controlled.props)
     const bounds = createBounds(() => props.points, matrix)
 
-    const handles = createLinearHandles(
-      () => props.points,
-      () => props.editable,
-    )
-
     const path = createTransformedPath(() => {
       // calculate path
       const path2D = new Path2D()
       let point = props.points[0]
-      let offset = handles.offsets()[0]
-      path2D.moveTo(point!.x + (offset?.x ?? 0), point!.y + (offset?.y ?? 0))
+      path2D.moveTo(point!.x, point!.y)
       let i = 0
       while ((point = props.points[i])) {
-        offset = handles.offsets()[i]
-        path2D.lineTo(point.x + (offset?.x ?? 0), point.y + (offset?.y ?? 0))
+        path2D.lineTo(point.x, point.y)
         i++
       }
       if (controlled.props.close) path2D.closePath()
@@ -70,7 +63,6 @@ const Line = createToken(
           context.origin,
           context.isSelected(token) || context.isHovered(token),
         )
-        handles?.render(ctx)
         parenthood.render(ctx)
       },
       debug: ctx =>
@@ -85,7 +77,7 @@ const Line = createToken(
       hitTest: event => {
         const hit = hitTest(token, event, context, controlled.props)
         if (hit) {
-          controlled.events[event.type].forEach(callback => callback(event))
+          controlled.emit[event.type](event)
         }
         return hit
       },

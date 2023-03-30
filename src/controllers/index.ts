@@ -3,11 +3,12 @@ import { CanvasMouseEvent, CanvasMouseEventTypes } from 'src/types'
 export { Drag } from './Drag'
 export { BezierHandle } from './Handle'
 export { Noop } from './Noop'
+export { ClickStyle } from './ClickStyle'
 
 export type ControllerEvents = {
   [K in CanvasMouseEventTypes]: (event: CanvasMouseEvent) => void
 } & {
-  onFrame: (ctx: CanvasRenderingContext2D) => void
+  onRender: (ctx: CanvasRenderingContext2D) => void
   onHitTest: (event: CanvasMouseEvent) => void
 }
 

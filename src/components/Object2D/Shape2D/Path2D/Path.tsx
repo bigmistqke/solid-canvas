@@ -61,7 +61,7 @@ const Path = createToken(
       hitTest: event => {
         const hit = hitTest(token, event, context, controlled.props)
         if (hit) {
-          controlled.events[event.type].forEach(callback => callback(event))
+          controlled.emit[event.type](event)
         }
         return hit
       },

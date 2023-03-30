@@ -73,11 +73,14 @@ const Image = createToken(
         )
 
         parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
       },
       hitTest: event => {
+        controlled.emit.onHitTest(event)
+        if (!event.propagation) return false
         const hit = hitTest(token, event, context, controlled.props)
         if (hit) {
-          controlled.events[event.type].forEach(callback => callback(event))
+          controlled.emit[event.type](event)
         }
         return hit
       },
