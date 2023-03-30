@@ -286,7 +286,7 @@ export const Canvas: Component<{
     }
 
     forEachReversed(tokens(), ({ data }) => {
-      // if (!event.propagation) return
+      if (!event.propagation) return
       if ('hitTest' in data) {
         data.hitTest(event)
       }
