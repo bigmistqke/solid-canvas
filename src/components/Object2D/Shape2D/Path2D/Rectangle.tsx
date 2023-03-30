@@ -12,7 +12,7 @@ import { createMatrix } from 'src/utils/createMatrix'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
 import withGroup from 'src/utils/withGroup'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
-import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createControlledProps } from 'src/utils/createControlledProps'
 
@@ -34,7 +34,7 @@ export type RectangleProps = Shape2DProps & {
 
 const Rectangle = createToken(parser, (props: RectangleProps) => {
   const controlled = createControlledProps(
-    resolveShape2DProps(props, {
+    mergeShape2DProps(props, {
       dimensions: { width: 10, height: 10 },
     }),
   )

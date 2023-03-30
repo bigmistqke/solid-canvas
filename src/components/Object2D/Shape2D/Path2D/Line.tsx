@@ -11,7 +11,7 @@ import { createTransformedPath } from 'src/utils/createTransformedPath'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 import { createControlledProps } from 'src/utils/createControlledProps'
 /**
  * Paints a straight line to the canvas
@@ -27,7 +27,7 @@ const Line = createToken(
     },
   ) => {
     const controlled = createControlledProps(
-      resolveShape2DProps(props, {
+      mergeShape2DProps(props, {
         close: false,
       }),
     )

@@ -23,7 +23,7 @@ import { createParenthood } from 'src/utils/createParenthood'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { resolveExtendedColor } from 'src/utils/resolveColor'
 import { createControlledProps } from 'src/utils/createControlledProps'
-import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 import { Normalize } from 'src/utils/typehelpers'
 import { RectangleProps } from './Path2D/Rectangle'
 
@@ -75,7 +75,7 @@ const Text = createToken(
     console.log('mounted text')
 
     const controlled = createControlledProps(
-      resolveShape2DProps(props, {
+      mergeShape2DProps(props, {
         text: '',
       }),
     )

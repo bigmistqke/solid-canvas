@@ -12,7 +12,7 @@ import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import { createControlledProps } from 'src/utils/createControlledProps'
-import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 
 /**
  * Paints a rectangle to the canvas
@@ -30,7 +30,7 @@ type ArcProps = {
 
 const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) => {
   const controlled = createControlledProps(
-    resolveShape2DProps(props, {
+    mergeShape2DProps(props, {
       close: true,
       radius: 10,
       angle: { start: 0, end: 2 * Math.PI },

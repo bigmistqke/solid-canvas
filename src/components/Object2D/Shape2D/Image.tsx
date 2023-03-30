@@ -9,7 +9,7 @@ import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import resolveImage from 'src/utils/resolveImageSource'
-import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 import { Normalize } from 'src/utils/typehelpers'
 
 /**
@@ -30,7 +30,7 @@ const Image = createToken(
     >,
   ) => {
     const controlled = createControlledProps(
-      resolveShape2DProps(props, {
+      mergeShape2DProps(props, {
         dimensions: {
           width: 10,
           height: 10,

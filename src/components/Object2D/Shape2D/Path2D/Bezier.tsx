@@ -17,7 +17,7 @@ import withGroup from 'src/utils/withGroup'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createControlledProps } from 'src/utils/createControlledProps'
-import { resolveShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 
 /**
  * Paints a cubic bezier to the context
@@ -36,7 +36,7 @@ const Bezier = createToken(
     },
   ) => {
     const controlled = createControlledProps(
-      resolveShape2DProps(props, {
+      mergeShape2DProps(props, {
         close: false,
       }),
     )
