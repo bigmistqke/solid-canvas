@@ -165,7 +165,11 @@ function createObject2D<T>(options: {
       })
 
       const eventHandler = merged[event.type]
-      if (eventHandler) {
+
+      if (
+        event.target[0] === tokens()[tokens().length - 1]?.data &&
+        eventHandler
+      ) {
         if (Array.isArray(eventHandler)) {
           eventHandler.forEach(handler => handler(event))
         } else {
