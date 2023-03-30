@@ -68,6 +68,8 @@ const Bezier = createToken(parser, (props: Shape2DProps & BezierProps) => {
       renderPath(ctx, defaultBoundsProps, bounds().path, context.origin, false)
     },
     hitTest: event => {
+      parenthood.hitTest(event)
+      if (!event.propagation) return false
       controlled.emit.onHitTest(event)
       if (!event.propagation) return false
       const hit = hitTest(token, event, context, controlled.props)

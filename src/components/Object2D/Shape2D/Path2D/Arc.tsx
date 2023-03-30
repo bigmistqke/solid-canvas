@@ -1,23 +1,17 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createEffect } from 'solid-js'
 
 import { defaultBoundsProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
 import { Shape2DProps } from 'src/types'
 import { createBounds } from 'src/utils/createBounds'
+import { createControlledProps } from 'src/utils/createControlledProps'
 import { createMatrix } from 'src/utils/createMatrix'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import { createControlledProps } from 'src/utils/createControlledProps'
 import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
-
-/**
- * Paints a rectangle to the canvas
- * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rect)
- */
 
 type ArcProps = {
   close?: boolean
@@ -28,6 +22,10 @@ type ArcProps = {
   }
 }
 
+/**
+ * Paints a rectangle to the canvas
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rect)
+ */
 const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) => {
   const controlled = createControlledProps(
     mergeShape2DProps(props, {
@@ -91,6 +89,10 @@ const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) => {
       renderPath(ctx, defaultBoundsProps, bounds().path, context.origin, false),
     path,
     hitTest: event => {
+      parenthood.hitTest(event)
+      if (!event.propagation) return false
+      controlled.emit.onHitTest(event)
+      if (!event.propagation) return false
       const hit = hitTest(token, event, context, controlled.props)
       if (hit) {
         controlled.emit[event.type](event)

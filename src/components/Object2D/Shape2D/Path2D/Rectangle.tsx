@@ -106,6 +106,8 @@ const Rectangle = createToken(parser, (props: RectangleProps) => {
       ),
     path,
     hitTest: event => {
+      parenthood.hitTest(event)
+      if (!event.propagation) return false
       controlled.emit.onHitTest(event)
       if (!event.propagation) return false
       const hit = hitTest(token, event, context, controlled.props)
