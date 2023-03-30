@@ -5,7 +5,7 @@ import { Color } from 'src/types'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
-import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import { SingleOrArray } from 'src/utils/typehelpers'
 
 export type GroupProps = {

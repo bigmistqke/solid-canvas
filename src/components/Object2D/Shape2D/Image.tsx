@@ -9,7 +9,7 @@ import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import resolveImage from 'src/utils/resolveImageSource'
-import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import { Normalize } from 'src/utils/typehelpers'
 
 /**

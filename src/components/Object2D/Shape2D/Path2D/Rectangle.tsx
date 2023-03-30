@@ -12,7 +12,7 @@ import { createTransformedPath } from 'src/utils/createTransformedPath'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
-import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 
 export type RectangleProps = Shape2DProps & {
   dimensions: Dimensions

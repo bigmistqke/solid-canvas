@@ -14,7 +14,7 @@ import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import { createControlledProps } from 'src/utils/createControlledProps'
-import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
+import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import { createQuadratic } from 'src/path'
 import { createDebugSvg } from 'src/utils/createDebugSvg'
 
