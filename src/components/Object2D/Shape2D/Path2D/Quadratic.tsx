@@ -2,7 +2,7 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 
 import { defaultBoundsProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { Position, ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import { createBounds } from 'src/utils/createBounds'
 import { createBezierHandles } from 'src/utils/createHandles'
@@ -15,6 +15,8 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
+import { createQuadratic } from 'src/path'
+import { createDebugSvg } from 'src/utils/createDebugSvg'
 
 /**
  * Paints a quadratic bezier to the canvas
@@ -23,72 +25,40 @@ import { mergeShape2DProps } from 'src/utils/resolveShape2DProps'
 
 type QuadraticPoints = { point: Position; control?: Position }[]
 
+type QuadraticProps = {
+  points: QuadraticPoints
+  close?: boolean
+}
+
 const Quadratic = createToken(
   parser,
-  (
-    props: Shape2DProps & {
-      points: QuadraticPoints
-      close?: boolean
-    },
-  ) => {
+  (props: Shape2DProps & QuadraticProps) => {
     const controlled = createControlledProps(
-      mergeShape2DProps(props, { close: false }),
+      mergeShape2DProps(props, {
+        close: false,
+        points: [],
+      }) as ResolvedShape2DProps & QuadraticProps,
     )
 
     const context = createUpdatedContext(() => controlled.props)
     const parenthood = createParenthood(props, context)
-
-    const mutablePoints = createProcessedPoints(() => props.points, 'quadratic')
-
     const matrix = createMatrix(controlled.props)
+
     const path = createTransformedPath(() => {
-      const values = mutablePoints()
-
-      let value = values[0]
-      let point = value?.point
-      let control = addPositions(value?.control, point)
-
-      if (!point || !control) {
-        return new Path2D()
-      }
-
-      let svg = `M${point.x},${point.y} Q${control.x},${control.y} `
-
-      let i = 1
-
-      while ((value = values[i])) {
-        point = value.point as Position
-        control = addPositions(value.control, point)
-
-        if (i !== values.length - 1 && control) {
-          svg += `${point.x},${point.y} ${control.x},${control.y} `
-        } else {
-          svg += `${point.x},${point.y} `
-        }
-
-        i++
-      }
+      const svg = createQuadratic(controlled.props.points).string
 
       const path2D = new Path2D(svg)
-
       if (controlled.props.close) path2D.closePath()
-
       return path2D
     }, matrix)
 
-    const handles = createBezierHandles(
-      mutablePoints,
-      () => props.editable,
-      'quadratic',
-    )
-
     const bounds = createBounds(() => {
-      return mutablePoints()
+      return controlled.props.points
         .map((point, i) => {
           let result: Position[] = [point.point]
           if (point.control) {
             const control = addPositions(point.point, point.control)
-            const nextPoint = mutablePoints()[i + 1]?.point
+            const nextPoint = controlled.props.points[i + 1]?.point
             if (nextPoint) {
               result.push(control, point.point)
             } else {
@@ -112,8 +82,8 @@ const Quadratic = createToken(
           context.origin,
           context.isHovered(token) || context.isSelected(token),
         )
-        // handles.render(ctx)
         parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
       },
       debug: ctx =>
         renderPath(
@@ -124,9 +94,11 @@ const Quadratic = createToken(
           false,
         ),
       hitTest: event => {
+        controlled.emit.onHitTest(event)
+        if (!event.propagation) return false
         const hit = hitTest(token, event, context, controlled.props)
         if (hit) {
-          controlled.events[event.type].forEach(callback => callback(event))
+          controlled.emit[event.type](event)
         }
         return hit
       },
