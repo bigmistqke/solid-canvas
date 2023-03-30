@@ -53,7 +53,7 @@ export type Object2DProps = {
 }
 
 function createParenthood<T>(
-  props: { children: SingleOrArray<JSX.Element> },
+  props: { children?: SingleOrArray<JSX.Element> },
   context: InternalContextType,
 ) {
   ;[props] = splitProps(props, ['children'])
