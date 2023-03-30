@@ -64,8 +64,12 @@ const Drag = createController<DragOptions>((props, events, options) => {
   return () =>
     mergeGetters(props(), {
       position: {
-        x: (props().position?.x || 0) + dragPosition().x,
-        y: (props().position?.y || 0) + dragPosition().y,
+        x: options.controlled
+          ? props().position?.x
+          : (props().position?.x || 0) + dragPosition().x,
+        y: options.controlled
+          ? props().position?.y
+          : (props().position?.y || 0) + dragPosition().y,
       },
     })
 })
