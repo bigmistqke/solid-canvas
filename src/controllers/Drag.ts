@@ -1,11 +1,7 @@
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup, Setter } from 'solid-js'
+import { Object2DProps } from 'src/components/Object2D/createObject2D'
 import { useInternalContext } from 'src/context/InternalContext'
-import {
-  CanvasMouseEvent,
-  CanvasMouseEventTypes,
-  Position,
-  Shape2DProps,
-} from 'src/types'
+import { CanvasMouseEvent, CanvasMouseEventTypes, Position } from 'src/types'
 
 type DragOptions = {
   active?: boolean
@@ -19,21 +15,21 @@ export type ControllerEvents = Record<
 
 function Drag(options: DragOptions): any
 function Drag(
-  props: Shape2DProps,
+  props: Object2DProps,
   events: ControllerEvents,
   options: DragOptions,
 ): any
 function Drag(
-  propsOrOptions: Shape2DProps | DragOptions,
+  propsOrOptions: Object2DProps | DragOptions,
   events?: ControllerEvents,
   options?: DragOptions,
 ) {
   if (!events || !options) {
-    return (props: Shape2DProps, events: ControllerEvents) =>
+    return (props: Object2DProps, events: ControllerEvents) =>
       Drag(props, events, propsOrOptions as DragOptions)
   }
   const canvas = useInternalContext()
-  const props = propsOrOptions as Shape2DProps
+  const props = propsOrOptions as Object2DProps
 
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
@@ -46,12 +42,14 @@ function Drag(
           x: position.x + event.delta.x,
           y: position.y + event.delta.y,
         }))
+
         options.onDragMove?.(dragPosition(), event)
         event.propagation = false
       }
       const handleMouseUp = (event: CanvasMouseEvent) => {
         setSelected(false)
       }
+
       canvas.addEventListener('onMouseMove', handleMouseMove)
       canvas.addEventListener('onMouseUp', handleMouseUp)
 
@@ -76,7 +74,7 @@ function Drag(
 
   events.onMouseDown(dragEventHandler)
 
-  return {
+  return () => ({
     ...props,
     get position() {
       return {
@@ -84,7 +82,7 @@ function Drag(
         y: (props.position ? props.position.y : 0) + dragPosition().y,
       }
     },
-  }
+  })
 }
 
 export { Drag }

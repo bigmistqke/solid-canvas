@@ -15,10 +15,12 @@ import {
 import { createStore } from 'solid-js/store'
 import { InternalContext } from 'src/context/InternalContext'
 import { UserContext } from 'src/context/UserContext'
+import { ControllerEvents } from 'src/controllers/Drag'
 
 import { CanvasToken, parser } from 'src/parser'
 import {
   CanvasMouseEvent,
+  CanvasMouseEventTypes,
   Color,
   Composite,
   CursorStyle,
@@ -63,14 +65,14 @@ export const Canvas: Component<{
   })
   const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
   const [cursorStyle, setCursorStyle] = createSignal<CursorStyle>('default')
-  const [eventListeners, setEventListeners] = createStore<{
-    onMouseDown: ((event: CanvasMouseEvent) => void)[]
-    onMouseMove: ((event: CanvasMouseEvent) => void)[]
-    onMouseUp: ((event: CanvasMouseEvent) => void)[]
-  }>({
+  const [eventListeners, setEventListeners] = createStore<
+    Record<CanvasMouseEventTypes, ((event: CanvasMouseEvent) => void)[]>
+  >({
     onMouseDown: [],
     onMouseMove: [],
     onMouseUp: [],
+    onMouseEnter: [],
+    onMouseLeave: [],
   })
   const [selectedToken, setSelectedtoken] = createSignal<CanvasToken>()
   const [hoveredToken, setHoveredToken] = createSignal<CanvasToken>()

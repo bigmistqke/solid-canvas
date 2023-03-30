@@ -40,8 +40,22 @@ export type Object2DProps = {
   composite?: Composite
   clip?: Accessor<JSX.Element | JSX.Element[]>
   draggable?: boolean | 'controlled'
-  onDragMove?: (position: Position, event: CanvasMouseEvent) => void
-  controllers?: ((props: Shape2DProps, events: ControllerEvents) => any)[]
+  controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
+  onMouseDown?:
+    | ((event: CanvasMouseEvent) => void)
+    | ((event: CanvasMouseEvent) => void)[]
+  onMouseUp?:
+    | ((event: CanvasMouseEvent) => void)
+    | ((event: CanvasMouseEvent) => void)[]
+  onMouseMove?:
+    | ((event: CanvasMouseEvent) => void)
+    | ((event: CanvasMouseEvent) => void)[]
+  onMouseEnter?:
+    | ((event: CanvasMouseEvent) => void)
+    | ((event: CanvasMouseEvent) => void)[]
+  onMouseLeave?:
+    | ((event: CanvasMouseEvent) => void)
+    | ((event: CanvasMouseEvent) => void)[]
 }
 
 function createObject2D<T>(options: {
@@ -57,36 +71,6 @@ function createObject2D<T>(options: {
     if (!canvas) throw 'CanvasTokens need to be included in Canvas'
     const merged = mergeProps({ position: { x: 0, y: 0 } }, props)
 
-    // const [dragPosition, dragEventHandler] = createDraggable(props)
-
-    const events: Record<
-      CanvasMouseEventTypes,
-      ((event: CanvasMouseEvent) => void)[]
-    > = {
-      onMouseDown: [],
-      onMouseMove: [],
-      onMouseUp: [],
-      onMouseLeave: [],
-      onMouseEnter: [],
-    }
-
-    const controlledProps = createMemo(() => {
-      let temp = { ...merged }
-      props.controllers?.forEach(controller => {
-        temp = controller(temp, {
-          onMouseDown: callback => events.onMouseDown.push(callback),
-          onMouseMove: callback => events.onMouseDown.push(callback),
-          onMouseUp: callback => events.onMouseDown.push(callback),
-          onMouseLeave: callback => events.onMouseDown.push(callback),
-          onMouseEnter: callback => events.onMouseDown.push(callback),
-        })
-      })
-      return temp
-    })
-
-    /* const offset = () =>
-      props.draggable === 'controlled' ? { x: 0, y: 0 } : dragPosition() */
-    // createEffect(() => console.log('offset', options.id, offset().x))
     const context = {
       ...canvas,
       get selected() {
@@ -98,10 +82,10 @@ function createObject2D<T>(options: {
       get origin() {
         return canvas
           ? {
-              x: controlledProps().position.x + canvas.origin.x,
-              y: controlledProps().position.y + canvas.origin.y,
+              x: merged.position.x + canvas.origin.x,
+              y: merged.position.y + canvas.origin.y,
             }
-          : controlledProps().position
+          : merged.position
       },
     }
 
@@ -134,10 +118,10 @@ function createObject2D<T>(options: {
         })
         ctx.clip(path)
       }
-      if (controlledProps().composite) {
+      if (merged.composite) {
         // TODO:  to accurately composite `Object2D` we should render the contents of `Object2D`
         //        to an OffscreenCanvas and then draw the result with the globalCompositeOperation
-        ctx.globalCompositeOperation = controlledProps().composite
+        ctx.globalCompositeOperation = merged.composite
       }
       if (props.opacity) ctx.globalAlpha = props.opacity
       if (props.fill) {
@@ -146,7 +130,7 @@ function createObject2D<T>(options: {
       }
 
       // TODO:  should investigate better solution then this weird typecast
-      options.render(context, controlledProps() as Object2DProps & T, tokens())
+      options.render(context, merged as Object2DProps & T, tokens())
 
       canvas?.ctx.restore()
       forEachReversed(tokens(), ({ data }) => {
@@ -162,7 +146,7 @@ function createObject2D<T>(options: {
           path.addPath(data.path())
         }
       })
-      return isPointInShape2D(event, controlledProps(), path)
+      return isPointInShape2D(event, merged, path)
     }
 
     const hitTest = (event: CanvasMouseEvent) => {
@@ -179,8 +163,15 @@ function createObject2D<T>(options: {
           }
         }
       })
-      if (result[0] === tokens()[tokens().length - 1])
-        events[event.type].forEach(callback => callback(event))
+
+      const eventHandler = merged[event.type]
+      if (eventHandler) {
+        if (Array.isArray(eventHandler)) {
+          eventHandler.forEach(handler => handler(event))
+        } else {
+          eventHandler(event)
+        }
+      }
 
       if (
         (result[0] === tokens()[tokens().length - 1] || event.propagation) &&
