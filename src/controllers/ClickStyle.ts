@@ -14,15 +14,15 @@ const ClickStyle = createController<HoverOptions>((props, events, options) => {
   events.onMouseDown(() => setSelected(true))
   events.onMouseUp(() => setSelected(false))
 
-  const result = mergeGetters(props(), {
-    get stroke() {
-      return selected() ? options.stroke : props().stroke
-    },
-    get fill() {
-      return selected() ? options.fill : props().fill
-    },
-  })
-  return () => result
+  return () =>
+    mergeGetters(props(), {
+      get stroke() {
+        return selected() ? options.stroke : props().stroke
+      },
+      get fill() {
+        return selected() ? options.fill : props().fill
+      },
+    })
 })
 
 export { ClickStyle }

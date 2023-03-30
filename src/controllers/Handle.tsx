@@ -215,12 +215,12 @@ const createBezierHandle = createController<
     if (options.active) handles()().data.hitTest(event)
   })
 
-  const result = mergeGetters(props(), {
-    get points() {
-      return processedPoints()
-    },
-  })
-  return () => result
+  return () =>
+    mergeGetters(props(), {
+      get points() {
+        return processedPoints()
+      },
+    })
 })
 
 export { createBezierHandle as BezierHandle }
