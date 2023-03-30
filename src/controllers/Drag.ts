@@ -78,14 +78,12 @@ function Drag(
 
   return () => ({
     ...props,
-    get position() {
-      return options.controlled
-        ? props.position
-        : {
-            x: (props.position ? props.position.x : 0) + dragPosition().x,
-            y: (props.position ? props.position.y : 0) + dragPosition().y,
-          }
-    },
+    position: options.controlled
+      ? props.position
+      : {
+          x: (props.position ? props.position.x : 0) + dragPosition().x,
+          y: (props.position ? props.position.y : 0) + dragPosition().y,
+        },
   })
 }
 
