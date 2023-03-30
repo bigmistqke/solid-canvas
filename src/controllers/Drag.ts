@@ -11,10 +11,12 @@ type DragOptions = {
 const Drag = createController<DragOptions>((props, events, options) => {
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
-  const canvas = useInternalContext()
+  const internalContext = useInternalContext()
+
+  // console.log('events', events)
 
   createEffect(() => {
-    if (!canvas) return
+    if (!internalContext) return
     if (selected()) {
       const handleMouseMove = (event: CanvasMouseEvent) => {
         event.propagation = false
@@ -29,12 +31,12 @@ const Drag = createController<DragOptions>((props, events, options) => {
         setSelected(false)
       }
 
-      canvas.addEventListener('onMouseMove', handleMouseMove)
-      canvas.addEventListener('onMouseUp', handleMouseUp)
+      internalContext.addEventListener('onMouseMove', handleMouseMove)
+      internalContext.addEventListener('onMouseUp', handleMouseUp)
 
       onCleanup(() => {
-        canvas.removeEventListener('onMouseMove', handleMouseMove)
-        canvas.removeEventListener('onMouseUp', handleMouseUp)
+        internalContext.removeEventListener('onMouseMove', handleMouseMove)
+        internalContext.removeEventListener('onMouseUp', handleMouseUp)
       })
     }
   })

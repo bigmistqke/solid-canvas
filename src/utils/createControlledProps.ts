@@ -1,5 +1,5 @@
 import { createLazyMemo } from '@solid-primitives/memo'
-import { Accessor, mapArray } from 'solid-js'
+import { Accessor, createEffect, createRoot, mapArray } from 'solid-js'
 import { ControllerEvents } from 'src/controllers'
 import { ResolvedShape2DProps } from 'src/types'
 
@@ -27,7 +27,8 @@ const createControlledProps = <
         () => props.controllers!,
         (controller, index) => {
           return controller(
-            index() === 0 ? props : controllers()[index() - 1]!(),
+            () =>
+              index() === 0 ? props : controllers()?.[index() - 1]?.() ?? props,
             {
               onMouseDown: callback => events.onMouseDown.push(callback),
               onMouseMove: callback => events.onMouseMove.push(callback),
@@ -42,7 +43,6 @@ const createControlledProps = <
       ),
     )
 
-  //  TODO: bit of a dodgy typecast
   return {
     get props() {
       return (controllers()[controllers().length - 1]?.() ?? props) as U
