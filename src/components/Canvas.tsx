@@ -220,7 +220,7 @@ export const Canvas: Component<{
     let data
     for ({ data } of tokens()) {
       ctx.save()
-      if ('debug' in data) data.debug(ctx)
+      if ('debug' in data && props.debug) data.debug(ctx)
       if ('render' in data) data.render(ctx)
       ctx.restore()
     }
