@@ -8,7 +8,7 @@ import { mergeGetters } from './mergeGetters'
 
 const createUpdatedContext = (props: Accessor<ResolvedShape2DProps>) => {
   const internalContext = useInternalContext()
-  return mergeGetters(internalContext, {
+  return mergeGetters(internalContext ?? {}, {
     get origin() {
       return {
         x: (internalContext?.origin.x ?? 0) + props().position.x,
