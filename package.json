@@ -1,5 +1,5 @@
 {
-  "version": "0.0.3",
+  "version": "0.0.4",
   "name": "solid-canvas",
   "description": "A canvas library for solid-js",
   "license": "MIT",
@@ -99,7 +99,8 @@
     "vitest": "^0.28.2"
   },
   "keywords": [
-    "solid"
+    "solid",
+    "canvas"
   ],
   "packageManager": "pnpm@7.22.0",
   "dependencies": {
