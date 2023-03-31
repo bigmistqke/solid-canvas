@@ -115,7 +115,7 @@ const BezierHandles = (props: {
         when={'oppositeControl' in props.value && props.value.oppositeControl}
       >
         <VectorHandle
-          position={(props.value as CubicPoint).oppositeControl}
+          position={(props.value as CubicPoint).oppositeControl!}
           updateOffset={offset => props.updateOffset(offset, 'oppositeControl')}
           draggable={props.type === 'cubic' && !props.value.automatic}
         />
@@ -124,7 +124,8 @@ const BezierHandles = (props: {
   )
 }
 
-const constructBezierHandle = (props, events, options) => {
+// TODO:  infer types `props` `events` `options` instead of any
+const constructBezierHandle = (props: any, events: any, options: any) => {
   options = {
     active: true,
     controlled: false,
@@ -171,10 +172,10 @@ const constructBezierHandle = (props, events, options) => {
     }),
   ) as any as Accessor<Accessor<TokenElement<Object2DToken>>>
 
-  events.onRender(ctx => {
+  events.onRender((ctx: any) => {
     if (options.active) handles()().data.render(ctx)
   })
-  events.onHitTest(event => {
+  events.onHitTest((event: any) => {
     if (options.active) handles()().data.hitTest(event)
   })
 
