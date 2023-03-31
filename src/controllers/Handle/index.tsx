@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js'
-import { CanvasMouseEvent, Position } from 'src/types'
+import { CanvasMouseEvent, Position, Shape2DProps } from 'src/types'
 
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, For, Index, JSX, Show, untrack } from 'solid-js'
@@ -13,13 +13,22 @@ import { Object2DToken } from 'src/parser'
 import { createProcessedPoints } from 'src/utils/createProcessedPoints'
 import { mergeGetters } from 'src/utils/mergeGetters'
 import withContext from 'src/utils/withContext'
-import { createController } from './createController'
+import { createController } from '../createController'
+import { QuadraticProps } from 'src/components/Object2D/Shape2D/Path2D/Quadratic'
+import { BezierProps } from 'src/components/Object2D/Shape2D/Path2D/Bezier'
 
-type BezierPoint = {
+type CubicPoint = {
   point: Position
-  control?: Position
+  control: Position
   oppositeControl?: Position
 }
+
+type QuadraticPoint = {
+  point: Position
+  control?: Position
+}
+
+type BezierPoint = CubicPoint | QuadraticPoint
 
 type OffsetUpdater = (
   index: number,
@@ -113,55 +122,7 @@ const BezierHandles = (props: {
   )
 }
 
-function createLinearHandles(
-  points: Accessor<Position[]>,
-  editable: Accessor<boolean | undefined>,
-) {
-  const [offsets, setOffsets] = createSignal(
-    points().map(v => ({ x: 0, y: 0 })),
-  )
-  const handles = (
-    <Group>
-      {/* 
-        TODO: without untrack it would re-mount all ControlPoints with each interaction 
-      */}
-      <For each={untrack(() => points())}>
-        {(value, i) => (
-          <Handle
-            onDragMove={dragPosition => {
-              setOffsets(offsets => {
-                offsets[i()] = dragPosition
-                return [...offsets]
-              })
-            }}
-            position={value}
-          />
-        )}
-      </For>
-    </Group>
-  ) as any as TokenElement<Object2DToken>
-
-  return {
-    render: (ctx: CanvasRenderingContext2D) => {
-      if (editable()) handles.data.render(ctx)
-    },
-    hitTest: (event: CanvasMouseEvent) => {
-      if (editable()) handles.data.hitTest(event)
-    },
-    offsets,
-  }
-}
-
-type HandleOptions = {
-  active?: boolean
-  controlled?: boolean
-  type: 'cubic' | 'quadratic'
-}
-
-const createBezierHandle = createController<
-  HandleOptions,
-  { points: BezierPoint[] }
->((props, events, options) => {
+const constructBezierHandle = (props, events, options) => {
   options = {
     active: true,
     controlled: false,
@@ -215,12 +176,27 @@ const createBezierHandle = createController<
     if (options.active) handles()().data.hitTest(event)
   })
 
-  return () =>
-    mergeGetters(props(), {
-      get points() {
-        return processedPoints()
-      },
-    })
-})
+  return {
+    get points() {
+      return processedPoints()
+    },
+  }
+}
 
-export { createBezierHandle as BezierHandle }
+type HandleOptions = {
+  active?: boolean
+  controlled?: boolean
+}
+
+const CubicHandle = createController<HandleOptions, { points: CubicPoint[] }>(
+  (props, events, options) =>
+    constructBezierHandle(props, events, { ...options, type: 'cubic' }),
+) as (options?: HandleOptions) => { points: CubicPoint[] }
+
+const QuadraticHandle = createController<
+  HandleOptions,
+  { points: QuadraticPoint[] }
+>((props, events, options) =>
+  constructBezierHandle(props, events, { ...options, type: 'quadratic' }),
+) as (options?: HandleOptions) => { points: QuadraticPoint[] }
+export { CubicHandle, QuadraticHandle }
