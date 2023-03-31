@@ -1,6 +1,7 @@
-import { JSX } from 'solid-js'
+import { Accessor, JSX } from 'solid-js'
+import { RegisterControllerEvents } from './controllers'
 import { CanvasToken } from './parser'
-import { RequiredPartially } from './utils/typehelpers'
+import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 
 export type Position = {
   x: number
@@ -74,6 +75,42 @@ export type Composite =
   | 'difference'
   | 'exclusion'
 
+export type Object2DProps = {
+  /**
+   * Defaults to { x: 0, y: 0}
+   */
+  position?: Position
+  children?: JSX.Element | JSX.Element[]
+  opacity?: number
+  fill?: ExtendedColor
+  composite?: Composite
+  clip?: Accessor<JSX.Element | JSX.Element[]>
+  // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
+}
+
+type Shape2DEvents = {
+  /**
+   * Set onMouseDown-eventhandler.
+   */
+  onMouseDown?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseUp-eventhandler.
+   */
+  onMouseUp?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseMove-eventhandler.
+   */
+  onMouseMove?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseEnter-eventhandler.
+   */
+  onMouseEnter?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseLeave-eventhandler.
+   */
+  onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
+}
+
 type Shape2DStyle = {
   /**
    * Default: 'transparent'
@@ -83,6 +120,22 @@ type Shape2DStyle = {
    * Default: 'black'.
    */
   stroke?: ExtendedColor
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  position?: Position
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  rotation?: number
+  /**
+   * Default: 0
+   */
+  skewX?: number
+  /**
+   * Default: 0
+   */
+  skewY?: number
   /**
    * Default: 2
    */
@@ -104,23 +157,6 @@ type Shape2DStyle = {
    */
   miterLimit?: number
 
-  /**
-   * Default: 0
-   */
-  skewX?: number
-  /**
-   * Default: 0
-   */
-  skewY?: number
-  /**
-   * Default: { x: 0, y: 0 }
-   */
-  rotation?: number
-  /**
-   * Default: { x: 0, y: 0 }
-   */
-  position?: Position
-
   shadow?: {
     blur?: number
     color?: Color
@@ -138,60 +174,62 @@ type Shape2DStyle = {
   opacity?: number
 }
 
-export type Shape2DProps = Shape2DStyle & {
-  // Mouse-Events
+export type Shape2DProps<T = Object> = Shape2DStyle &
+  Shape2DEvents & {
+    /**
+     * Ignore all pointer-events. Default: false
+     */
+    pointerEvents?: boolean
+    /**
+     * Enable editable handles. Default: false
+     */
+    editable?: boolean
 
-  /**
-   * Ignore all pointer-events. Default: false
-   */
-  pointerEvents?: boolean
-  /**
-   * Enable editable handles. Default: false
-   */
-  editable?: boolean
+    /**
+     * Set cursor-style when hovering
+     */
+    cursor?: CursorStyle
 
-  onDragMove?: (position: Position, event: CanvasMouseEvent) => void
+    /**
+     * Set cursor-style when hovering
+     */
+    hoverStyle?: Shape2DStyle
 
-  /**
-   * Set onMouseDown-eventhandler.
-   */
-  onMouseDown?: (event: CanvasMouseEvent) => void
-  /**
-   * Set onMouseDown-eventhandler.
-   */
-  onMouseMove?: (event: CanvasMouseEvent) => void
-  /**
-   * Set onMouseDown-eventhandler.
-   */
-  onMouseUp?: (event: CanvasMouseEvent) => void
-  /**
-   * Set cursor-style when hovering
-   */
-  cursor?: CursorStyle
+    children?: JSX.Element | JSX.Element[]
+    opacity?: number
+    fill?: ExtendedColor
+    composite?: Composite
+    clip?: Accessor<JSX.Element | JSX.Element[]>
+    controllers?: ((
+      props: Accessor<ResolvedShape2DProps<T>>,
+      events: RegisterControllerEvents,
+    ) => Accessor<ResolvedShape2DProps<T>>)[]
+  }
 
-  /**
-   * Set cursor-style when hovering
-   */
-  hoverStyle?: Shape2DStyle
-}
-
-export type ResolvedShape2DProps = RequiredPartially<
-  Shape2DProps,
-  | 'onDragMove'
-  | 'onMouseDown'
-  | 'onMouseMove'
-  | 'onMouseUp'
+export type ResolvedShape2DProps<T = {}> = RequiredPartially<
+  Shape2DProps<T>,
+  | CanvasMouseEventTypes
   | 'composite'
   | 'fill'
   | 'shadow'
   | 'editable'
   | 'cursor'
   | 'hoverStyle'
+  | 'clip'
+  | 'children'
+  | 'controllers'
 >
+
+export type CanvasMouseEventTypes =
+  | 'onMouseDown'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'onMouseLeave'
+  | 'onMouseEnter'
 
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
-  type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp'
+  type: CanvasMouseEventTypes
   position: Position
   delta: Position
   propagation: boolean

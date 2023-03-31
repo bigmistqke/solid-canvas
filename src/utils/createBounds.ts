@@ -5,7 +5,6 @@ const createBounds = (
   points: Accessor<{ x: number; y: number }[]>,
   matrix: Accessor<DOMMatrix>,
 ) => {
-  const canvas = useInternalContext()
   let dimensions: { width: number; height: number }
   let position: { x: number; y: number }
   let path: Path2D

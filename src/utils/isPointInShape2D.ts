@@ -1,5 +1,8 @@
-import { Object2DProps } from 'src/components/Object2D/createObject2D'
-import { CanvasMouseEvent, ResolvedShape2DProps } from 'src/types'
+import {
+  CanvasMouseEvent,
+  Object2DProps,
+  ResolvedShape2DProps,
+} from 'src/types'
 
 const isPointInPath = (
   event: CanvasMouseEvent,

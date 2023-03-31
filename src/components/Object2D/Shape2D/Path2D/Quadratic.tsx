@@ -1,19 +1,22 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { mergeProps } from 'solid-js'
-import { useInternalContext } from 'src/context/InternalContext'
 
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
+import { defaultBoundsProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { Position, ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
-import hitTest from 'src/utils/hitTest'
-import renderPath from 'src/utils/renderPath'
 import { createBounds } from 'src/utils/createBounds'
 import { createBezierHandles } from 'src/utils/createHandles'
 import { createMatrix } from 'src/utils/createMatrix'
+import { createParenthood } from 'src/utils/createParenthood'
 import { createProcessedPoints } from 'src/utils/createProcessedPoints'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
-import withGroup from 'src/utils/withGroup'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import hitTest from 'src/utils/hitTest'
+import renderPath from 'src/utils/renderPath'
+import { createControlledProps } from 'src/utils/createControlledProps'
+import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
+import { createQuadratic } from 'src/path'
+import { createDebugSvg } from 'src/utils/createDebugSvg'
 
 /**
  * Paints a quadratic bezier to the canvas
@@ -22,32 +25,40 @@ import withGroup from 'src/utils/withGroup'
 
 type QuadraticPoints = { point: Position; control?: Position }[]
 
+type QuadraticProps = {
+  points: QuadraticPoints
+  close?: boolean
+}
+
 const Quadratic = createToken(
   parser,
-  (
-    props: Shape2DProps & {
-      points: QuadraticPoints
-      close?: boolean
-    },
-  ) => {
-    const canvas = useInternalContext()
-    const merged = mergeProps({ ...defaultShape2DProps, close: false }, props)
-
-    const matrix = createMatrix(merged)
-    const points = createProcessedPoints(() => props.points, 'quadratic')
-    const handles = createBezierHandles(
-      points,
-      () => props.editable,
-      'quadratic',
+  (props: Shape2DProps & QuadraticProps) => {
+    const controlled = createControlledProps(
+      mergeShape2DProps(props, {
+        close: false,
+        points: [],
+      }) as ResolvedShape2DProps & QuadraticProps,
     )
 
+    const context = createUpdatedContext(() => controlled.props)
+    const parenthood = createParenthood(props, context)
+    const matrix = createMatrix(controlled.props)
+
+    const path = createTransformedPath(() => {
+      const svg = createQuadratic(controlled.props.points).string
+
+      const path2D = new Path2D(svg)
+      if (controlled.props.close) path2D.closePath()
+      return path2D
+    }, matrix)
+
     const bounds = createBounds(() => {
-      return points()
+      return controlled.props.points
         .map((point, i) => {
           let result: Position[] = [point.point]
           if (point.control) {
             const control = addPositions(point.point, point.control)
-            const nextPoint = points()[i + 1]?.point
+            const nextPoint = controlled.props.points[i + 1]?.point
             if (nextPoint) {
               result.push(control, point.point)
             } else {
@@ -59,41 +70,6 @@ const Quadratic = createToken(
         .flat()
     }, matrix)
 
-    const path = createTransformedPath(() => {
-      const values = points()
-
-      let value = values[0]
-      let point = value?.point
-      let control = addPositions(value?.control, point)
-
-      if (!point || !control) {
-        return new Path2D()
-      }
-
-      let svg = `M${point.x},${point.y} Q${control.x},${control.y} `
-
-      let i = 1
-
-      while ((value = values[i])) {
-        point = value.point as Position
-        control = addPositions(value.control, point)
-
-        if (i !== values.length - 1 && control) {
-          svg += `${point.x},${point.y} ${control.x},${control.y} `
-        } else {
-          svg += `${point.x},${point.y} `
-        }
-
-        i++
-      }
-
-      const path2D = new Path2D(svg)
-
-      if (merged.close) path2D.closePath()
-
-      return path2D
-    }, matrix)
-
     const token: Shape2DToken = {
       type: 'Shape2D',
       id: 'Bezier',
@@ -101,30 +77,36 @@ const Quadratic = createToken(
       render: ctx => {
         renderPath(
           ctx,
-          merged,
+          controlled.props,
           path(),
-          canvas?.origin,
-          canvas?.isHovered(token) || canvas?.isSelected(token),
+          context.origin,
+          context.isHovered(token) || context.isSelected(token),
         )
-        handles.render(ctx)
+        parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
       },
       debug: ctx =>
         renderPath(
           ctx,
           defaultBoundsProps,
           bounds().path,
-          canvas?.origin,
+          context.origin,
           false,
         ),
       hitTest: event => {
-        handles.hitTest(event)
-        return hitTest(token, event, canvas, merged)
+        parenthood.hitTest(event)
+        if (!event.propagation) return false
+        controlled.emit.onHitTest(event)
+        if (!event.propagation) return false
+        const hit = hitTest(token, event, context, controlled.props)
+        if (hit) {
+          controlled.emit[event.type](event)
+        }
+        return hit
       },
     }
     return token
   },
 )
 
-const GroupedQuadratic = withGroup(Quadratic)
-
-export { GroupedQuadratic as Quadratic, type QuadraticPoints }
+export { Quadratic, type QuadraticPoints }

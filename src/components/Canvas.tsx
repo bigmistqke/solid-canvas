@@ -19,6 +19,7 @@ import { UserContext } from 'src/context/UserContext'
 import { CanvasToken, parser } from 'src/parser'
 import {
   CanvasMouseEvent,
+  CanvasMouseEventTypes,
   Color,
   Composite,
   CursorStyle,
@@ -63,14 +64,14 @@ export const Canvas: Component<{
   })
   const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
   const [cursorStyle, setCursorStyle] = createSignal<CursorStyle>('default')
-  const [eventListeners, setEventListeners] = createStore<{
-    onMouseDown: ((event: CanvasMouseEvent) => void)[]
-    onMouseMove: ((event: CanvasMouseEvent) => void)[]
-    onMouseUp: ((event: CanvasMouseEvent) => void)[]
-  }>({
+  const [eventListeners, setEventListeners] = createStore<
+    Record<CanvasMouseEventTypes, ((event: CanvasMouseEvent) => void)[]>
+  >({
     onMouseDown: [],
     onMouseMove: [],
     onMouseUp: [],
+    onMouseEnter: [],
+    onMouseLeave: [],
   })
   const [selectedToken, setSelectedtoken] = createSignal<CanvasToken>()
   const [hoveredToken, setHoveredToken] = createSignal<CanvasToken>()
@@ -219,7 +220,7 @@ export const Canvas: Component<{
     let data
     for ({ data } of tokens()) {
       ctx.save()
-      if ('debug' in data) data.debug(ctx)
+      if ('debug' in data && props.debug) data.debug(ctx)
       if ('render' in data) data.render(ctx)
       ctx.restore()
     }
@@ -284,7 +285,7 @@ export const Canvas: Component<{
     }
 
     forEachReversed(tokens(), ({ data }) => {
-      // if (!event.propagation) return
+      if (!event.propagation) return
       if ('hitTest' in data) {
         data.hitTest(event)
       }

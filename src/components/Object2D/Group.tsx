@@ -1,13 +1,60 @@
-import forEachReversed from 'src/utils/forEachReversed'
-import { createObject2D } from './createObject2D'
+import { createToken } from '@solid-primitives/jsx-tokenizer'
+import { splitProps, mergeProps, Accessor } from 'solid-js'
+import { JSX } from 'solid-js/jsx-runtime'
+import { RegisterControllerEvents } from 'src/controllers'
+import { defaultShape2DProps } from 'src/defaultProps'
+import { CanvasToken, parser } from 'src/parser'
+import { Color, Position, ResolvedShape2DProps } from 'src/types'
+import { createControlledProps } from 'src/utils/createControlledProps'
+import { createParenthood } from 'src/utils/createParenthood'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
+import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
+import { SingleOrArray } from 'src/utils/typehelpers'
+import { T } from 'vitest/dist/types-c800444e'
 
-const Group = createObject2D({
-  id: 'Group',
-  render: (canvas, props, tokens) => {
-    forEachReversed(tokens, ({ data }) => {
-      if ('render' in data) data.render(canvas.ctx)
-    })
-  },
+export type GroupProps = {
+  children: SingleOrArray<JSX.Element>
+  fill?: Color
+  clip?: SingleOrArray<JSX.Element>
+  position?: Position
+  controllers?: ((
+    props: Accessor<ResolvedShape2DProps<T>>,
+    events: RegisterControllerEvents,
+  ) => Accessor<ResolvedShape2DProps<T>>)[]
+}
+
+/**
+ * Group multiple `Shapes` together
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rect)
+ */
+const Group = createToken(parser, (props: GroupProps) => {
+  const [, propsWithoutChildren] = splitProps(props, ['children'])
+  const mergedProps = mergeProps(
+    { position: { x: 0, y: 0 }, fill: undefined },
+    propsWithoutChildren,
+  )
+
+  // NOTE:  we will have to figure out a way to make controllers typesafe
+  //        so each controller knows what sort of props to expect
+  //        and you don't use the wrong controllers
+  //        until then we will only allow controllers for types extending `Shape2DProps`
+
+  // const controlled = createControlledProps(mergedProps)
+  const context = createUpdatedContext(() => mergedProps)
+  const parenthood = createParenthood(props, context)
+  return {
+    type: 'Object2D',
+    id: 'Group',
+    render: ctx => parenthood.render(ctx),
+    debug: () => {},
+    hitTest: event => {
+      parenthood.hitTest(event)
+      if (!event.propagation) return false
+      return true
+    },
+    paths: () => [],
+    tokens: [],
+  } as CanvasToken
 })
 
 export { Group }

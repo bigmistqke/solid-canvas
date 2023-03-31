@@ -16,13 +16,13 @@ const HIDE = document.createElement('div')
 const Pattern = createToken(parser, (props: PatternProps) => {
   const merged = mergeProps({ repetition: 'no-repeat' }, props)
 
-  const canvas = useInternalContext()
+  const internalContext = useInternalContext()
 
   const image = resolveImage(() => props.image)
 
   const color = () => {
-    return canvas && image()
-      ? canvas.ctx.createPattern(image()!, merged.repetition)
+    return internalContext && image()
+      ? internalContext.ctx.createPattern(image()!, merged.repetition)
       : undefined
   }
 

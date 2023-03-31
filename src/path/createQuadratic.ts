@@ -34,10 +34,8 @@ function createQuadratic(
     } else {
       point = value.point as Position
       control = addPositions(value.control, point)
-      if (!control && command !== 'T') {
-        string += 'T'
-        command = 'T'
-      } else if (control && command !== 'Q') {
+
+      if (control && command !== 'Q') {
         string += 'Q'
         command = 'Q'
       }
@@ -46,6 +44,11 @@ function createQuadratic(
         string += `${point.x},${point.y} ${control.x},${control.y} `
       } else {
         string += `${point.x},${point.y} `
+      }
+
+      if (!control && command !== 'T' && value !== values[values.length - 1]) {
+        string += 'T'
+        command = 'T'
       }
     }
     i++
