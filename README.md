@@ -13,32 +13,6 @@ a solid wrapper around the `Canvas` API
   <img src="https://user-images.githubusercontent.com/10504064/229239216-92c00166-689b-4b85-ae1b-6fdf44ace709.jpg"/>
 </video>
 
-[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/rectangles.tsx)
-
-<video src="https://user-images.githubusercontent.com/10504064/226694280-f2a2976a-ddc5-4025-9e5e-f82ee2ec6622.mp4">
-  <img src="https://user-images.githubusercontent.com/10504064/229237662-45553280-aa6c-4681-a1df-c3356b546b08.jpg"/>
-</video>
-
-[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Cubics.tsx)
-
-<video src="https://user-images.githubusercontent.com/10504064/226762226-f6dc3759-1cc0-4b8f-9e1a-30aba76aa13f.mp4">
-  <img src="https://user-images.githubusercontent.com/10504064/229239445-41dda89d-ff55-4d40-a256-799f0cff115c.jpg"/>
-</video>
-
-[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Smileys.tsx)
-
-<video src="https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-84db-ee2d45adf939.mp4">
-  <img src="https://user-images.githubusercontent.com/10504064/229239612-a1d19874-0fb7-4853-899f-e55e7811347a.jpg"/>
-</video>
-
-[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Feedback.tsx)
-
-<video src="https://user-images.githubusercontent.com/10504064/228581332-99389055-2a5e-4afa-8dea-4fa58c27aa27.mp4">
-  <img src="https://user-images.githubusercontent.com/10504064/229239838-d8dd3769-90b6-4d4f-a754-5abd4d71e003.jpg"/>
-</video>
-
-[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/EditableCurves.tsx)
-
 ### Simple example
 
 ```tsx
@@ -239,8 +213,8 @@ const App = () => (
 - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
 - [x] HoverStyles for `Shape2D`
 - [ ] Navigation
-   - [x] Pan (draggable-prop in `Canvas`)
-   - [ ] Zoom
+  - [x] Pan (draggable-prop in `Canvas`)
+  - [ ] Zoom
 - [x] Controller-prop: callback which can control the props
 - [ ] Handles-controller
   - [x] `Line`
