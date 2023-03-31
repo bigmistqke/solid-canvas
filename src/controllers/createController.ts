@@ -1,5 +1,4 @@
-import { Accessor, Accessor, createMemo } from 'solid-js'
-import { BezierProps } from 'src/components/Object2D/Shape2D/Path2D/Bezier'
+import { Accessor, createMemo } from 'solid-js'
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import { mergeGetters } from 'src/utils/mergeGetters'
 import { RegisterControllerEvents } from '.'
