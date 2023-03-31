@@ -8,7 +8,7 @@ const createControlledProps = <
   T extends Record<string, any>,
   U extends ResolvedShape2DProps<T>,
 >(
-  props: U | Omit<GroupProps, 'children'>,
+  props: U,
 ) => {
   const events: {
     [K in keyof ControllerEvents]: ControllerEvents[K][]
