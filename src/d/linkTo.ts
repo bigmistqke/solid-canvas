@@ -1,5 +1,5 @@
 import { CubicPoint, Position, QuadraticPoint } from 'src/types'
-import { createCubic, CreatePathParams } from '.'
+import { createCubic, CreatePathParams } from './d'
 import { ArcParams, createArc } from './createArc'
 import { createLine } from './createLine'
 import { createQuadratic } from './createQuadratic'

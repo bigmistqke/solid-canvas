@@ -1,5 +1,5 @@
 import { Position } from 'src/types'
-import { CreatePathParams } from '.'
+import { CreatePathParams } from './d'
 import { linkTo } from './linkTo'
 
 export type ArcParams = {

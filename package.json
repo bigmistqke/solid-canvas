@@ -19,32 +19,57 @@
   "private": false,
   "sideEffects": false,
   "type": "module",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./dist/index/index.cjs",
+  "module": "./dist/index/index.js",
+  "types": "./dist/index/index.d.ts",
   "browser": {},
   "imports": {
     "@src/*": "./src/*"
   },
   "exports": {
-    "solid": {
-      "development": "./dist/dev.jsx",
-      "import": "./dist/index.jsx"
-    },
-    "development": {
-      "import": {
-        "types": "./dist/index.d.ts",
-        "default": "./dist/dev.js"
+    ".": {
+      "solid": {
+        "development": "./dist/index/dev.jsx",
+        "import": "./dist/index/index.jsx"
       },
-      "require": "./dist/dev.cjs"
+      "development": {
+        "import": {
+          "types": "./dist/index/index.d.ts",
+          "default": "./dist/index/dev.js"
+        },
+        "require": "./dist/index/dev.cjs"
+      },
+      "import": {
+        "types": "./dist/index/index.d.ts",
+        "default": "./dist/index/index.js"
+      },
+      "require": "./dist/index/index.cjs"
     },
-    "import": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+    "./controllers": {
+      "import": {
+        "types": "./dist/controllers/index.d.ts",
+        "default": "./dist/controllers/index.js"
+      },
+      "require": "./dist/controllers/index.cjs"
     },
-    "require": "./dist/index.cjs"
+    "./d": {
+      "import": {
+        "types": "./dist/d/index.d.ts",
+        "default": "./dist/d/index.js"
+      },
+      "require": "./dist/d/index.cjs"
+    }
   },
-  "typesVersions": {},
+  "typesVersions": {
+    "*": {
+      "./controllers": [
+        "./dist/controllers/index.d.ts"
+      ],
+      "./d": [
+        "./dist/d/index.d.ts"
+      ]
+    }
+  },
   "scripts": {
     "dev": "vite serve dev",
     "build": "tsup",

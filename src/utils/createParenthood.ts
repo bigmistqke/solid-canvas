@@ -4,7 +4,7 @@ import {
   InternalContext,
   InternalContextType,
 } from 'src/context/InternalContext'
-import { ControllerEvents } from 'src/controllers/.'
+import { ControllerEvents } from 'src/controllers/controllers'
 
 import { CanvasToken, parser } from 'src/parser'
 import {

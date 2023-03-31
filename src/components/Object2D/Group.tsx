@@ -1,7 +1,7 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { splitProps, mergeProps, Accessor } from 'solid-js'
 import { JSX } from 'solid-js/jsx-runtime'
-import { RegisterControllerEvents } from 'src/controllers'
+import { RegisterControllerEvents } from 'src/controllers/controllers'
 import { defaultShape2DProps } from 'src/defaultProps'
 import { CanvasToken, parser } from 'src/parser'
 import { Color, Position, ResolvedShape2DProps } from 'src/types'

@@ -1,5 +1,5 @@
 import { Position } from 'src/types'
-import { CreatePathParams, PathResult } from '.'
+import { CreatePathParams, PathResult } from './d'
 import { linkTo } from './linkTo'
 function createLine(points: Position[]): PathResult
 function createLine(

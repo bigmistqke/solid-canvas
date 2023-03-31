@@ -1,6 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 
-import { createCubic } from 'src/d'
+import { createCubic } from 'src/d/d'
 import { parser } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import { createPath2D } from 'src/utils/createPath2D'

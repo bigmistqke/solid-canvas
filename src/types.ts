@@ -1,5 +1,5 @@
 import { Accessor, JSX } from 'solid-js'
-import { RegisterControllerEvents } from './controllers'
+import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 

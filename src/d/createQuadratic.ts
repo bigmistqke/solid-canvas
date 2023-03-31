@@ -1,6 +1,6 @@
 import { Position, QuadraticPoint } from 'src/types'
 import addPositions from 'src/utils/addPositions'
-import { CreatePathParams, PathResult } from '.'
+import { CreatePathParams, PathResult } from './d'
 import { linkTo } from './linkTo'
 
 function createQuadratic(values: QuadraticPoint[]): PathResult

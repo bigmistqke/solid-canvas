@@ -15,3 +15,5 @@ export { Text } from './components/Object2D/Shape2D/Text'
 export { Path } from './components/Object2D/Shape2D/Path2D/Path'
 export { useUserContext as useCanvas } from './context/UserContext'
 export { createClock } from './utils/createClock'
+
+// export * from './controllers'

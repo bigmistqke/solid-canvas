@@ -1,6 +1,6 @@
 import { createLazyMemo } from '@solid-primitives/memo'
 import { Accessor, mapArray } from 'solid-js'
-import { ControllerEvents } from 'src/controllers'
+import { ControllerEvents } from 'src/controllers/controllers'
 import { Shape2DProps } from 'src/types'
 
 const createControlledProps = <

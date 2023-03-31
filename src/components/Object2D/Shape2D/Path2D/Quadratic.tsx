@@ -1,6 +1,6 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 
-import { createQuadratic } from 'src/d'
+import { createQuadratic } from 'src/d/d'
 import { parser } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
