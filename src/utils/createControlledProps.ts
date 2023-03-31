@@ -64,7 +64,8 @@ const createControlledProps = <
 
   return {
     get props() {
-      return (controllers()[controllers().length - 1]?.() ?? props) as U
+      return (controllers()[controllers().length - 1]?.() ??
+        props) as Required<U>
     },
     emit,
   }
