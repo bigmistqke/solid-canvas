@@ -21,6 +21,18 @@ a solid wrapper around the `Canvas` API
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Cubics.tsx)
 
+<video src="https://user-images.githubusercontent.com/10504064/226961725-e3b53122-acff-4c3a-84db-ee2d45adf939.mp4">
+  <img src="https://user-images.githubusercontent.com/10504064/229239612-a1d19874-0fb7-4853-899f-e55e7811347a.jpg"/>
+</video>
+
+[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Feedback.tsx)
+
+<video src="https://user-images.githubusercontent.com/10504064/228581332-99389055-2a5e-4afa-8dea-4fa58c27aa27.mp4">
+  <img src="https://user-images.githubusercontent.com/10504064/229239838-d8dd3769-90b6-4d4f-a754-5abd4d71e003.jpg"/>
+</video>
+
+[source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/EditableCurves.tsx)
+
 ### Simple example
 
 ```tsx
