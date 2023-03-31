@@ -25,14 +25,14 @@ import { createDebugSvg } from 'src/utils/createDebugSvg'
 
 type QuadraticPoints = { point: Position; control?: Position }[]
 
-type QuadraticProps = {
+export type QuadraticProps = {
   points: QuadraticPoints
   close?: boolean
 }
 
 const Quadratic = createToken(
   parser,
-  (props: Shape2DProps & QuadraticProps) => {
+  (props: Shape2DProps<QuadraticProps> & QuadraticProps) => {
     const controlled = createControlledProps(
       mergeShape2DProps(props, {
         close: false,
