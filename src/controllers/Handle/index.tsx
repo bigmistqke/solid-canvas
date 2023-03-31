@@ -111,9 +111,11 @@ const BezierHandles = (props: {
           draggable={props.type === 'cubic' || !props.value.automatic}
         />
       </Show>
-      <Show when={props.value.oppositeControl}>
+      <Show
+        when={'oppositeControl' in props.value && props.value.oppositeControl}
+      >
         <VectorHandle
-          position={props.value.oppositeControl!}
+          position={(props.value as CubicPoint).oppositeControl}
           updateOffset={offset => props.updateOffset(offset, 'oppositeControl')}
           draggable={props.type === 'cubic' && !props.value.automatic}
         />
