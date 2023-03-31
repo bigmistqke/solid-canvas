@@ -1,7 +1,6 @@
-import { createEffect, createSignal, onCleanup } from 'solid-js'
+import { Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Position } from 'src/types'
-import { mergeGetters } from 'src/utils/mergeGetters'
+import { CanvasMouseEvent, Position, Shape2DProps } from 'src/types'
 import { createController } from './createController'
 
 type DragOptions = {
@@ -9,6 +8,7 @@ type DragOptions = {
   controlled?: boolean
   onDragMove?: (position: Position, event: CanvasMouseEvent) => void
 }
+
 const Drag = createController<DragOptions>((props, events, options) => {
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
@@ -24,7 +24,6 @@ const Drag = createController<DragOptions>((props, events, options) => {
     if (!internalContext) return
     if (selected()) {
       const handleMouseMove = (event: CanvasMouseEvent) => {
-        // console.log('mousemove')
         event.propagation = false
         setDragPosition(position => ({
           x: position.x + event.delta.x,
@@ -62,19 +61,16 @@ const Drag = createController<DragOptions>((props, events, options) => {
 
   events.onMouseDown(dragEventHandler)
 
-  return () =>
-    mergeGetters(props(), {
-      get position() {
-        return {
-          x: options.controlled
-            ? props().position?.x
-            : (props().position?.x || 0) + dragPosition().x,
-          y: options.controlled
-            ? props().position?.y
-            : (props().position?.y || 0) + dragPosition().y,
-        }
-      },
-    })
-})
+  return {
+    get position() {
+      return options.controlled
+        ? props().position
+        : {
+            x: (props().position?.x || 0) + dragPosition().x,
+            y: (props().position?.y || 0) + dragPosition().y,
+          }
+    },
+  }
+}) as (options?: DragOptions) => { position: Position }
 
 export { Drag }
