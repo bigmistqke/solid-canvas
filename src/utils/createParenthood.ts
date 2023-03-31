@@ -23,34 +23,34 @@ import { SingleOrArray } from './typehelpers'
  * Object2Ds (and clips) the component's children
  */
 
-export type Object2DProps = {
-  /**
-   * Defaults to { x: 0, y: 0}
-   */
-  position?: Position
-  children?: JSX.Element | JSX.Element[]
-  opacity?: number
-  fill?: ExtendedColor
-  composite?: Composite
-  clip?: Accessor<JSX.Element | JSX.Element[]>
-  draggable?: boolean | 'controlled'
-  controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
-  onMouseDown?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseUp?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseMove?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseEnter?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-  onMouseLeave?:
-    | ((event: CanvasMouseEvent) => void)
-    | ((event: CanvasMouseEvent) => void)[]
-}
+// export type Object2DProps = {
+//   /**
+//    * Defaults to { x: 0, y: 0}
+//    */
+//   position?: Position
+//   children?: JSX.Element | JSX.Element[]
+//   opacity?: number
+//   fill?: ExtendedColor
+//   composite?: Composite
+//   clip?: Accessor<JSX.Element | JSX.Element[]>
+//   draggable?: boolean | 'controlled'
+//   controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
+//   onMouseDown?:
+//     | ((event: CanvasMouseEvent) => void)
+//     | ((event: CanvasMouseEvent) => void)[]
+//   onMouseUp?:
+//     | ((event: CanvasMouseEvent) => void)
+//     | ((event: CanvasMouseEvent) => void)[]
+//   onMouseMove?:
+//     | ((event: CanvasMouseEvent) => void)
+//     | ((event: CanvasMouseEvent) => void)[]
+//   onMouseEnter?:
+//     | ((event: CanvasMouseEvent) => void)
+//     | ((event: CanvasMouseEvent) => void)[]
+//   onMouseLeave?:
+//     | ((event: CanvasMouseEvent) => void)
+//     | ((event: CanvasMouseEvent) => void)[]
+// }
 
 function createParenthood<T>(
   props: { children?: SingleOrArray<JSX.Element> },

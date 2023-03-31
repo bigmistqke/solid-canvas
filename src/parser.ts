@@ -22,8 +22,6 @@ export type Object2DToken = {
   render: (ctx: CanvasRenderingContext2D) => void
   debug: (ctx: CanvasRenderingContext2D) => void
   hitTest: (event: CanvasMouseEvent) => boolean
-  paths: Accessor<Path2D[]>
-  tokens: TokenElement<CanvasToken>[]
 }
 
 export type StaticShape2D = {
@@ -35,8 +33,8 @@ export type StaticShape2D = {
 
 export type CanvasToken =
   | Shape2DToken
-  | ColorToken
   | Object2DToken
+  | ColorToken
   | StaticShape2D
 
 export const parser = createTokenizer<CanvasToken>({ name: 'solid-canvas' })

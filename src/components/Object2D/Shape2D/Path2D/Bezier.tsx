@@ -1,18 +1,9 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 
-import { defaultBoundsProps } from 'src/defaultProps'
-import { parser, Shape2DToken } from 'src/parser'
 import { createCubic } from 'src/d'
+import { parser } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
-import { createBounds } from 'src/utils/createBounds'
-import { createControlledProps } from 'src/utils/createControlledProps'
-import { createMatrix } from 'src/utils/createMatrix'
-import { createParenthood } from 'src/utils/createParenthood'
-import { createTransformedPath } from 'src/utils/createTransformedPath'
-import { createUpdatedContext } from 'src/utils/createUpdatedContext'
-import hitTest from 'src/utils/hitTest'
-import renderPath from 'src/utils/renderPath'
-import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
+import { createPath2D } from 'src/utils/createPath2D'
 
 export type BezierProps = {
   points: {
@@ -29,66 +20,23 @@ export type BezierProps = {
  */
 const Bezier = createToken(
   parser,
-  (props: Shape2DProps<BezierProps> & BezierProps) => {
-    const controlled = createControlledProps(
-      mergeShape2DProps(props, { close: false } as Required<BezierProps>),
-    )
-    const context = createUpdatedContext(() => controlled.props)
-    const parenthood = createParenthood(props, context)
-
-    const matrix = createMatrix(controlled.props)
-    const path = createTransformedPath(() => {
-      const svgString = createCubic(controlled.props.points).string
-      const path2D = new Path2D(svgString)
-      if (controlled.props.close) path2D.closePath()
-      return path2D
-    }, matrix)
-
-    const bounds = createBounds(() => {
-      return props.points
-        .map(Object.values)
-        .flat()
-        .filter(v => typeof v === 'object')
-    }, matrix)
-
-    const token: Shape2DToken = {
-      type: 'Shape2D',
+  (props: Shape2DProps<BezierProps> & BezierProps) =>
+    createPath2D<BezierProps>({
       id: 'Bezier',
-      path,
-      render: ctx => {
-        renderPath(
-          ctx,
-          controlled.props,
-          path(),
-          context.origin,
-          context.isHovered(token) || context.isSelected(token),
-        )
-        parenthood.render(ctx)
-        controlled.emit.onRender(ctx)
+      props,
+      defaultProps: { close: false },
+      path: props => {
+        const svgString = createCubic(props.points).string
+        const path2D = new Path2D(svgString)
+        if (props.close) path2D.closePath()
+        return path2D
       },
-      debug: ctx => {
-        renderPath(
-          ctx,
-          defaultBoundsProps,
-          bounds().path,
-          context.origin,
-          false,
-        )
-      },
-      hitTest: event => {
-        parenthood.hitTest(event)
-        if (!event.propagation) return false
-        controlled.emit.onHitTest(event)
-        if (!event.propagation) return false
-        const hit = hitTest(token, event, context, controlled.props)
-        if (hit) {
-          controlled.emit[event.type](event)
-        }
-        return hit
-      },
-    }
-    return token
-  },
+      bounds: props =>
+        props.points
+          .map(Object.values)
+          .flat()
+          .filter(v => typeof v === 'object'),
+    }),
 )
 
 export { Bezier }

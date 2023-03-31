@@ -1,43 +1,26 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 
-import { defaultBoundsProps } from 'src/defaultProps'
-import { parser, Shape2DToken } from 'src/parser'
+import { parser } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
-import { createBounds } from 'src/utils/createBounds'
-import { createLinearHandles } from 'src/utils/createHandles'
-import { createMatrix } from 'src/utils/createMatrix'
-import { createParenthood } from 'src/utils/createParenthood'
-import { createTransformedPath } from 'src/utils/createTransformedPath'
-import { createUpdatedContext } from 'src/utils/createUpdatedContext'
-import hitTest from 'src/utils/hitTest'
-import renderPath from 'src/utils/renderPath'
-import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
-import { createControlledProps } from 'src/utils/createControlledProps'
-/**
- * Paints a straight line to the canvas
- * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
- */
+import { createPath2D } from '../../../../utils/createPath2D'
 
 type LineProps = {
   points: Position[]
   close?: boolean
 }
-const Line = createToken(
-  parser,
-  (props: Shape2DProps<LineProps> & LineProps) => {
-    const controlled = createControlledProps(
-      mergeShape2DProps(props, {
-        close: false,
-      }),
-    )
-    const context = createUpdatedContext(() => controlled.props)
-    const parenthood = createParenthood(props, context)
 
-    const matrix = createMatrix(controlled.props)
-    const bounds = createBounds(() => props.points, matrix)
-
-    const path = createTransformedPath(() => {
-      // calculate path
+/**
+ * Paints a straight line to the canvas
+ * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
+ */
+const Line = createToken(parser, (props: Shape2DProps<LineProps> & LineProps) =>
+  createPath2D<LineProps>({
+    id: 'Line',
+    props,
+    defaultProps: {
+      close: false,
+    },
+    path: props => {
       const path2D = new Path2D()
       let point = props.points[0]
       path2D.moveTo(point!.x, point!.y)
@@ -46,48 +29,11 @@ const Line = createToken(
         path2D.lineTo(point.x, point.y)
         i++
       }
-      if (controlled.props.close) path2D.closePath()
+      if (props.close) path2D.closePath()
 
       return path2D
-    }, matrix)
-
-    const token: Shape2DToken = {
-      type: 'Shape2D',
-      id: 'Line',
-      render: ctx => {
-        renderPath(
-          ctx,
-          controlled.props,
-          path(),
-          context.origin,
-          context.isSelected(token) || context.isHovered(token),
-        )
-        parenthood.render(ctx)
-      },
-      debug: ctx =>
-        renderPath(
-          ctx,
-          defaultBoundsProps,
-          bounds().path,
-          context.origin,
-          false,
-        ),
-      path,
-      hitTest: event => {
-        parenthood.hitTest(event)
-        if (!event.propagation) return false
-        controlled.emit.onHitTest(event)
-        if (!event.propagation) return false
-        const hit = hitTest(token, event, context, controlled.props)
-        if (hit) {
-          controlled.emit[event.type](event)
-        }
-        return hit
-      },
-    }
-
-    return token
-  },
+    },
+    bounds: props => props.points,
+  }),
 )
-
 export { Line }
