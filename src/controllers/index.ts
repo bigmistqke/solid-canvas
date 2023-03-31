@@ -1,7 +1,7 @@
 import { CanvasMouseEvent, CanvasMouseEventTypes } from 'src/types'
 
 export { Drag } from './Drag'
-export { BezierHandle } from './Handle'
+export { CubicHandle, QuadraticHandle } from './Handle'
 export { Noop } from './Noop'
 export { ClickStyle } from './ClickStyle'
 
