@@ -97,7 +97,7 @@ const App: Component = () => {
 }
 ```
 
-> Each `Shape2D` also has a `draggable`-prop:
+> Each `Shape2D` also has a controller-prop which accepts functions that alter the component's prop: an example of this is `Drag`
 
 ```tsx
 import { Canvas, Rectangle } from 'solid-canvas'
@@ -107,7 +107,7 @@ const App = () => (
     <Rectangle
       position={{ x: 100, y: 100 }}
       dimensions={{ width: 50, height: 50 }}
-      draggable
+      controllers{[Drag()]}
     />
   </Canvas>
 )
