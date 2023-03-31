@@ -85,6 +85,8 @@ export type Object2DProps = {
   fill?: ExtendedColor
   composite?: Composite
   clip?: Accessor<JSX.Element | JSX.Element[]>
+  background?: Color
+  padding?: number
   // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
 }
 

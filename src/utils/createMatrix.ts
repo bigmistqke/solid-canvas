@@ -1,10 +1,13 @@
-import { createMemo } from 'solid-js'
-import { Shape2DProps } from 'src/types'
+import { Accessor, createMemo } from 'solid-js'
+import { useInternalContext } from 'src/context/InternalContext'
+import { Position, Shape2DProps } from 'src/types'
 
-const createMatrix = (props: Shape2DProps) => {
+const createMatrix = (props: Shape2DProps, origin?: Accessor<Position>) => {
   let matrix: DOMMatrix
   const point = new DOMPoint()
   let offset: DOMPoint
+  const context = useInternalContext()
+
   return createMemo(() => {
     matrix = new DOMMatrix()
 
@@ -12,8 +15,8 @@ const createMatrix = (props: Shape2DProps) => {
     matrix.skewYSelf(props.skewY)
 
     // NOTE:  skewing causes a horizontal/vertical offset
-    point.x = 0
-    point.y = 0
+    point.x = origin?.().x ?? 0
+    point.y = origin?.().y ?? 0
     offset = point.matrixTransform(matrix)
     matrix.translateSelf(point.x - offset.x, point.y - offset.y)
 

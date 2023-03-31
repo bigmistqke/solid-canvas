@@ -1,3 +1,4 @@
+import { InternalContextType } from 'src/context/InternalContext'
 import { defaultBoundsProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import { Position, Shape2DProps } from 'src/types'
