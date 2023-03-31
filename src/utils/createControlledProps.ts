@@ -1,12 +1,11 @@
 import { createLazyMemo } from '@solid-primitives/memo'
 import { Accessor, mapArray } from 'solid-js'
-import { GroupProps } from 'src/components/Object2D/Group'
 import { ControllerEvents } from 'src/controllers'
-import { ResolvedShape2DProps } from 'src/types'
+import { Shape2DProps } from 'src/types'
 
 const createControlledProps = <
   T extends Record<string, any>,
-  U extends ResolvedShape2DProps<T>,
+  U extends Shape2DProps<T> & T,
 >(
   props: U,
 ) => {
@@ -38,27 +37,30 @@ const createControlledProps = <
     onHitTest: event => events.onHitTest.forEach(callback => callback(event)),
   }
 
-  const controllers: Accessor<Accessor<ResolvedShape2DProps<T>>[]> =
-    createLazyMemo(
-      mapArray(
-        () => props.controllers!,
-        (controller, index) => {
-          return controller(
-            () =>
-              index() === 0 ? props : controllers()?.[index() - 1]?.() ?? props,
-            {
-              onMouseDown: callback => events.onMouseDown.push(callback),
-              onMouseMove: callback => events.onMouseMove.push(callback),
-              onMouseUp: callback => events.onMouseUp.push(callback),
-              onMouseLeave: callback => events.onMouseLeave.push(callback),
-              onMouseEnter: callback => events.onMouseEnter.push(callback),
-              onRender: callback => events.onRender.push(callback),
-              onHitTest: callback => events.onHitTest.push(callback),
-            },
-          )
-        },
-      ),
-    )
+  // NOTE:  I have been juggling around a lot with the types.
+  //        It's a bit tricky to figure out.
+  //        The current state is a compromise.
+  //@ts-ignore
+  const controllers: Accessor<Accessor<T | Shape2DProps<T>>[]> = createLazyMemo(
+    mapArray(
+      () => props.controllers,
+      (controller, index) => {
+        return controller(
+          () =>
+            index() === 0 ? props : controllers()?.[index() - 1]?.() ?? props,
+          {
+            onMouseDown: callback => events.onMouseDown.push(callback),
+            onMouseMove: callback => events.onMouseMove.push(callback),
+            onMouseUp: callback => events.onMouseUp.push(callback),
+            onMouseLeave: callback => events.onMouseLeave.push(callback),
+            onMouseEnter: callback => events.onMouseEnter.push(callback),
+            onRender: callback => events.onRender.push(callback),
+            onHitTest: callback => events.onHitTest.push(callback),
+          },
+        )
+      },
+    ),
+  )
 
   return {
     get props() {

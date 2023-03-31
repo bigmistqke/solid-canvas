@@ -71,6 +71,6 @@ const Drag = createController<DragOptions>((props, events, options) => {
           }
     },
   }
-}) as (options?: DragOptions) => { position: Position }
+})
 
 export { Drag }

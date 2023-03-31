@@ -191,12 +191,12 @@ type HandleOptions = {
 const CubicHandle = createController<HandleOptions, { points: CubicPoint[] }>(
   (props, events, options) =>
     constructBezierHandle(props, events, { ...options, type: 'cubic' }),
-) as (options?: HandleOptions) => { points: CubicPoint[] }
+)
 
 const QuadraticHandle = createController<
   HandleOptions,
   { points: QuadraticPoint[] }
 >((props, events, options) =>
   constructBezierHandle(props, events, { ...options, type: 'quadratic' }),
-) as (options?: HandleOptions) => { points: QuadraticPoint[] }
+)
 export { CubicHandle, QuadraticHandle }

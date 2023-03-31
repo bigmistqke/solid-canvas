@@ -1,5 +1,6 @@
-import { Accessor, createMemo } from 'solid-js'
-import { ResolvedShape2DProps } from 'src/types'
+import { Accessor, Accessor, createMemo } from 'solid-js'
+import { BezierProps } from 'src/components/Object2D/Shape2D/Path2D/Bezier'
+import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import { mergeGetters } from 'src/utils/mergeGetters'
 import { RegisterControllerEvents } from '.'
 
@@ -13,12 +14,14 @@ const createController = <
     options: ControllerOptions,
   ) => void,
 ) => {
-  function Controller(options?: ControllerOptions): any
+  function Controller(
+    options?: ControllerOptions,
+  ): Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
   function Controller(
     props: Accessor<ResolvedShape2DProps & AdditionalProperties>,
     events: RegisterControllerEvents,
     options: ControllerOptions,
-  ): any
+  ): Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
   function Controller(
     propsOrOptions?: Accessor<ResolvedShape2DProps> | ControllerOptions,
     events?: RegisterControllerEvents,
@@ -50,14 +53,13 @@ const createController = <
       mergeGetters(
         (
           propsOrOptions as Accessor<
-            ResolvedShape2DProps & AdditionalProperties
+            ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
           >
         )(),
         result,
       ),
-    )
+    ) as Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
   }
   return Controller
 }
-
 export { createController }
