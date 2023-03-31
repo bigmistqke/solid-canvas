@@ -219,7 +219,7 @@ const App = () => (
 
 ## Additional API
 
-- [ ] Path-component: construct
+- [ ] `Path` component
   - [x] accepts an svg path constructed with utility-functions from `solid-canvas/d` [example](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Path.tsx)
   - [ ] accepts a raw svg path-string
 - [x] MouseEvents for `Shape2D` 👉 `Shape2D.onMouseDown`, `Shape2D.onMouseMove` and `Shape2D.onMouseUp`
@@ -237,7 +237,6 @@ const App = () => (
   - [ ] `Arc`
 - [ ] Nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
-- [ ] `SVG` component: render svg path-strings (path's `d`-attribute)
 - [ ] `HTML` component: easy way to implement html in `Canvas` coordinate system
 - [ ] Masking with `destination-in` [see](https://stackoverflow.com/a/25531787/4366929)
 - [ ] Caching any `Object2D` by rendering result to `OffscreenCanvas`
