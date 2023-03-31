@@ -219,35 +219,34 @@ const App = () => (
 
 ## Additional API
 
-- [ ] nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
-- [x] Draggable-prop for Shape2D and Canvas
-- [ ] Controller-prop: callback which can control the props
-- [ ] Editable-prop for Path2D: handles to manipulate the path
+- [ ] Path-component: construct
+  - [x] accepts an svg path constructed with utility-functions from `solid-canvas/d` [example](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/Path.tsx)
+  - [ ] accepts a raw svg path-string
+- [x] MouseEvents for `Shape2D` 👉 `Shape2D.onMouseDown`, `Shape2D.onMouseMove` and `Shape2D.onMouseUp`
+- [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
+- [x] HoverStyles for `Shape2D`
+- [ ] Navigation
+   - [x] Pan (draggable-prop in `Canvas`)
+   - [ ] Zoom
+- [x] Controller-prop: callback which can control the props
+- [ ] Handles-controller
+  - [x] `Line`
+  - [x] `Bezier`
+  - [x] `Quadratic`
+  - [ ] `Rectangle`
+  - [ ] `Arc`
+- [ ] Nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
 - [ ] `SVG` component: render svg path-strings (path's `d`-attribute)
 - [ ] `HTML` component: easy way to implement html in `Canvas` coordinate system
-- [ ] masking with `destination-in` [see](https://stackoverflow.com/a/25531787/4366929)
+- [ ] Masking with `destination-in` [see](https://stackoverflow.com/a/25531787/4366929)
+- [ ] Caching any `Object2D` by rendering result to `OffscreenCanvas`
 
 ## Overal Ambitions / Roadmap
 
 - Cover the whole Canvas-API
-- Provide tools to simplify common canvas operations:
-  - [ ] Navigation
-    - [x] Pan 👉 `Canvas.draggable`
-    - [ ] Zoom
-  - [x] MouseEvents for `Shape2D` 👉 `Shape2D.onMouseDown`, `Shape2D.onMouseMove` and `Shape2D.onMouseUp`
-  - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
-  - [ ] HoverStyles for `Shape2D`
-  - [x] Draggable `Shape2D` 👉 `Shape2D.draggable`
-  - [ ] Editable `Path2D` with handlers
-    - [x] `Line`
-    - [x] `Bezier`
-    - [x] `Quadratic`
-    - [ ] `Rectangle`
-    - [ ] `Arc`
-  - [ ] Possibility to add behaviors to `Shape2Ds` in a composable way (character-controllers)
-  - [ ] Caching any `Object2D` by rendering result to `OffscreenCanvas`
+- Provide tools to simplify common canvas operations
 - Explore render-optimizations:
   - Only render what is in viewport
   - Only render the bounds of Shape2Ds that has changed
-- After the initial exploration in the feature-set, I want to explore tactics to improve treeshakeability of the library: a simple static visualization should be able to have a minimal bundle.
+- Treeshakable: minimal use should result in minimal bundle
