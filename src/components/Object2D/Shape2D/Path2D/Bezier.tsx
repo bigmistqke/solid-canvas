@@ -14,7 +14,7 @@ import hitTest from 'src/utils/hitTest'
 import renderPath from 'src/utils/renderPath'
 import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 
-type BezierProps = {
+export type BezierProps = {
   points: {
     point: Position
     control: Position
@@ -27,59 +27,68 @@ type BezierProps = {
  * Paints a cubic bezier to the context
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo)
  */
-const Bezier = createToken(parser, (props: Shape2DProps & BezierProps) => {
-  const controlled = createControlledProps(
-    mergeShape2DProps(props, { close: false } as Required<BezierProps>),
-  )
-  const context = createUpdatedContext(() => controlled.props)
-  const parenthood = createParenthood(props, context)
+const Bezier = createToken(
+  parser,
+  (props: Shape2DProps<BezierProps> & BezierProps) => {
+    const controlled = createControlledProps(
+      mergeShape2DProps(props, { close: false } as Required<BezierProps>),
+    )
+    const context = createUpdatedContext(() => controlled.props)
+    const parenthood = createParenthood(props, context)
 
-  const matrix = createMatrix(controlled.props)
-  const path = createTransformedPath(() => {
-    const svgString = createCubic(controlled.props.points).string
-    const path2D = new Path2D(svgString)
-    if (controlled.props.close) path2D.closePath()
-    return path2D
-  }, matrix)
+    const matrix = createMatrix(controlled.props)
+    const path = createTransformedPath(() => {
+      const svgString = createCubic(controlled.props.points).string
+      const path2D = new Path2D(svgString)
+      if (controlled.props.close) path2D.closePath()
+      return path2D
+    }, matrix)
 
-  const bounds = createBounds(() => {
-    return props.points
-      .map(Object.values)
-      .flat()
-      .filter(v => typeof v === 'object')
-  }, matrix)
+    const bounds = createBounds(() => {
+      return props.points
+        .map(Object.values)
+        .flat()
+        .filter(v => typeof v === 'object')
+    }, matrix)
 
-  const token: Shape2DToken = {
-    type: 'Shape2D',
-    id: 'Bezier',
-    path,
-    render: ctx => {
-      renderPath(
-        ctx,
-        controlled.props,
-        path(),
-        context.origin,
-        context.isHovered(token) || context.isSelected(token),
-      )
-      parenthood.render(ctx)
-      controlled.emit.onRender(ctx)
-    },
-    debug: ctx => {
-      renderPath(ctx, defaultBoundsProps, bounds().path, context.origin, false)
-    },
-    hitTest: event => {
-      parenthood.hitTest(event)
-      if (!event.propagation) return false
-      controlled.emit.onHitTest(event)
-      if (!event.propagation) return false
-      const hit = hitTest(token, event, context, controlled.props)
-      if (hit) {
-        controlled.emit[event.type](event)
-      }
-      return hit
-    },
-  }
-  return token
-})
+    const token: Shape2DToken = {
+      type: 'Shape2D',
+      id: 'Bezier',
+      path,
+      render: ctx => {
+        renderPath(
+          ctx,
+          controlled.props,
+          path(),
+          context.origin,
+          context.isHovered(token) || context.isSelected(token),
+        )
+        parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
+      },
+      debug: ctx => {
+        renderPath(
+          ctx,
+          defaultBoundsProps,
+          bounds().path,
+          context.origin,
+          false,
+        )
+      },
+      hitTest: event => {
+        parenthood.hitTest(event)
+        if (!event.propagation) return false
+        controlled.emit.onHitTest(event)
+        if (!event.propagation) return false
+        const hit = hitTest(token, event, context, controlled.props)
+        if (hit) {
+          controlled.emit[event.type](event)
+        }
+        return hit
+      },
+    }
+    return token
+  },
+)
 
 export { Bezier }

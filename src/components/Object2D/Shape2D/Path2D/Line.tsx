@@ -18,14 +18,13 @@ import { createControlledProps } from 'src/utils/createControlledProps'
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
  */
 
+type LineProps = {
+  points: Position[]
+  close?: boolean
+}
 const Line = createToken(
   parser,
-  (
-    props: Shape2DProps & {
-      points: Position[]
-      close?: boolean
-    },
-  ) => {
+  (props: Shape2DProps<LineProps> & LineProps) => {
     const controlled = createControlledProps(
       mergeShape2DProps(props, {
         close: false,
