@@ -1,6 +1,6 @@
 import { Component } from 'solid-js'
 import { Canvas, Path } from 'src'
-import { createLine } from 'src/path'
+import { createLine } from 'src/d'
 
 const App: Component = () => (
   <Canvas

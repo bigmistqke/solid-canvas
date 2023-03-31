@@ -2,7 +2,7 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 
 import { defaultBoundsProps } from 'src/defaultProps'
 import { parser, Shape2DToken } from 'src/parser'
-import { createCubic } from 'src/path'
+import { createCubic } from 'src/d'
 import { Position, Shape2DProps } from 'src/types'
 import { createBounds } from 'src/utils/createBounds'
 import { createControlledProps } from 'src/utils/createControlledProps'
