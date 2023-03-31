@@ -8,7 +8,9 @@
 
 a solid wrapper around the `Canvas` API
 
-https://user-images.githubusercontent.com/10504064/226027716-6c1653bb-9db9-43ef-9da5-43452530c495.mp4
+<video src="https://user-images.githubusercontent.com/10504064/226027716-6c1653bb-9db9-43ef-9da5-43452530c495.mp4">
+  <img src="https://user-images.githubusercontent.com/10504064/229237662-45553280-aa6c-4681-a1df-c3356b546b08.jpg"/>
+</video>
 
 [source](https://github.com/bigmistqke/solid-canvas/blob/main/dev/pages/rectangles.tsx)
 
@@ -226,8 +228,8 @@ const App = () => (
 - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
 - [x] HoverStyles for `Shape2D`
 - [ ] Navigation
-   - [x] Pan (draggable-prop in `Canvas`)
-   - [ ] Zoom
+  - [x] Pan (draggable-prop in `Canvas`)
+  - [ ] Zoom
 - [x] Controller-prop: callback which can control the props
 - [ ] Handles-controller
   - [x] `Line`
