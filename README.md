@@ -7,7 +7,6 @@
 [![pnpm](https://img.shields.io/badge/maintained%20with-pnpm-cc00ff.svg?style=for-the-badge&logo=pnpm)](https://pnpm.io/)
 
 a solid wrapper around the `Canvas` API
-![226027716-6c1653bb-9db9-43ef-9da5-43452530c495]()
 
 <video src="https://user-images.githubusercontent.com/10504064/226027716-6c1653bb-9db9-43ef-9da5-43452530c495.mp4">
   <img src="https://user-images.githubusercontent.com/10504064/229239216-92c00166-689b-4b85-ae1b-6fdf44ace709.jpg"/>
@@ -124,7 +123,7 @@ const App = () => (
 )
 ```
 
-<video src="https://user-images.githubusercontent.com/10504064/228581332-99389055-2a5e-4afa-8dea-4fa58c27aa27.mp4">
+<video src="https://user-images.githubusercontent.com/10504064/227018274-0a7fb0a5-2189-4bd3-af8b-491522948631.mp4">
   <img src="https://user-images.githubusercontent.com/10504064/229239929-7447b125-7087-45d8-bae3-50fb6cb494ed.jpg"/>
 </video>
 
