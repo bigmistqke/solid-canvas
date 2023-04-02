@@ -222,9 +222,9 @@ const App = () => (
 - [ ] Compositing
   - [ ] `<Group/>` (to 'properly' composite groups we should render to offscreencanvas first)
   - [x] Shape2D
-- [x] Clipping
-  - [x] `<Group/>`
-  - [x] Shape2D (Shape2D inherits from `Group`)
+- [ ] Clipping
+  - [ ] `<Group/>`
+  - [ ] Shape2D (Shape2D inherits from `Group`)
 - [x] Color (for fill/stroke)
   - [x] `<Gradient/>`
   - [x] `<Pattern/>`
@@ -240,18 +240,19 @@ const App = () => (
 - [ ] Navigation
    - [x] Pan (draggable-prop in `Canvas`)
    - [ ] Zoom
-- [x] Controller-prop: callback which can control the props
-- [ ] Handles-controller
+- [x] Controllers-prop: transform props through a series of composable controller-functions 
+- [ ] CurveHandles-controller: edit points of `Path2D`
   - [x] `Line`
   - [x] `Bezier`
   - [x] `Quadratic`
   - [ ] `Rectangle`
   - [ ] `Arc`
+- [ ] TransformHandles-controller: edit transform (position, rotation, scale and skew) of `Object2D`
 - [ ] Nestable `<Canvas/>` to divide scene up for optimization (p.ex static background-canvas and dynamic player-canvas)
 - [ ] OffscreenCanvas / Offscreen-prop: offload rendering to webworker
 - [ ] `HTML` component: easy way to implement html in `Canvas` coordinate system
 - [ ] Masking with `destination-in` [see](https://stackoverflow.com/a/25531787/4366929)
-- [ ] Caching any `Object2D` by rendering result to `OffscreenCanvas`
+- [ ] Caching `Object2D` by rendering result to `OffscreenCanvas`
 
 ## Overal Ambitions / Roadmap
 
