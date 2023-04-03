@@ -1,7 +1,7 @@
 import { InternalContextType } from 'src/context/InternalContext'
 import { defaultBoundsProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { Vector, Shape2DProps } from 'src/types'
 import { createBounds } from 'src/utils/createBounds'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import { createMatrix } from 'src/utils/createMatrix'
@@ -17,7 +17,7 @@ const createPath2D = <T extends unknown>(arg: {
   props: Shape2DProps<T> & T
   defaultProps: Partial<Shape2DProps<T> & T>
   path: (props: Required<Shape2DProps<T> & T>) => Path2D
-  bounds: (props: Required<Shape2DProps<T> & T>) => Position[]
+  bounds: (props: Required<Shape2DProps<T> & T>) => Vector[]
 }) => {
   const controlled = createControlledProps(
     // TODO: fix ts-ignore

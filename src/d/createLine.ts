@@ -1,16 +1,13 @@
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 import { CreatePathParams, PathResult } from './d'
 import { linkTo } from './linkTo'
-function createLine(points: Position[]): PathResult
+function createLine(points: Vector[]): PathResult
 function createLine(
-  values: Position[] | Position,
+  values: Vector[] | Vector,
   previous: CreatePathParams,
 ): PathResult
-function createLine(
-  values: Position[] | Position,
-  previous?: CreatePathParams,
-) {
-  let point: Position
+function createLine(values: Vector[] | Vector, previous?: CreatePathParams) {
+  let point: Vector
   let string = previous?.string ?? ''
   let command = previous?.command ?? 'M'
   values = Array.isArray(values) ? values : [values]

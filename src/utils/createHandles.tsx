@@ -11,25 +11,25 @@ import {
 import { Arc, Group, Line } from 'src'
 import { Drag } from 'src/controllers/Drag'
 import { Object2DToken } from 'src/parser'
-import { CanvasMouseEvent, Position } from 'src/types'
+import { CanvasMouseEvent, Vector } from 'src/types'
 
 type BezierPoint = {
-  point: Position
-  control?: Position
-  oppositeControl?: Position
+  point: Vector
+  control?: Vector
+  oppositeControl?: Vector
 }
 
 type OffsetUpdater = (
   index: number,
-  value: Position,
+  value: Vector,
   type: 'control' | 'point' | 'oppositeControl',
 ) => void
 
 const Handle = (props: {
-  position: Position
+  position: Vector
   children?: JSX.Element | JSX.Element[]
   draggable?: boolean
-  onDragMove?: (position: Position) => void
+  onDragMove?: (position: Vector) => void
 }) => (
   <Group>
     <Arc
@@ -53,8 +53,8 @@ const Handle = (props: {
 )
 
 const VectorHandle = (props: {
-  position: Position
-  updateOffset: (position: Position) => void
+  position: Vector
+  updateOffset: (position: Vector) => void
   draggable?: boolean
 }) => (
   <>
@@ -75,7 +75,7 @@ const VectorHandle = (props: {
 const BezierHandles = (props: {
   index: number
   updateOffset: (
-    position: Position,
+    position: Vector,
     type: 'control' | 'oppositeControl' | 'point',
   ) => void
   value: BezierPoint & { automatic: boolean }
@@ -106,7 +106,7 @@ const BezierHandles = (props: {
   )
 }
 function createLinearHandles(
-  points: Accessor<Position[]>,
+  points: Accessor<Vector[]>,
   editable: Accessor<boolean | undefined>,
 ) {
   const [offsets, setOffsets] = createSignal(

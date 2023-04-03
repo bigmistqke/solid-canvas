@@ -1,4 +1,4 @@
-import { BezierPoint, CubicPoint, Position, QuadraticPoint } from 'src/types'
+import { BezierPoint, CubicPoint, Vector, QuadraticPoint } from 'src/types'
 import { ArcParams } from './createArc'
 import { linkTo } from './linkTo'
 
@@ -23,11 +23,11 @@ export type CreatePathParams = {
       }
     | {
         type: 'Line'
-        values: Position[]
+        values: Vector[]
       }
     | {
         type: 'Move'
-        position: Position
+        position: Vector
       }
     | ({
         type: 'Arc'

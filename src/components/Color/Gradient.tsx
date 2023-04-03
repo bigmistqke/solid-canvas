@@ -4,26 +4,26 @@ import { resolveColor } from 'src/utils/resolveColor'
 
 import { useInternalContext } from 'src/context/InternalContext'
 import { parser } from 'src/parser'
-import { Color, Position } from 'src/types'
+import { Color, Vector } from 'src/types'
 
 type GradientProps = { stops: { offset: number; color: Color }[] } & (
   | {
       type: 'linear'
-      start: Position
-      end: Position
+      start: Vector
+      end: Vector
     }
   | {
       type: 'radial'
-      start: Position
+      start: Vector
       startRadius: number
-      end: Position
+      end: Vector
       endRadius: number
     }
   | {
       type: 'conic'
-      center: Position
+      center: Vector
       startAngle: number
-      end: Position
+      end: Vector
     }
 )
 

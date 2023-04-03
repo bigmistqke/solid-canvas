@@ -23,7 +23,7 @@ import {
   Color,
   Composite,
   CursorStyle,
-  Position,
+  Vector,
 } from 'src/types'
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveColor } from 'src/utils/resolveColor'
@@ -37,7 +37,7 @@ export const Canvas: Component<{
   children: JSX.Element
   style?: JSX.CSSProperties
   fill?: Color
-  origin?: Position
+  origin?: Vector
   alpha?: boolean
   stats?: boolean
   draggable?: boolean
@@ -51,7 +51,7 @@ export const Canvas: Component<{
         opacity?: number
         composite?: Composite
         filter?: string
-        offset?: Position | Accessor<Position>
+        offset?: Vector | Accessor<Vector>
       }
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
@@ -88,7 +88,7 @@ export const Canvas: Component<{
     memory?: { used: number; total: number }
   }>({})
 
-  let lastCursorPosition: Position | undefined
+  let lastCursorPosition: Vector | undefined
   let startRenderTime: number
 
   const canvas = (

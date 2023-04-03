@@ -1,4 +1,4 @@
-import { CubicPoint, Position } from 'src/types'
+import { CubicPoint, Vector } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import { CreatePathParams, PathResult } from './d'
 import { linkTo } from './linkTo'
@@ -12,9 +12,9 @@ function createCubic(
   values: CubicPoint[] | CubicPoint,
   previous?: CreatePathParams,
 ) {
-  let point: Position
-  let control: Position | undefined
-  let oppositeControl: Position | undefined
+  let point: Vector
+  let control: Vector | undefined
+  let oppositeControl: Vector | undefined
   let string = previous?.string ?? ''
   let command = previous?.command ?? 'M'
   let i = 0

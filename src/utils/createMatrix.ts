@@ -1,8 +1,8 @@
 import { Accessor, createMemo } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
-import { Position, Shape2DProps } from 'src/types'
+import { Vector, Shape2DProps } from 'src/types'
 
-const createMatrix = (props: Shape2DProps, origin?: Accessor<Position>) => {
+const createMatrix = (props: Shape2DProps, origin?: Accessor<Vector>) => {
   let matrix: DOMMatrix
   const point = new DOMPoint()
   let offset: DOMPoint

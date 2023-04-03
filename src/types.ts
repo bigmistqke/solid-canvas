@@ -3,7 +3,7 @@ import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 
-export type Position = {
+export type Vector = {
   x: number
   y: number
 }
@@ -79,7 +79,7 @@ export type Object2DProps = {
   /**
    * Defaults to { x: 0, y: 0}
    */
-  position?: Position
+  position?: Vector
   children?: JSX.Element | JSX.Element[]
   opacity?: number
   fill?: ExtendedColor
@@ -125,7 +125,7 @@ type Shape2DStyle = {
   /**
    * Default: { x: 0, y: 0 }
    */
-  position?: Position
+  position?: Vector
   /**
    * Default: { x: 0, y: 0 }
    */
@@ -162,7 +162,7 @@ type Shape2DStyle = {
   shadow?: {
     blur?: number
     color?: Color
-    offset?: Position
+    offset?: Vector
   }
 
   /**
@@ -232,8 +232,8 @@ export type CanvasMouseEventTypes =
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
   type: CanvasMouseEventTypes
-  position: Position
-  delta: Position
+  position: Vector
+  delta: Vector
   propagation: boolean
   target: CanvasToken[]
   cursor: CursorStyle
@@ -242,13 +242,13 @@ export type CanvasMouseEvent = {
 export type BezierPoint = CubicPoint | QuadraticPoint
 
 export type CubicPoint = {
-  point: Position
-  control: Position
-  oppositeControl?: Position
+  point: Vector
+  control: Vector
+  oppositeControl?: Vector
 }
 export type QuadraticPoint = {
-  point: Position
-  control?: Position
+  point: Vector
+  control?: Vector
 }
 
 export type CursorStyle =

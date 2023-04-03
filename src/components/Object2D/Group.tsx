@@ -4,7 +4,7 @@ import { JSX } from 'solid-js/jsx-runtime'
 import { RegisterControllerEvents } from 'src/controllers/controllers'
 import { defaultShape2DProps } from 'src/defaultProps'
 import { CanvasToken, parser } from 'src/parser'
-import { Color, Position, ResolvedShape2DProps } from 'src/types'
+import { Color, Vector, ResolvedShape2DProps } from 'src/types'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
@@ -16,7 +16,7 @@ export type GroupProps = {
   children: SingleOrArray<JSX.Element>
   fill?: Color
   clip?: SingleOrArray<JSX.Element>
-  position?: Position
+  position?: Vector
   controllers?: ((
     props: Accessor<ResolvedShape2DProps<T>>,
     events: RegisterControllerEvents,

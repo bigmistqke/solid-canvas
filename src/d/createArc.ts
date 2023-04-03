@@ -1,12 +1,12 @@
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 import { CreatePathParams } from './d'
 import { linkTo } from './linkTo'
 
 export type ArcParams = {
-  radius: Position | number
+  radius: Vector | number
   position: {
-    start: Position
-    end: Position
+    start: Vector
+    end: Vector
   }
   select?: {
     long?: boolean

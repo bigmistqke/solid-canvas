@@ -1,11 +1,11 @@
-import { Position, ResolvedShape2DProps } from 'src/types'
+import { Vector, ResolvedShape2DProps } from 'src/types'
 import { resolveColor, resolveExtendedColor } from './resolveColor'
 
 export default (
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   props: ResolvedShape2DProps,
   path: Path2D,
-  origin: Position | undefined,
+  origin: Vector | undefined,
   hover: boolean | undefined,
 ) => {
   ctx.save()

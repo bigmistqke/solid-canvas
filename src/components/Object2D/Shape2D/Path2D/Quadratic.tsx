@@ -2,7 +2,7 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 
 import { createQuadratic } from 'src/d/d'
 import { parser } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { Vector, Shape2DProps } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import { createPath2D } from '../../../../utils/createPath2D'
 
@@ -11,7 +11,7 @@ import { createPath2D } from '../../../../utils/createPath2D'
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/bezierCurveTo)
  */
 
-type QuadraticPoints = { point: Position; control?: Position }[]
+type QuadraticPoints = { point: Vector; control?: Vector }[]
 
 export type QuadraticProps = {
   points: QuadraticPoints
@@ -35,7 +35,7 @@ const Quadratic = createToken(
       bounds: props =>
         props.points
           .map((point, i) => {
-            let result: Position[] = [point.point]
+            let result: Vector[] = [point.point]
             if (point.control) {
               const control = addPositions(point.point, point.control)
               const nextPoint = props.points[i + 1]?.point

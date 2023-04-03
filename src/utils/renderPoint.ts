@@ -1,6 +1,6 @@
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 
-const renderPoint = (ctx: CanvasRenderingContext2D, position: Position) => {
+const renderPoint = (ctx: CanvasRenderingContext2D, position: Vector) => {
   ctx.save()
   ctx.beginPath()
   ctx.arc(position.x, position.y, 5, 0, 360)

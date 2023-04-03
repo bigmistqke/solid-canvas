@@ -1,12 +1,12 @@
 import { Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Position, Shape2DProps } from 'src/types'
+import { CanvasMouseEvent, Vector, Shape2DProps } from 'src/types'
 import { createController } from './createController'
 
 type DragOptions = {
   active?: boolean
   controlled?: boolean
-  onDragMove?: (position: Position, event: CanvasMouseEvent) => void
+  onDragMove?: (position: Vector, event: CanvasMouseEvent) => void
 }
 
 const Drag = createController<DragOptions>((props, events, options) => {

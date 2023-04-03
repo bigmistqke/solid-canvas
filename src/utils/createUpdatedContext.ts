@@ -4,12 +4,12 @@ import {
   InternalContextType,
   useInternalContext,
 } from 'src/context/InternalContext'
-import { Position, ResolvedShape2DProps } from 'src/types'
+import { Vector, ResolvedShape2DProps } from 'src/types'
 import { mergeGetters } from './mergeGetters'
 
 const createUpdatedContext = (
   props: Accessor<
-    ResolvedShape2DProps | Omit<GroupProps & { position: Position }, 'children'>
+    ResolvedShape2DProps | Omit<GroupProps & { position: Vector }, 'children'>
   >,
 ) => {
   const internalContext = useInternalContext()
