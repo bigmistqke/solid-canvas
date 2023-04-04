@@ -1,0 +1,3 @@
+const getPositionFromMatrix = () => {}
+
+export { getPositionFromMatrix }

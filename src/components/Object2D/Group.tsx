@@ -1,26 +1,23 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { splitProps, mergeProps, Accessor } from 'solid-js'
+import { Accessor, mergeProps, splitProps } from 'solid-js'
 import { JSX } from 'solid-js/jsx-runtime'
 import { RegisterControllerEvents } from 'src/controllers/controllers'
-import { defaultShape2DProps } from 'src/defaultProps'
 import { CanvasToken, parser } from 'src/parser'
-import { Color, Vector, ResolvedShape2DProps } from 'src/types'
-import { createControlledProps } from 'src/utils/createControlledProps'
+import { Color, ResolvedShape2DProps, Vector } from 'src/types'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
-import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import { SingleOrArray } from 'src/utils/typehelpers'
 import { T } from 'vitest/dist/types-c800444e'
 
 export type GroupProps = {
   children: SingleOrArray<JSX.Element>
   fill?: Color
-  clip?: SingleOrArray<JSX.Element>
+  clip?: Accessor<SingleOrArray<JSX.Element>>
   position?: Vector
   controllers?: ((
-    props: Accessor<ResolvedShape2DProps<T>>,
+    props: Accessor<ResolvedShape2DProps>,
     events: RegisterControllerEvents,
-  ) => Accessor<ResolvedShape2DProps<T>>)[]
+  ) => Accessor<ResolvedShape2DProps>)[]
 }
 
 /**

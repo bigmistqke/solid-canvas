@@ -1,10 +1,10 @@
-import { createContext, Setter, useContext } from 'solid-js'
+import { createContext, useContext } from 'solid-js'
 import { CanvasToken } from 'src/parser'
-import { Vector, CanvasMouseEvent, CursorStyle } from '../types'
+import { CanvasMouseEvent, Matrix } from '../types'
 
 export type InternalContextType = {
   ctx: CanvasRenderingContext2D
-  origin: Vector
+  matrixValues: Matrix
   debug: boolean
   selected: CanvasToken | undefined
   hovered: CanvasToken | undefined

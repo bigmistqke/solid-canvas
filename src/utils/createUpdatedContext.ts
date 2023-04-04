@@ -1,26 +1,25 @@
 import { Accessor } from 'solid-js'
-import { GroupProps } from 'src/components/Object2D/Group'
-import {
-  InternalContextType,
-  useInternalContext,
-} from 'src/context/InternalContext'
-import { Vector, ResolvedShape2DProps } from 'src/types'
+import { useInternalContext } from 'src/context/InternalContext'
+import { Object2DProps, Shape2DProps } from 'src/types'
+import { createMatrix } from './createMatrix'
 import { mergeGetters } from './mergeGetters'
 
-const createUpdatedContext = (
-  props: Accessor<
-    ResolvedShape2DProps | Omit<GroupProps & { position: Vector }, 'children'>
-  >,
-) => {
+const createUpdatedContext = (props: Accessor<Shape2DProps<any>>) => {
   const internalContext = useInternalContext()
-  return mergeGetters(internalContext ?? {}, {
-    get origin() {
+  const matrix = createMatrix(props(), () => internalContext?.matrixValues)
+  return mergeGetters(internalContext, {
+    get matrixValues() {
       return {
-        x: (internalContext?.origin.x ?? 0) + props().position.x,
-        y: (internalContext?.origin.y ?? 0) + props().position.y,
+        a: matrix().a,
+        b: matrix().b,
+        c: matrix().c,
+        d: matrix().d,
+        e: matrix().e,
+        f: matrix().f,
       }
     },
-  }) as InternalContextType
+    // style: props().style,
+  })
 }
 
 export { createUpdatedContext }

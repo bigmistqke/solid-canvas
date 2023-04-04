@@ -1,74 +1,55 @@
-import { Component } from 'solid-js'
-import { Bezier, Canvas, Group, Quadratic, Text } from 'src'
-import { Drag } from 'src/controllers/Drag'
+import { Component, createEffect, createSignal, JSX } from 'solid-js'
+import { Arc, Canvas, createClock, Group, Rectangle } from 'src'
+import { Vector } from 'src/types'
+import { SingleOrArray } from 'src/utils/typehelpers'
+
+const Arm = (props: {
+  position?: Vector
+  rotation?: number
+  length?: number
+  children?: SingleOrArray<JSX.Element>
+}) => {
+  return (
+    <Group
+      position={{ x: props.position?.x ?? 0, y: (props.position?.y ?? 0) + 5 }}
+      rotation={props.rotation ?? 0}
+    >
+      <Rectangle
+        position={{ x: 0, y: -5 }}
+        dimensions={{ width: props.length ?? 100, height: 10 }}
+        fill="white"
+      >
+        <Arc position={{ x: -5, y: -5 }} fill="black" />
+        <Group position={{ x: props.length ?? 100, y: 0 }}>
+          {props.children}
+        </Group>
+      </Rectangle>
+    </Group>
+  )
+}
 
 const App: Component = () => {
+  /* const [time, setTime] = createSignal(180)
+  setInterval(() => setTime(t => t + 1), 100) */
+
+  const clock = createClock()
+  clock.start()
+
+  // createEffect(() => console.log('time', time()))
+
   return (
     <>
-      <Canvas
-        style={{ width: '100%', height: '100%' }}
-        alpha
-        draggable
-        origin={{ x: 200, y: 0 }}
-      >
-        <Bezier
-          position={{ x: 100, y: 100 }}
-          points={[
-            { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
-            {
-              point: { x: 100, y: 100 },
-              control: { x: -50, y: 0 },
-              oppositeControl: { x: 50, y: 0 },
-            },
-            { point: { x: 200, y: 0 }, control: { x: 0, y: 50 } },
-          ]}
-          hoverStyle={{
-            stroke: 'yellow',
-          }}
-          editable
-          controllers={[
-            Drag({
-              active: true,
-              onDragMove: position => console.log('dragging', position),
-            }),
-          ]}
-        />
-        <Bezier
-          position={{ x: 100, y: 500 }}
-          points={[
-            { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
-            {
-              point: { x: 100, y: 100 },
-              control: { x: -50, y: 0 },
-              oppositeControl: { x: 50, y: 0 },
-            },
-            { point: { x: 200, y: 0 }, control: { x: 0, y: 50 } },
-          ]}
-          hoverStyle={{
-            stroke: 'yellow',
-          }}
-          editable
-          controllers={[Drag({ active: true })]}
-        />
-        <Group>
-          <Bezier
-            position={{ x: 300, y: 500 }}
-            points={[
-              { point: { x: 0, y: 0 }, control: { x: 0, y: 50 } },
-              {
-                point: { x: 100, y: 100 },
-                control: { x: -50, y: 0 },
-                oppositeControl: { x: 50, y: 0 },
-              },
-              { point: { x: 200, y: 0 }, control: { x: 0, y: 50 } },
-            ]}
-            hoverStyle={{
-              stroke: 'yellow',
-            }}
-            editable
-            controllers={[Drag({ active: true })]}
-          />
-        </Group>
+      <Canvas style={{ width: '100%', height: '100%' }} alpha draggable>
+        <Arm rotation={180 - clock.clock()} position={{ x: 400, y: 300 }}>
+          <Arm rotation={180 - clock.clock()}>
+            <Arm rotation={180 - clock.clock()} />
+          </Arm>
+        </Arm>
+        <Arm rotation={clock.clock()} position={{ x: 850, y: 300 }}>
+          <Arm rotation={clock.clock()}>
+            <Arm rotation={clock.clock()} />
+          </Arm>
+        </Arm>
       </Canvas>
     </>
   )

@@ -3,6 +3,15 @@ import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 
+export type Matrix = {
+  a: number
+  b: number
+  c: number
+  d: number
+  e: number
+  f: number
+}
+
 export type Vector = {
   x: number
   y: number
@@ -80,11 +89,11 @@ export type Object2DProps = {
    * Defaults to { x: 0, y: 0}
    */
   position?: Vector
-  children?: JSX.Element | JSX.Element[]
+  children?: SingleOrArray<JSX.Element>
   opacity?: number
   fill?: ExtendedColor
   composite?: Composite
-  clip?: Accessor<JSX.Element | JSX.Element[]>
+  clip?: Accessor<SingleOrArray<JSX.Element>>
   background?: Color
   padding?: number
   // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
@@ -197,11 +206,11 @@ export type Shape2DProps<T = Object> = Shape2DStyle &
      */
     hoverStyle?: Shape2DStyle
 
-    children?: JSX.Element | JSX.Element[]
+    children?: SingleOrArray<JSX.Element>
     opacity?: number
     fill?: ExtendedColor
     composite?: Composite
-    clip?: Accessor<JSX.Element | JSX.Element[]>
+    clip?: Accessor<SingleOrArray<JSX.Element>>
     controllers?: ((
       props: Accessor<T | Shape2DProps<T>>,
       events: RegisterControllerEvents,

@@ -14,12 +14,7 @@ export default (
   if (props.pointerEvents === false) return false
 
   internalContext.ctx.save()
-  if (origin) {
-    internalContext.ctx.translate(
-      internalContext.origin.x,
-      internalContext.origin.y,
-    )
-  }
+
   // NOTE:  minimal thickness of 5
   internalContext.ctx.lineWidth = props.lineWidth < 20 ? 20 : props.lineWidth
   const hit = isPointInShape2D(event, props, token.path())

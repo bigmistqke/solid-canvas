@@ -5,7 +5,6 @@ export default (
   ctx: CanvasRenderingContext2D | OffscreenCanvasRenderingContext2D,
   props: ResolvedShape2DProps,
   path: Path2D,
-  origin: Vector | undefined,
   hover: boolean | undefined,
 ) => {
   ctx.save()
@@ -18,11 +17,6 @@ export default (
 
   if (props.composite) ctx.globalCompositeOperation = props.composite
   if (props.opacity) ctx.globalAlpha = props.opacity
-
-  if (origin) {
-    // ctx.moveTo(origin.x, origin.y)
-    ctx.translate(origin.x, origin.y)
-  }
 
   ctx.strokeStyle = resolveExtendedColor(props.stroke) ?? 'black'
   ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'

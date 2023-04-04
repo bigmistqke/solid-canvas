@@ -1,20 +1,22 @@
-import { InternalContextType } from 'src/context/InternalContext'
+import { createEffect } from 'solid-js'
+import { useInternalContext } from 'src/context/InternalContext'
 import { defaultBoundsProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
-import { Vector, Shape2DProps } from 'src/types'
+import { Shape2DProps, Vector } from 'src/types'
 import { createBounds } from 'src/utils/createBounds'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import { createMatrix } from 'src/utils/createMatrix'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createTransformedPath } from 'src/utils/createTransformedPath'
-import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import hitTest from 'src/utils/hitTest'
 import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import renderPath from 'src/utils/renderPath'
+import { createUpdatedContext } from './createUpdatedContext'
+import { mergeGetters } from './mergeGetters'
 
 const createPath2D = <T extends unknown>(arg: {
   id: string
-  props: Shape2DProps<T> & T
+  props: Shape2DProps<T>
   defaultProps: Partial<Shape2DProps<T> & T>
   path: (props: Required<Shape2DProps<T> & T>) => Path2D
   bounds: (props: Required<Shape2DProps<T> & T>) => Vector[]
@@ -25,11 +27,27 @@ const createPath2D = <T extends unknown>(arg: {
     mergeShape2DProps(arg.props, arg.defaultProps),
   )
 
-  // TODO: fix typecast to any
-  const context = createUpdatedContext(() => controlled.props as any)
+  const internalContext = useInternalContext()
+  const matrix = createMatrix(
+    controlled.props,
+    () => internalContext?.matrixValues,
+  )
+
+  const context = mergeGetters(internalContext, {
+    get matrixValues() {
+      return {
+        a: matrix().a,
+        b: matrix().b,
+        c: matrix().c,
+        d: matrix().d,
+        e: matrix().e,
+        f: matrix().f,
+      }
+    },
+  })
+
   const parenthood = createParenthood(arg.props, context)
 
-  const matrix = createMatrix(controlled.props)
   const transformedPath = createTransformedPath(
     () => arg.path(controlled.props as any),
     matrix,
@@ -46,17 +64,16 @@ const createPath2D = <T extends unknown>(arg: {
     path: transformedPath,
     render: ctx => {
       renderPath(
-        ctx,
+        context.ctx,
         controlled.props,
         transformedPath(),
-        context.origin,
         context.isHovered(token) || context.isSelected(token),
       )
       parenthood.render(ctx)
       controlled.emit.onRender(ctx)
     },
     debug: ctx => {
-      renderPath(ctx, defaultBoundsProps, bounds().path, context.origin, false)
+      renderPath(ctx, defaultBoundsProps, bounds().path, false)
     },
     hitTest: event => {
       parenthood.hitTest(event)
