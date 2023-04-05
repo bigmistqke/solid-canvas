@@ -134,7 +134,7 @@ export type Transforms = {
   /**
    * Default: 0
    */
-  skew?: Vector
+  skew?: Partial<Vector>
 }
 
 type Shape2DStyle = {

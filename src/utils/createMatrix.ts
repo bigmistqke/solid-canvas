@@ -20,8 +20,8 @@ const createMatrix = (props: Shape2DProps, context?: InternalContextType) => {
       matrix.f = context?.matrix.f ?? 0
 
       matrix.translateSelf(props.position?.x, props.position?.y)
-      matrix.skewXSelf(props.skewX)
-      matrix.skewYSelf(props.skewY)
+      matrix.skewXSelf(props.skew?.x)
+      matrix.skewYSelf(props.skew?.y)
 
       // NOTE:  skewing causes a horizontal/vertical offset
       /* point.x = origin?.().x ?? 0
