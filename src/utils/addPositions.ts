@@ -1,8 +1,8 @@
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 
-const addPositions = <T extends Position | undefined>(...args: T[]): T => {
-  let result!: undefined | Position
-  let arg: Position | undefined
+const addPositions = <T extends Vector | undefined>(...args: T[]): T => {
+  let result!: undefined | Vector
+  let arg: Vector | undefined
 
   for (arg of args) {
     if (!arg) return undefined as T

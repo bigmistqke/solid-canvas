@@ -19,10 +19,10 @@ const Arm = (props: {
         dimensions={{ width: props.length ?? 100, height: 10 }}
         fill="white"
       >
-        <Arc position={{ x: -5, y: -5 }} fill="black" />
         <Group position={{ x: props.length ?? 100, y: 0 }}>
           {props.children}
         </Group>
+        <Arc position={{ x: -5, y: -5 }} fill="black" />
       </Rectangle>
     </Group>
   )
@@ -45,11 +45,11 @@ const App: Component = () => {
             <Arm rotation={180 - clock.clock()} />
           </Arm>
         </Arm>
-        <Arm rotation={clock.clock()} position={{ x: 850, y: 300 }}>
+        {/* <Arm rotation={clock.clock()} position={{ x: 850, y: 300 }}>
           <Arm rotation={clock.clock()}>
             <Arm rotation={clock.clock()} />
           </Arm>
-        </Arm>
+        </Arm> */}
       </Canvas>
     </>
   )

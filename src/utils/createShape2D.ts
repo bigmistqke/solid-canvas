@@ -46,7 +46,7 @@ const createShape2D = <
   // TODO:  fix any
   arg.setup(controlled.props as any, context, matrix())
 
-  const [shapeProps] = splitProps(arg.props, ['rotation', 'skewY', 'skewX'])
+  const [shapeProps] = splitProps(arg.props, ['rotation', 'skew'])
   const rectangleProps = mergeGetters(shapeProps, {
     get dimensions() {
       return arg.dimensions

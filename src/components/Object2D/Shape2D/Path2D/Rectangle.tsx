@@ -5,10 +5,9 @@ import { Dimensions, Shape2DProps } from 'src/types'
 import { createPath2D } from '../../../../utils/createPath2D'
 
 export type RectangleProps = {
-  dimensions: Dimensions
-  onMouseEnter?: () => void
-  onMouseLeave?: () => void
+  dimensions?: Dimensions
   rounded?:
+    | false
     | number
     | [all: number]
     | [topLeftAndBottomRight: number, topRightAndBottomLeft: number]
@@ -28,6 +27,7 @@ const Rectangle = createToken(
       props,
       defaultProps: {
         dimensions: { width: 10, height: 10 },
+        rounded: false,
       },
       path: props => {
         const path = new Path2D()

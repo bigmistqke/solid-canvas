@@ -1,13 +1,14 @@
-import { mergeProps, splitProps } from 'solid-js'
+import { splitProps } from 'solid-js'
 import { defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DProps } from 'src/types'
+import { mergeGetters } from './mergeGetters'
+import { RequireOptionals } from './typehelpers'
 
-// TODO:   we have to think a bit more through how to type these arguments/returntype
-function mergeShape2DProps<
-  T extends Record<string, unknown>,
-  U extends { [K in keyof T]: T[K] },
->(props: Shape2DProps<T>, defaults: Partial<U>) {
-  ;[, props] = splitProps(props, ['children'])
-  return mergeProps({ ...defaultShape2DProps, ...defaults }, props)
+function mergeShape2DProps<T extends Record<string, unknown>>(
+  props: Shape2DProps<T> & T,
+  defaults: RequireOptionals<T>,
+) {
+  const [, _props] = splitProps(props, ['children'])
+  return mergeGetters({ ...defaultShape2DProps, ...defaults }, _props)
 }
 export { mergeShape2DProps }

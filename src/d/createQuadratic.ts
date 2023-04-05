@@ -1,4 +1,4 @@
-import { Position, QuadraticPoint } from 'src/types'
+import { Vector, QuadraticPoint } from 'src/types'
 import addPositions from 'src/utils/addPositions'
 import { CreatePathParams, PathResult } from './d'
 import { linkTo } from './linkTo'
@@ -13,8 +13,8 @@ function createQuadratic(
   previous?: CreatePathParams,
 ) {
   let value: QuadraticPoint
-  let point: Position
-  let control: Position | undefined
+  let point: Vector
+  let control: Vector | undefined
   let command = previous?.command ?? 'M'
   let string = previous?.string ?? ''
   let i = 0
@@ -32,7 +32,7 @@ function createQuadratic(
       string += `M${point.x},${point.y} Q${control.x},${control.y} `
       command = 'Q'
     } else {
-      point = value.point as Position
+      point = value.point as Vector
       control = addPositions(value.control, point)
 
       if (control && command !== 'Q') {

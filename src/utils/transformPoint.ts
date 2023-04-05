@@ -1,4 +1,4 @@
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 
-export default (position: Position, matrix: DOMMatrix) =>
+export default (position: Vector, matrix: DOMMatrix) =>
   new DOMPoint(position.x, position.y).matrixTransform(matrix)

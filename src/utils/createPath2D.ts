@@ -1,73 +1,85 @@
-import { InternalContextType } from 'src/context/InternalContext'
-import { defaultBoundsProps } from 'src/defaultProps'
+import { createMemo } from 'solid-js'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import {
+  CanvasMouseEventListener,
+  ResolvedShape2DProps,
+  Shape2DProps,
+  Vector,
+} from 'src/types'
 import { createBounds } from 'src/utils/createBounds'
 import { createControlledProps } from 'src/utils/createControlledProps'
-import { createMatrix } from 'src/utils/createMatrix'
 import { createParenthood } from 'src/utils/createParenthood'
-import { createTransformedPath } from 'src/utils/createTransformedPath'
-import { createUpdatedContext } from 'src/utils/createUpdatedContext'
-import hitTest from 'src/utils/hitTest'
 import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import renderPath from 'src/utils/renderPath'
+import { createUpdatedContext } from './createUpdatedContext'
+import { isPointInShape2D } from './isPointInShape2D'
+import { mergeGetters } from './mergeGetters'
+import { RequireOptionals, SingleOrArray } from './typehelpers'
 
-const createPath2D = <T extends unknown>(arg: {
+const createPath2D = <T extends { [key: string]: any }>(arg: {
   id: string
   props: Shape2DProps<T> & T
-  defaultProps: Partial<Shape2DProps<T> & T>
-  path: (props: Required<Shape2DProps<T> & T>) => Path2D
-  bounds: (props: Required<Shape2DProps<T> & T>) => Position[]
+  defaultProps: RequireOptionals<T>
+  path: (props: Required<T> & ResolvedShape2DProps<T>) => Path2D
+  bounds: (props: Required<T> & ResolvedShape2DProps<T>) => Vector[]
 }) => {
-  const controlled = createControlledProps(
-    // TODO: fix ts-ignore
-    // @ts-ignore
-    mergeShape2DProps(arg.props, arg.defaultProps),
-  )
-
-  // TODO: fix typecast to any
-  const context = createUpdatedContext(() => controlled.props as any)
+  const props = mergeGetters(
+    { ...defaultShape2DProps, ...arg.defaultProps },
+    arg.props,
+  ) as Required<T> & ResolvedShape2DProps<T>
+  const controlled = createControlledProps(props)
+  const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
+  const path = createMemo(() => arg.path(controlled.props))
 
-  const matrix = createMatrix(controlled.props)
-  const transformedPath = createTransformedPath(
-    () => arg.path(controlled.props as any),
-    matrix,
-  )
-  const bounds = createBounds(
-    // TODO: fix typecast to any
-    () => arg.bounds(controlled.props as any),
-    matrix,
-  )
+  const bounds = createBounds(() => arg.bounds(controlled.props), context)
 
   const token: Shape2DToken = {
     type: 'Shape2D',
     id: arg.id,
-    path: transformedPath,
+    path,
     render: ctx => {
       renderPath(
-        ctx,
+        context,
         controlled.props,
-        transformedPath(),
-        context.origin,
+        path(),
         context.isHovered(token) || context.isSelected(token),
       )
       parenthood.render(ctx)
       controlled.emit.onRender(ctx)
     },
     debug: ctx => {
-      renderPath(ctx, defaultBoundsProps, bounds().path, context.origin, false)
+      renderPath(context, defaultBoundsProps, bounds().path, false)
     },
     hitTest: event => {
       parenthood.hitTest(event)
       if (!event.propagation) return false
       controlled.emit.onHitTest(event)
       if (!event.propagation) return false
-      // TODO: fix typecast to any
-      const hit = hitTest(token, event, context, controlled.props)
+      if (controlled.props.pointerEvents === false) return false
+
+      context.ctx.save()
+      context.ctx.setTransform(context.matrix)
+      // NOTE:  minimal thickness of 5
+      context.ctx.lineWidth =
+        controlled.props.lineWidth < 20 ? 20 : controlled.props.lineWidth
+      const hit = isPointInShape2D(event, controlled.props, path())
       if (hit) {
+        let listeners = controlled.props[
+          event.type
+        ] as SingleOrArray<CanvasMouseEventListener>
+
+        if (listeners) {
+          if (Array.isArray(listeners)) listeners.forEach(l => l(event))
+          else listeners(event)
+        }
+        event.target.push(token)
+        if (controlled.props.cursor) event.cursor = controlled.props.cursor
         controlled.emit[event.type](event)
       }
+      context.ctx.restore()
+
       return hit
     },
   }

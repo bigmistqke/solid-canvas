@@ -7,14 +7,12 @@ import {
   createSignal,
   JSX,
   on,
-  onCleanup,
   onMount,
   Show,
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { InternalContext } from 'src/context/InternalContext'
-import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
 import {
@@ -23,8 +21,9 @@ import {
   Color,
   Composite,
   CursorStyle,
-  Position,
+  Vector,
 } from 'src/types'
+import { createMatrix } from 'src/utils/createMatrix'
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
@@ -37,7 +36,11 @@ export const Canvas: Component<{
   children: JSX.Element
   style?: JSX.CSSProperties
   fill?: Color
-  origin?: Position
+  origin?: {
+    position: Vector
+    skew: Vector
+    rotation: number
+  }
   alpha?: boolean
   stats?: boolean
   draggable?: boolean
@@ -51,7 +54,7 @@ export const Canvas: Component<{
         opacity?: number
         composite?: Composite
         filter?: string
-        offset?: Position | Accessor<Position>
+        offset?: Vector | Accessor<Vector>
       }
   onMouseDown?: (event: CanvasMouseEvent) => void
   onMouseMove?: (event: CanvasMouseEvent) => void
@@ -62,7 +65,9 @@ export const Canvas: Component<{
     width: window.innerWidth,
     height: window.innerHeight,
   })
-  const [origin, setOrigin] = createSignal({ x: 0, y: 0 })
+
+  const [originPosition, setOriginPosition] = createSignal({ x: 0, y: 0 })
+
   const [cursorStyle, setCursorStyle] = createSignal<CursorStyle>('default')
   const [eventListeners, setEventListeners] = createStore<
     Record<CanvasMouseEventTypes, ((event: CanvasMouseEvent) => void)[]>
@@ -88,7 +93,7 @@ export const Canvas: Component<{
     memory?: { used: number; total: number }
   }>({})
 
-  let lastCursorPosition: Position | undefined
+  let lastCursorPosition: Vector | undefined
   let startRenderTime: number
 
   const canvas = (
@@ -109,6 +114,8 @@ export const Canvas: Component<{
 
   const frameQueue = new Set<(args: { clock: number }) => void>()
 
+  const matrix = createMatrix(props)
+
   const tokens = resolveTokens(
     parser,
     withContext(
@@ -121,13 +128,8 @@ export const Canvas: Component<{
             get debug() {
               return !!props.debug
             },
-            get origin() {
-              return props.origin
-                ? {
-                    x: origin().x + props.origin.x,
-                    y: origin().y + props.origin.y,
-                  }
-                : origin()
+            get matrix() {
+              return matrix()
             },
             get selected() {
               return selectedToken()
@@ -159,7 +161,7 @@ export const Canvas: Component<{
             },
           },
         },
-        {
+        /* {
           context: UserContext,
           value: {
             onFrame: (callback: (args: { clock: number }) => void) => {
@@ -167,7 +169,7 @@ export const Canvas: Component<{
               onCleanup(() => frameQueue.delete(callback))
             },
           },
-        },
+        }, */
       ],
     ),
   )
@@ -314,7 +316,7 @@ export const Canvas: Component<{
 
   const initPan = () => {
     const handleMouseMove = (event: MouseEvent) => {
-      setOrigin(position => ({
+      setOriginPosition(position => ({
         x: position.x + event.movementX,
         y: position.y + event.movementY,
       }))
@@ -338,8 +340,8 @@ export const Canvas: Component<{
       props.onMouseDown?.({
         ...event,
         position: {
-          x: event.position.x - origin().x,
-          y: event.position.y - origin().y,
+          x: event.position.x - originPosition().x,
+          y: event.position.y - originPosition().y,
         },
       })
     })

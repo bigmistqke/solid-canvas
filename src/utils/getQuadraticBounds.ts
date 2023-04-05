@@ -1,4 +1,4 @@
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 
 function solveB2(a: number, b: number, c: number) {
   var ba = b - a
@@ -36,7 +36,7 @@ const getQuadraticBounds = (
   // solve for bounds
   var ux = solveB2(x1, x2, x3)
   var uy = solveB2(y1, y2, y3)
-  let px, py: Position
+  let px, py: Vector
   if (ux >= 0 && ux <= 1) {
     px = findPoint(ux, x1, y1, x2, y2, x3, y3)
   } else {

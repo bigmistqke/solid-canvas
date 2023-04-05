@@ -1,10 +1,10 @@
-import { CubicPoint, Position, QuadraticPoint } from 'src/types'
+import { CubicPoint, Vector, QuadraticPoint } from 'src/types'
 import { createCubic, CreatePathParams } from './d'
 import { ArcParams, createArc } from './createArc'
 import { createLine } from './createLine'
 import { createQuadratic } from './createQuadratic'
 
-const moveTo = (position: Position, previous: CreatePathParams) => {
+const moveTo = (position: Vector, previous: CreatePathParams) => {
   let string = previous.string ?? ''
   string += `M ${position.x},${position.y} `
   return linkTo({
@@ -19,9 +19,9 @@ const linkTo = (arg: CreatePathParams) => ({
   toQuadratic: (points: QuadraticPoint[] | QuadraticPoint) =>
     createQuadratic(points, arg),
   toCubic: (points: CubicPoint[] | CubicPoint) => createCubic(points, arg),
-  toLine: (points: Position[] | Position) => createLine(points, arg),
+  toLine: (points: Vector[] | Vector) => createLine(points, arg),
   toArc: (options: ArcParams) => createArc(options, arg),
-  to: (position: Position) => moveTo(position, arg),
+  to: (position: Vector) => moveTo(position, arg),
 })
 
 export { linkTo }

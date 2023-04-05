@@ -1,6 +1,6 @@
 import { createLazyMemo } from '@solid-primitives/memo'
 import { mapArray, createSignal, Accessor } from 'solid-js'
-import { BezierPoint, CubicPoint, Position } from 'src/types'
+import { BezierPoint, CubicPoint, Vector } from 'src/types'
 import addPositions from './addPositions'
 import invertPosition from './invertPosition'
 
@@ -13,18 +13,18 @@ const createProcessedPoints = (
 
   const points = createLazyMemo(
     mapArray(inputs, (value, index) => {
-      const [offsetPoint, setOffsetPoint] = createSignal<Position>({
+      const [offsetPoint, setOffsetPoint] = createSignal<Vector>({
         x: 0,
         y: 0,
       })
       const [offsetControl, setOffsetControl] = createSignal<
-        Position | undefined
+        Vector | undefined
       >({
         x: 0,
         y: 0,
       })
       const [offsetOppositeControl, setOffsetOppositeControl] = createSignal<
-        Position | undefined
+        Vector | undefined
       >({
         x: 0,
         y: 0,
@@ -45,7 +45,7 @@ const createProcessedPoints = (
        *
        */
 
-      const control: Accessor<Position | undefined> = createLazyMemo(() => {
+      const control: Accessor<Vector | undefined> = createLazyMemo(() => {
         if (type === 'cubic')
           return addPositions(value.control, offsetControl())
         if (index() === inputs().length - 1) return undefined
@@ -54,7 +54,7 @@ const createProcessedPoints = (
           : addPositions(value.control, offsetControl())
       })
 
-      const oppositeControl: Accessor<Position | undefined> = createLazyMemo(
+      const oppositeControl: Accessor<Vector | undefined> = createLazyMemo(
         () => {
           if (type === 'cubic') {
             if (index() === 0 || index() === inputs().length - 1)

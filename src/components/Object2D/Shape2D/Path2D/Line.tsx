@@ -1,11 +1,11 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 
 import { parser } from 'src/parser'
-import { Position, Shape2DProps } from 'src/types'
+import { Vector, Shape2DProps } from 'src/types'
 import { createPath2D } from '../../../../utils/createPath2D'
 
 type LineProps = {
-  points: Position[]
+  points: Vector[]
   close?: boolean
 }
 

@@ -1,5 +1,5 @@
 import { createSignal } from 'solid-js'
-import { CanvasMouseEvent, Position, Shape2DProps } from 'src/types'
+import { CanvasMouseEvent, Vector, Shape2DProps } from 'src/types'
 
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, For, Index, JSX, Show, untrack } from 'solid-js'
@@ -18,29 +18,29 @@ import { QuadraticProps } from 'src/components/Object2D/Shape2D/Path2D/Quadratic
 import { BezierProps } from 'src/components/Object2D/Shape2D/Path2D/Bezier'
 
 type CubicPoint = {
-  point: Position
-  control: Position
-  oppositeControl?: Position
+  point: Vector
+  control: Vector
+  oppositeControl?: Vector
 }
 
 type QuadraticPoint = {
-  point: Position
-  control?: Position
+  point: Vector
+  control?: Vector
 }
 
 type BezierPoint = CubicPoint | QuadraticPoint
 
 type OffsetUpdater = (
   index: number,
-  value: Position,
+  value: Vector,
   type: 'control' | 'point' | 'oppositeControl',
 ) => void
 
 const Handle = (props: {
-  position: Position
+  position: Vector
   children?: JSX.Element | JSX.Element[]
   draggable?: boolean
-  onDragMove?: (position: Position) => void
+  onDragMove?: (position: Vector) => void
 }) => (
   <Group position={{ x: props.position.x - 10, y: props.position.y - 10 }}>
     <Arc
@@ -69,8 +69,8 @@ const Handle = (props: {
 )
 
 const VectorHandle = (props: {
-  position: Position
-  updateOffset: (position: Position) => void
+  position: Vector
+  updateOffset: (position: Vector) => void
   draggable?: boolean
 }) => (
   <>
@@ -91,7 +91,7 @@ const VectorHandle = (props: {
 const BezierHandles = (props: {
   index: number
   updateOffset: (
-    position: Position,
+    position: Vector,
     type: 'control' | 'oppositeControl' | 'point',
   ) => void
   value: BezierPoint & { automatic: boolean }
@@ -165,8 +165,8 @@ const constructBezierHandle = (props: any, events: any, options: any) => {
     mergeGetters(internalContext!, {
       get origin() {
         return {
-          x: (internalContext?.origin.x ?? 0) + props().position.x,
-          y: (internalContext?.origin.y ?? 0) + props().position.y,
+          x: (internalContext?.matrix.e ?? 0) + props().position.x,
+          y: (internalContext?.matrix.f ?? 0) + props().position.y,
         }
       },
     }),

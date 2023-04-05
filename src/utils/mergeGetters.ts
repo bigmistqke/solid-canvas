@@ -6,6 +6,6 @@ function mergeGetters<A, B>(a: A, b: B) {
       ...Object.getOwnPropertyDescriptors(b ?? {}),
     },
   )
-  return result as A & B
+  return result as A & Omit<B, keyof A>
 }
 export { mergeGetters }

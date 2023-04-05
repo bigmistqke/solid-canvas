@@ -3,7 +3,16 @@ import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 
-export type Position = {
+export type Matrix = {
+  a: number
+  b: number
+  c: number
+  d: number
+  e: number
+  f: number
+}
+
+export type Vector = {
   x: number
   y: number
 }
@@ -75,16 +84,16 @@ export type Composite =
   | 'difference'
   | 'exclusion'
 
-export type Object2DProps = {
+export type Object2DProps = Transforms & {
   /**
    * Defaults to { x: 0, y: 0}
    */
-  position?: Position
-  children?: JSX.Element | JSX.Element[]
+  position?: Vector
+  children?: SingleOrArray<JSX.Element>
   opacity?: number
   fill?: ExtendedColor
   composite?: Composite
-  clip?: Accessor<JSX.Element | JSX.Element[]>
+  clip?: Accessor<SingleOrArray<JSX.Element>>
   background?: Color
   padding?: number
   // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
@@ -113,6 +122,21 @@ type Shape2DEvents = {
   onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
 }
 
+export type Transforms = {
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  position?: Vector
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  rotation?: number
+  /**
+   * Default: 0
+   */
+  skew?: Partial<Vector>
+}
+
 type Shape2DStyle = {
   /**
    * Default: 'transparent'
@@ -122,22 +146,6 @@ type Shape2DStyle = {
    * Default: 'black'.
    */
   stroke?: ExtendedColor
-  /**
-   * Default: { x: 0, y: 0 }
-   */
-  position?: Position
-  /**
-   * Default: { x: 0, y: 0 }
-   */
-  rotation?: number
-  /**
-   * Default: 0
-   */
-  skewX?: number
-  /**
-   * Default: 0
-   */
-  skewY?: number
   /**
    * Default: 2
    */
@@ -162,7 +170,7 @@ type Shape2DStyle = {
   shadow?: {
     blur?: number
     color?: Color
-    offset?: Position
+    offset?: Vector
   }
 
   /**
@@ -176,7 +184,8 @@ type Shape2DStyle = {
   opacity?: number
 }
 
-export type Shape2DProps<T = Object> = Shape2DStyle &
+export type Shape2DProps<T = Object> = Transforms &
+  Shape2DStyle &
   Shape2DEvents & {
     /**
      * Ignore all pointer-events. Default: false
@@ -197,13 +206,13 @@ export type Shape2DProps<T = Object> = Shape2DStyle &
      */
     hoverStyle?: Shape2DStyle
 
-    children?: JSX.Element | JSX.Element[]
+    children?: SingleOrArray<JSX.Element>
     opacity?: number
     fill?: ExtendedColor
     composite?: Composite
-    clip?: Accessor<JSX.Element | JSX.Element[]>
+    clip?: Accessor<SingleOrArray<JSX.Element>>
     controllers?: ((
-      props: Accessor<T | Shape2DProps<T>>,
+      props: Accessor<T | Omit<Shape2DProps, 'controllers'>>,
       events: RegisterControllerEvents,
     ) => T | Shape2DProps<T>)[]
   }
@@ -232,23 +241,25 @@ export type CanvasMouseEventTypes =
 export type CanvasMouseEvent = {
   ctx: CanvasRenderingContext2D
   type: CanvasMouseEventTypes
-  position: Position
-  delta: Position
+  position: Vector
+  delta: Vector
   propagation: boolean
   target: CanvasToken[]
   cursor: CursorStyle
 }
 
+export type CanvasMouseEventListener = (event: CanvasMouseEvent) => void
+
 export type BezierPoint = CubicPoint | QuadraticPoint
 
 export type CubicPoint = {
-  point: Position
-  control: Position
-  oppositeControl?: Position
+  point: Vector
+  control: Vector
+  oppositeControl?: Vector
 }
 export type QuadraticPoint = {
-  point: Position
-  control?: Position
+  point: Vector
+  control?: Vector
 }
 
 export type CursorStyle =

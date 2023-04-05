@@ -1,9 +1,9 @@
 import { Accessor, createMemo } from 'solid-js'
-import { useInternalContext } from 'src/context/InternalContext'
+import { InternalContextType } from 'src/context/InternalContext'
 
 const createBounds = (
   points: Accessor<{ x: number; y: number }[]>,
-  matrix: Accessor<DOMMatrix>,
+  context: InternalContextType,
 ) => {
   let dimensions: { width: number; height: number }
   let position: { x: number; y: number }
@@ -32,7 +32,7 @@ const createBounds = (
     }
 
     points().forEach(({ x, y }) => {
-      point = new DOMPoint(x, y).matrixTransform(matrix())
+      point = new DOMPoint(x, y).matrixTransform(context.matrix)
       if (point.x < bounds.x.min) bounds.x.min = x
       if (point.x > bounds.x.max) bounds.x.max = x
       if (point.y < bounds.y.min) bounds.y.min = y

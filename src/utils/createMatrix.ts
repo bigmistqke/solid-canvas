@@ -1,30 +1,44 @@
-import { Accessor, createMemo } from 'solid-js'
-import { useInternalContext } from 'src/context/InternalContext'
-import { Position, Shape2DProps } from 'src/types'
+import { Accessor, createMemo, on } from 'solid-js'
+import { InternalContextType } from 'src/context/InternalContext'
+import { Matrix, Shape2DProps } from 'src/types'
 
-const createMatrix = (props: Shape2DProps, origin?: Accessor<Position>) => {
-  let matrix: DOMMatrix
-  const point = new DOMPoint()
+const createMatrix = (props: Shape2DProps, context?: InternalContextType) => {
+  let matrix = new DOMMatrix()
+  /* const point = new DOMPoint()
   let offset: DOMPoint
-  const context = useInternalContext()
+  const context = useInternalContext() */
 
-  return createMemo(() => {
-    matrix = new DOMMatrix()
+  return createMemo(
+    () => {
+      // matrix.setMatrixValue('')
+      // matrix.setMatrixValue(origin?.()?.toString() ?? '')
+      matrix.a = context?.matrix.a ?? 1
+      matrix.b = context?.matrix.b ?? 0
+      matrix.c = context?.matrix.c ?? 0
+      matrix.d = context?.matrix.d ?? 1
+      matrix.e = context?.matrix.e ?? 0
+      matrix.f = context?.matrix.f ?? 0
 
-    matrix.skewXSelf(props.skewX)
-    matrix.skewYSelf(props.skewY)
+      matrix.translateSelf(props.position?.x, props.position?.y)
+      matrix.skewXSelf(props.skew?.x)
+      matrix.skewYSelf(props.skew?.y)
 
-    // NOTE:  skewing causes a horizontal/vertical offset
-    point.x = origin?.().x ?? 0
+      // NOTE:  skewing causes a horizontal/vertical offset
+      /* point.x = origin?.().x ?? 0
     point.y = origin?.().y ?? 0
     offset = point.matrixTransform(matrix)
-    matrix.translateSelf(point.x - offset.x, point.y - offset.y)
+    matrix.translateSelf(point.x - offset.x, point.y - offset.y) */
 
-    // NOTE:  the rotation should not be included in this offset-calculation
-    matrix.rotateSelf(props.rotation)
+      // NOTE:  the rotation should not be included in this offset-calculation
+      matrix.rotateSelf(props.rotation)
 
-    return matrix
-  })
+      return matrix
+    },
+    matrix,
+    {
+      equals: false,
+    },
+  )
 }
 
 export { createMatrix }

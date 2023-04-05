@@ -11,7 +11,7 @@ import {
   CanvasMouseEvent,
   Composite,
   ExtendedColor,
-  Position,
+  Vector,
   Shape2DProps,
 } from 'src/types'
 import forEachReversed from 'src/utils/forEachReversed'
