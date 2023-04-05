@@ -1,5 +1,6 @@
 import { Component, createSignal, For } from 'solid-js'
 import { Canvas, Rectangle } from 'src'
+import { Drag } from 'src/controllers/Drag'
 
 const App: Component = () => {
   const [counter, setCounter] = createSignal(0)
@@ -56,7 +57,7 @@ const App: Component = () => {
               dimensions={{ width: 100, height: 100 }}
               lineWidth={20}
               stroke="transparent"
-              draggable
+              controllers={[Drag()]}
               composite="hard-light"
             />
           )}
