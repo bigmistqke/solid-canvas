@@ -70,20 +70,20 @@ const Text = createToken(
           context.ctx.setTransform(matrix)
 
           const domPoint = new DOMPoint()
-          domPoint.matrixTransform(context.matrixValues)
+          domPoint.matrixTransform(context.matrix)
 
           // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
           if (context.ctx.fillStyle !== 'transparent')
             context.ctx.fillText(
               props.text,
-              context.matrixValues.e,
-              context.matrixValues.f + dimensions().height,
+              context.matrix.e,
+              context.matrix.f + dimensions().height,
             )
           if (context.ctx.strokeStyle !== 'transparent')
             context.ctx.strokeText(
               props.text,
-              context.matrixValues.e,
-              context.matrixValues.f + dimensions().height,
+              context.matrix.e,
+              context.matrix.f + dimensions().height,
             )
         }
       },

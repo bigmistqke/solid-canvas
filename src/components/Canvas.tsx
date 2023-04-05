@@ -23,6 +23,7 @@ import {
   CursorStyle,
   Vector,
 } from 'src/types'
+import { createMatrix } from 'src/utils/createMatrix'
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
@@ -113,6 +114,8 @@ export const Canvas: Component<{
 
   const frameQueue = new Set<(args: { clock: number }) => void>()
 
+  const matrix = createMatrix(props)
+
   const tokens = resolveTokens(
     parser,
     withContext(
@@ -125,15 +128,8 @@ export const Canvas: Component<{
             get debug() {
               return !!props.debug
             },
-            get matrixValues() {
-              return {
-                a: 1,
-                b: 0,
-                c: 0,
-                d: 1,
-                e: 0,
-                f: 0,
-              }
+            get matrix() {
+              return matrix()
             },
             get selected() {
               return selectedToken()

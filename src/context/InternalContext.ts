@@ -4,7 +4,7 @@ import { CanvasMouseEvent, Matrix } from '../types'
 
 export type InternalContextType = {
   ctx: CanvasRenderingContext2D
-  matrixValues: Matrix
+  matrix: DOMMatrix
   debug: boolean
   selected: CanvasToken | undefined
   hovered: CanvasToken | undefined

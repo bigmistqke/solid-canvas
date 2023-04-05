@@ -165,8 +165,8 @@ const constructBezierHandle = (props: any, events: any, options: any) => {
     mergeGetters(internalContext!, {
       get origin() {
         return {
-          x: (internalContext?.matrixValues.e ?? 0) + props().position.x,
-          y: (internalContext?.matrixValues.f ?? 0) + props().position.y,
+          x: (internalContext?.matrix.e ?? 0) + props().position.x,
+          y: (internalContext?.matrix.f ?? 0) + props().position.y,
         }
       },
     }),

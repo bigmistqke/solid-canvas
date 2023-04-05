@@ -26,36 +26,16 @@ const createPath2D = <T extends unknown>(arg: {
     // @ts-ignore
     mergeShape2DProps(arg.props, arg.defaultProps),
   )
-
-  const internalContext = useInternalContext()
-  const matrix = createMatrix(
-    controlled.props,
-    () => internalContext?.matrixValues,
-  )
-
-  const context = mergeGetters(internalContext, {
-    get matrixValues() {
-      return {
-        a: matrix().a,
-        b: matrix().b,
-        c: matrix().c,
-        d: matrix().d,
-        e: matrix().e,
-        f: matrix().f,
-      }
-    },
-  })
-
+  const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
-
   const transformedPath = createTransformedPath(
     () => arg.path(controlled.props as any),
-    matrix,
+    context,
   )
   const bounds = createBounds(
     // TODO: fix typecast to any
     () => arg.bounds(controlled.props as any),
-    matrix,
+    context,
   )
 
   const token: Shape2DToken = {

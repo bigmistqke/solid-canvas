@@ -32,7 +32,7 @@ const Image = createToken(
     const image = resolveImageSource(() => props.image)
     const [context, setContext] = createSignal<InternalContextType>()
 
-    const matrix = createMatrix(props, () => context()?.matrixValues)
+    const matrix = createMatrix(props, () => context()?.matrix)
 
     return createShape2D({
       props,
@@ -47,8 +47,8 @@ const Image = createToken(
 
         context.ctx.drawImage(
           image()!,
-          context.matrixValues.e,
-          context.matrixValues.f,
+          context.matrix.e,
+          context.matrix.f,
           props.dimensions.width,
           props.dimensions.height,
         )

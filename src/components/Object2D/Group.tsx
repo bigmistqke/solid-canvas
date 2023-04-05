@@ -3,7 +3,7 @@ import { Accessor, mergeProps, splitProps } from 'solid-js'
 import { JSX } from 'solid-js/jsx-runtime'
 import { RegisterControllerEvents } from 'src/controllers/controllers'
 import { CanvasToken, parser } from 'src/parser'
-import { Color, ResolvedShape2DProps, Vector } from 'src/types'
+import { Color, Object2DProps, ResolvedShape2DProps, Vector } from 'src/types'
 import { createParenthood } from 'src/utils/createParenthood'
 import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { SingleOrArray } from 'src/utils/typehelpers'
@@ -24,7 +24,7 @@ export type GroupProps = {
  * Group multiple `Shapes` together
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rect)
  */
-const Group = createToken(parser, (props: GroupProps) => {
+const Group = createToken(parser, (props: Object2DProps) => {
   const [, propsWithoutChildren] = splitProps(props, ['children'])
   const mergedProps = mergeProps(
     { position: { x: 0, y: 0 }, fill: undefined },
