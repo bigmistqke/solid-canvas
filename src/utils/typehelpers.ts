@@ -6,3 +6,8 @@ export type Normalize<T> = T extends (...args: infer A) => infer R
   : { [K in keyof T]: T[K] }
 
 export type SingleOrArray<T> = T | T[]
+
+// returns a type with all optional keys required and all non-optional keys as `never`
+export type RequireOptionals<T extends object> = Required<{
+  [K in keyof T]: T extends Record<K, T[K]> ? never : T[K]
+}>

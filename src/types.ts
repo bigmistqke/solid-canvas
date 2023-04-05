@@ -84,7 +84,7 @@ export type Composite =
   | 'difference'
   | 'exclusion'
 
-export type Object2DProps = {
+export type Object2DProps = Transforms & {
   /**
    * Defaults to { x: 0, y: 0}
    */
@@ -122,15 +122,7 @@ type Shape2DEvents = {
   onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
 }
 
-type Shape2DStyle = {
-  /**
-   * Default: 'transparent'
-   */
-  fill?: ExtendedColor
-  /**
-   * Default: 'black'.
-   */
-  stroke?: ExtendedColor
+export type Transforms = {
   /**
    * Default: { x: 0, y: 0 }
    */
@@ -142,11 +134,18 @@ type Shape2DStyle = {
   /**
    * Default: 0
    */
-  skewX?: number
+  skew?: Vector
+}
+
+type Shape2DStyle = {
   /**
-   * Default: 0
+   * Default: 'transparent'
    */
-  skewY?: number
+  fill?: ExtendedColor
+  /**
+   * Default: 'black'.
+   */
+  stroke?: ExtendedColor
   /**
    * Default: 2
    */
@@ -185,7 +184,8 @@ type Shape2DStyle = {
   opacity?: number
 }
 
-export type Shape2DProps<T = Object> = Shape2DStyle &
+export type Shape2DProps<T = Object> = Transforms &
+  Shape2DStyle &
   Shape2DEvents & {
     /**
      * Ignore all pointer-events. Default: false
@@ -212,7 +212,7 @@ export type Shape2DProps<T = Object> = Shape2DStyle &
     composite?: Composite
     clip?: Accessor<SingleOrArray<JSX.Element>>
     controllers?: ((
-      props: Accessor<T | Shape2DProps<T>>,
+      props: Accessor<T | Omit<Shape2DProps, 'controllers'>>,
       events: RegisterControllerEvents,
     ) => T | Shape2DProps<T>)[]
   }
@@ -247,6 +247,8 @@ export type CanvasMouseEvent = {
   target: CanvasToken[]
   cursor: CursorStyle
 }
+
+export type CanvasMouseEventListener = (event: CanvasMouseEvent) => void
 
 export type BezierPoint = CubicPoint | QuadraticPoint
 
