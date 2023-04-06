@@ -6,7 +6,6 @@ export default (
   context: InternalContextType,
   props: ResolvedShape2DProps,
   path: Path2D,
-  hover: boolean | undefined,
 ) => {
   props.style.lineWidth
   context.ctx.save()
@@ -32,26 +31,6 @@ export default (
   context.ctx.setLineDash(props.style.lineDash ?? [])
 
   context.ctx.setTransform(context.matrix)
-  /* 
-  if (hover && props.hoverStyle) {
-    if (props.hoverStyle.stroke) {
-      context.ctx.strokeStyle =
-        resolveExtendedColor(props.hoverStyle.stroke) ?? context.ctx.strokeStyle
-    }
-    if (props.hoverStyle.fill) {
-      context.ctx.fillStyle =
-        resolveExtendedColor(props.hoverStyle.fill) ?? context.ctx.fillStyle
-    }
-    if (props.hoverStyle.lineWidth)
-      context.ctx.lineWidth = props.hoverStyle.lineWidth
-    if (props.hoverStyle.miterLimit)
-      context.ctx.miterLimit = props.hoverStyle.miterLimit
-    if (props.hoverStyle.lineJoin)
-      context.ctx.lineJoin = props.hoverStyle.lineJoin
-    if (props.hoverStyle.lineCap) context.ctx.lineCap = props.hoverStyle.lineCap
-    if (props.hoverStyle.lineDash)
-      context.ctx.setLineDash(props.hoverStyle.lineDash)
-  } */
 
   context.ctx.fill(path)
   context.ctx.stroke(path)

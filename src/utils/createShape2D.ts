@@ -46,8 +46,6 @@ const createShape2D = <
   // TODO:  fix any
   arg.setup(controlled.props as any, context, matrix())
 
-  createEffect(() => console.log(arg.dimensions.width))
-
   const [shapeProps] = splitProps(arg.props, ['transform', 'style'])
   const rectangleProps = deepMergeGetters(shapeProps, {
     style: {

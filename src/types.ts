@@ -41,7 +41,7 @@ export type Shape2DProps<T = Object> = Shape2DEvents & {
   ) => T | Shape2DProps<T>)[]
 }
 
-export type ResolvedShape2DProps = {
+export type ResolvedShape2DProps<T> = Shape2DProps<T> & {
   style: RequiredPartially<
     Shape2DStyle,
     | 'stroke'

@@ -15,9 +15,9 @@ export type GroupProps = {
   clip?: Accessor<SingleOrArray<JSX.Element>>
   position?: Vector
   controllers?: ((
-    props: Accessor<ResolvedShape2DProps>,
+    props: Accessor<ResolvedShape2DProps<any>>,
     events: RegisterControllerEvents,
-  ) => Accessor<ResolvedShape2DProps>)[]
+  ) => Accessor<ResolvedShape2DProps<any>>)[]
 }
 
 /**

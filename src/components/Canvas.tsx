@@ -219,11 +219,10 @@ export const Canvas: Component<{
 
     ctx.restore()
 
-    let data
-    for ({ data } of tokens()) {
+    for (const token of tokens()) {
       ctx.save()
-      if ('debug' in data && props.debug) data.debug(ctx)
-      if ('render' in data) data.render(ctx)
+      if ('debug' in token.data && props.debug) token.data.debug(ctx)
+      if ('render' in token.data) token.data.render(ctx)
       ctx.restore()
     }
 

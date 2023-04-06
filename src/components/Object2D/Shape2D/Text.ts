@@ -47,7 +47,6 @@ const Text = createToken(
       height: 0,
     })
 
-    createEffect(() => console.log('dimensions', dimensions()))
     return createShape2D({
       id: 'Text',
       render: (props, context, matrix) => {

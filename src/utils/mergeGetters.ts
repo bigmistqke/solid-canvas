@@ -28,11 +28,12 @@ function deepMergeGetters<
   for (prop of [...props1, ...props2]) {
     const descriptor1 = Object.getOwnPropertyDescriptor(obj1, prop)
     const descriptor2 = Object.getOwnPropertyDescriptor(obj2, prop)
-
     if (descriptor2 && descriptor2.get) {
       Object.defineProperty(result, prop, descriptor2)
     } else if (typeof obj2[prop] === 'object') {
       result[prop] = deepMergeGetters(obj1[prop], obj2[prop])
+    } else if (obj2[prop]) {
+      result[prop] = obj2[prop]
     } else if (descriptor1 && descriptor1.get) {
       Object.defineProperty(result, prop, descriptor1)
     } else if (typeof obj1[prop] === 'object') {
