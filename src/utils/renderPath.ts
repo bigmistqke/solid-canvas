@@ -4,7 +4,7 @@ import { resolveColor, resolveExtendedColor } from './resolveColor'
 
 export default (
   context: InternalContextType,
-  props: ResolvedShape2DProps,
+  props: ResolvedShape2DProps<any>,
   path: Path2D,
 ) => {
   props.style.lineWidth

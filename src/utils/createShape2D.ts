@@ -36,7 +36,7 @@ const createShape2D = <
 }) => {
   const controlled = createControlledProps(
     // TODO:  fix any
-    mergeShape2DProps(arg.props as any, arg.defaultValues as any),
+    deepMergeGetters(arg.defaultValues, arg.props),
   )
   const matrix = createMatrix(() => arg.props)
 

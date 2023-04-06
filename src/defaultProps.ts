@@ -1,6 +1,6 @@
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 
-const defaultShape2DProps: ResolvedShape2DProps = {
+const defaultShape2DProps: ResolvedShape2DProps<unknown> = {
   style: {
     stroke: 'black',
     fill: undefined,
@@ -23,7 +23,7 @@ const defaultShape2DProps: ResolvedShape2DProps = {
   },
 }
 
-const defaultBoundsProps: ResolvedShape2DProps = {
+const defaultBoundsProps: ResolvedShape2DProps<unknown> = {
   style: {
     stroke: 'grey',
     fill: 'transparent',
