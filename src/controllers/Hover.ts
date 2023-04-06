@@ -1,4 +1,4 @@
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal, mergeProps, untrack } from 'solid-js'
 import { Shape2DStyle } from 'src/types'
 import { createController } from './createController'
 
@@ -9,12 +9,17 @@ type HoverOptions = {
 const Hover = createController<HoverOptions>((props, events, options) => {
   const [isHovered, setIsHovered] = createSignal(false)
 
-  events.onMouseEnter(() => setIsHovered(true))
-  events.onMouseLeave(() => setIsHovered(false))
+  createEffect(() => {
+    if (!options.style) return
+    events.onMouseEnter(() => setIsHovered(true))
+    events.onMouseLeave(() => setIsHovered(false))
+  })
+
+  const styles = mergeProps(props().style, options.style)
 
   return {
     get style() {
-      return isHovered() ? options.style : props().style
+      return isHovered() && props().style ? styles : props().style
     },
   }
 })

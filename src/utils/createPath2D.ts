@@ -23,6 +23,7 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
   path: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Path2D
   bounds: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Vector[]
 }) => {
+  console.log('createPath2D')
   const props = createMemo(() =>
     deepMergeGetters(
       { ...defaultShape2DProps, ...arg.defaultProps },
@@ -34,15 +35,9 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
 
-  const untransformedPath = createMemo(() => arg.path(props()))
-  let p
-  const path = createMemo(() => {
-    p = new Path2D()
-    p.addPath(untransformedPath(), context.matrix)
-    return p
-  })
+  const path = createMemo(() => arg.path(props()))
 
-  const bounds = createBounds(() => arg.bounds(props()), context)
+  // const bounds = createBounds(() => arg.bounds(props()), context)
 
   const [hover, setHover] = createSignal(false)
 
@@ -56,7 +51,7 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
       controlled.emit.onRender(ctx)
     },
     debug: ctx => {
-      renderPath(context, defaultBoundsProps, bounds().path)
+      // renderPath(context, defaultBoundsProps, bounds().path)
     },
     hitTest: event => {
       parenthood.hitTest(event)
@@ -66,7 +61,7 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
       if (controlled.props.style.pointerEvents === false) return false
 
       context.ctx.save()
-      // context.ctx.setTransform(context.matrix)
+      context.ctx.setTransform(context.matrix)
 
       context.ctx.lineWidth = controlled.props.style.lineWidth
         ? controlled.props.style.lineWidth < 20
@@ -80,9 +75,10 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
         event.position.y,
       )
 
+      context.ctx.resetTransform()
+
       if (hit) {
         event.target.push(token)
-
         let listeners = controlled.props[
           event.type
         ] as SingleOrArray<CanvasMouseEventListener>
