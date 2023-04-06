@@ -33,16 +33,19 @@ const Handle = (props: {
 }) => (
   <Group>
     <Arc
-      // onDragMove={props.onDragMove}
-      radius={10}
-      stroke="transparent"
-      fill={props.draggable !== false ? 'black' : 'lightgrey'}
-      position={{ x: props.position.x - 10, y: props.position.y - 10 }}
-      pointerEvents={props.draggable === false ? false : true}
-      cursor={props.draggable ? 'pointer' : 'default'}
-      hoverStyle={{
-        fill: 'white',
-        stroke: 'black',
+      style={{
+        radius: 10,
+        stroke: 'transparent',
+        fill: props.draggable !== false ? 'black' : 'lightgrey',
+        pointerEvents: props.draggable === false ? false : true,
+        cursor: props.draggable ? 'pointer' : 'default',
+        '&:hover': {
+          fill: 'white',
+          stroke: 'black',
+        },
+      }}
+      transform={{
+        position: { x: props.position.x - 10, y: props.position.y - 10 },
       }}
       controllers={[
         Drag({ active: true, onDragMove: props.onDragMove, controlled: true }),
@@ -65,9 +68,11 @@ const VectorHandle = (props: {
     />
     <Line
       points={[{ x: 0, y: 0 }, props.position]}
-      lineDash={[10, 5]}
-      pointerEvents={false}
-      stroke={props.draggable !== false ? 'black' : 'lightgrey'}
+      style={{
+        lineDash: [10, 5],
+        pointerEvents: false,
+        stroke: props.draggable !== false ? 'black' : 'lightgrey',
+      }}
     />
   </>
 )
@@ -82,7 +87,11 @@ const BezierHandles = (props: {
   type: 'cubic' | 'quadratic'
 }) => {
   return (
-    <Group position={props.value.point}>
+    <Group
+      transform={{
+        position: props.value.point,
+      }}
+    >
       <Handle
         onDragMove={offset => props.updateOffset(offset, 'point')}
         position={{ x: 0, y: 0 }}

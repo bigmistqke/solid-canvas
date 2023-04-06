@@ -1,6 +1,6 @@
 import { Accessor, createMemo } from 'solid-js'
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
-import { mergeGetters } from 'src/utils/mergeGetters'
+import { deepMergeGetters, mergeGetters } from 'src/utils/mergeGetters'
 import { RegisterControllerEvents } from './controllers'
 
 const createController = <
@@ -11,7 +11,7 @@ const createController = <
     props: Accessor<ResolvedShape2DProps & AdditionalProperties>,
     events: RegisterControllerEvents,
     options: ControllerOptions,
-  ) => void,
+  ) => Partial<Shape2DProps & AdditionalProperties>,
 ) => {
   function Controller(
     options?: ControllerOptions,
@@ -49,10 +49,10 @@ const createController = <
     //         while `Object.assign` or spreading would cause a merge with each update.
 
     return createMemo(() =>
-      mergeGetters(
+      deepMergeGetters(
         (
           propsOrOptions as Accessor<
-            ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
+            ResolvedShape2DProps & AdditionalProperties
           >
         )(),
         result,

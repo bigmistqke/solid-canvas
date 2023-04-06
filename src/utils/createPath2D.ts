@@ -1,4 +1,4 @@
-import { createMemo } from 'solid-js'
+import { createEffect, createMemo, mergeProps } from 'solid-js'
 import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import {
@@ -14,26 +14,38 @@ import { mergeShape2DProps } from 'src/utils/mergeShape2DProps'
 import renderPath from 'src/utils/renderPath'
 import { createUpdatedContext } from './createUpdatedContext'
 import { isPointInShape2D } from './isPointInShape2D'
-import { mergeGetters } from './mergeGetters'
-import { RequireOptionals, SingleOrArray } from './typehelpers'
+import { deepMergeGetters, mergeGetters } from './mergeGetters'
+import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 
 const createPath2D = <T extends { [key: string]: any }>(arg: {
   id: string
   props: Shape2DProps<T> & T
   defaultProps: RequireOptionals<T>
-  path: (props: Required<T> & ResolvedShape2DProps<T>) => Path2D
-  bounds: (props: Required<T> & ResolvedShape2DProps<T>) => Vector[]
+  path: (props: DeepRequired<T> & ResolvedShape2DProps) => Path2D
+  bounds: (props: DeepRequired<T> & ResolvedShape2DProps) => Vector[]
 }) => {
-  const props = mergeGetters(
-    { ...defaultShape2DProps, ...arg.defaultProps },
-    arg.props,
-  ) as Required<T> & ResolvedShape2DProps<T>
-  const controlled = createControlledProps(props)
+  const props = createMemo(() =>
+    deepMergeGetters(
+      { ...defaultShape2DProps, ...arg.defaultProps },
+      arg.props,
+    ),
+  )
+
+  const controlled = createControlledProps(props())
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
-  const path = createMemo(() => arg.path(controlled.props))
+  const path = createMemo(() => arg.path(props()))
 
-  const bounds = createBounds(() => arg.bounds(controlled.props), context)
+  const bounds = createBounds(() => arg.bounds(props()), context)
+
+  //  createEffect(() =>
+  //   console.log(
+  //     controlled.props.transform?.skew?.y,
+  //     // context.matrix,
+  //     /*  props().transform?.skew?.y,
+  //     context.matrix, */
+  //   ),
+  // )
 
   const token: Shape2DToken = {
     type: 'Shape2D',
@@ -42,7 +54,7 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
     render: ctx => {
       renderPath(
         context,
-        controlled.props,
+        props(),
         path(),
         context.isHovered(token) || context.isSelected(token),
       )
@@ -61,9 +73,13 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
 
       context.ctx.save()
       context.ctx.setTransform(context.matrix)
-      // NOTE:  minimal thickness of 5
-      context.ctx.lineWidth =
-        controlled.props.lineWidth < 20 ? 20 : controlled.props.lineWidth
+
+      context.ctx.lineWidth = controlled.props.style.lineWidth
+        ? controlled.props.style.lineWidth < 20
+          ? 20
+          : controlled.props.style.lineWidth
+        : 20
+
       const hit = isPointInShape2D(event, controlled.props, path())
       if (hit) {
         let listeners = controlled.props[

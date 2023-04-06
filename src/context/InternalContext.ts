@@ -1,6 +1,6 @@
 import { createContext, useContext } from 'solid-js'
 import { CanvasToken } from 'src/parser'
-import { CanvasMouseEvent, Matrix } from '../types'
+import { CanvasMouseEvent } from '../types'
 
 export type InternalContextType = {
   ctx: CanvasRenderingContext2D

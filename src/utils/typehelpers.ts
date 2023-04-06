@@ -1,5 +1,7 @@
-export type RequiredPartially<T, U extends keyof T> = Required<Omit<T, U>> &
+export type RequiredPartially<T, U extends keyof T> = RequireOptionals<
   Pick<T, U>
+> &
+  Omit<T, U>
 
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>
@@ -19,8 +21,10 @@ type RemoveNever<T> = {
 /**
  * returns a type with all optional keys required and all non-optional keys as `never`
  */
-export type RequireOptionals<T extends object> = RemoveNever<
-  Required<{
-    [K in keyof T]: T extends Record<K, T[K]> ? never : T[K]
-  }>
->
+export type RequireOptionals<T extends object> = RemoveNever<{
+  [K in keyof T]: T extends Record<K, T[K]> ? never : T[K]
+}>
+
+export type DeepRequired<T> = {
+  [K in keyof T]: Required<DeepRequired<T[K]>>
+}

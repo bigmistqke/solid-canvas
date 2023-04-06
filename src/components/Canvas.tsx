@@ -36,7 +36,7 @@ export const Canvas: Component<{
   children: JSX.Element
   style?: JSX.CSSProperties
   fill?: Color
-  origin?: {
+  transform?: {
     position: Vector
     skew: Vector
     rotation: number
@@ -114,7 +114,7 @@ export const Canvas: Component<{
 
   const frameQueue = new Set<(args: { clock: number }) => void>()
 
-  const matrix = createMatrix(props)
+  const matrix = createMatrix(() => props)
 
   const tokens = resolveTokens(
     parser,
@@ -362,10 +362,10 @@ export const Canvas: Component<{
 
   onMount(() => {
     const updateDimensions = () => {
-      const { width, height } = document.body.getBoundingClientRect()
+      // const { width, height } = document.body.getBoundingClientRect()
       setCanvasDimensions({
-        width,
-        height,
+        width: window.innerWidth,
+        height: window.innerHeight,
       })
     }
 

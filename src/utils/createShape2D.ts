@@ -1,5 +1,5 @@
 import { TokenElement } from '@solid-primitives/jsx-tokenizer'
-import { Accessor, splitProps } from 'solid-js'
+import { Accessor, createEffect, splitProps } from 'solid-js'
 import { Rectangle } from 'src/components/Object2D/Shape2D/Path2D/Rectangle'
 import {
   InternalContextType,
@@ -11,7 +11,7 @@ import { createControlledProps } from './createControlledProps'
 import { createMatrix } from './createMatrix'
 import { createParenthood } from './createParenthood'
 import { createUpdatedContext } from './createUpdatedContext'
-import { mergeGetters } from './mergeGetters'
+import { deepMergeGetters, mergeGetters } from './mergeGetters'
 import { mergeShape2DProps } from './mergeShape2DProps'
 import withContext from './withContext'
 
@@ -38,7 +38,7 @@ const createShape2D = <
     // TODO:  fix any
     mergeShape2DProps(arg.props as any, arg.defaultValues as any),
   )
-  const matrix = createMatrix(arg.props)
+  const matrix = createMatrix(() => arg.props)
 
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
@@ -46,19 +46,23 @@ const createShape2D = <
   // TODO:  fix any
   arg.setup(controlled.props as any, context, matrix())
 
-  const [shapeProps] = splitProps(arg.props, ['rotation', 'skew'])
-  const rectangleProps = mergeGetters(shapeProps, {
-    get dimensions() {
-      return arg.dimensions
-    },
-    get fill() {
-      return arg.props.background ?? 'black'
-    },
-    get stroke() {
-      return arg.props.background ?? 'black'
-    },
-    get lineWidth() {
-      return arg.props.padding
+  createEffect(() => console.log(arg.dimensions.width))
+
+  const [shapeProps] = splitProps(arg.props, ['transform', 'style'])
+  const rectangleProps = deepMergeGetters(shapeProps, {
+    style: {
+      get fill() {
+        return arg.props.style?.background ?? 'black'
+      },
+      get stroke() {
+        return arg.props.style?.background ?? 'black'
+      },
+      get lineWidth() {
+        return arg.props.style?.padding
+      },
+      get dimensions() {
+        return arg.dimensions
+      },
     },
   })
 

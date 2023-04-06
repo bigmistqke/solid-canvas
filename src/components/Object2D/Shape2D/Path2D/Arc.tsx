@@ -5,11 +5,13 @@ import { Shape2DProps } from 'src/types'
 import { createPath2D } from '../../../../utils/createPath2D'
 
 type ArcProps = {
-  close?: boolean
-  radius?: number
-  angle?: {
-    start: number
-    end: number
+  style: {
+    close?: boolean
+    radius?: number
+    angle?: {
+      start: number
+      end: number
+    }
   }
 }
 
@@ -22,18 +24,20 @@ const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) =>
     id: 'Arc',
     props,
     defaultProps: {
-      close: false,
-      radius: 10,
-      angle: { start: 0, end: 2 * Math.PI },
+      style: {
+        angle: { start: 0, end: 2 * Math.PI },
+        close: false,
+        radius: 10,
+      },
     },
     path: props => {
       const path = new Path2D()
       path.arc(
-        props.radius,
-        props.radius,
-        props.radius,
-        props.angle.start,
-        props.angle.end,
+        props.style.radius,
+        props.style.radius,
+        props.style.radius,
+        props.style.angle.start,
+        props.style.angle.end,
       )
       return path
     },
@@ -43,16 +47,16 @@ const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) =>
         y: 0,
       },
       {
-        x: props.radius * 2,
+        x: props.style.radius * 2,
         y: 0,
       },
       {
-        x: props.radius * 2,
-        y: props.radius * 2,
+        x: props.style.radius * 2,
+        y: props.style.radius * 2,
       },
       {
         x: 0,
-        y: props.radius * 2,
+        y: props.style.radius * 2,
       },
     ],
   }),

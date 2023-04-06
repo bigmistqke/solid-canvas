@@ -3,13 +3,152 @@ import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 
-export type Matrix = {
-  a: number
-  b: number
-  c: number
-  d: number
-  e: number
-  f: number
+export type Object2DProps = {
+  transform?: Transforms
+  style?: {
+    composite?: Composite
+    background?: Color
+    opacity?: number
+    padding?: number
+  }
+  children?: SingleOrArray<JSX.Element>
+  clip?: Accessor<SingleOrArray<JSX.Element>>
+  // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
+}
+
+export type Shape2DProps<T = Object> = Shape2DEvents & {
+  transform?: Transforms
+  style?: Shape2DStyle & { '&:hover'?: Shape2DStyle }
+
+  /**
+   * Enable editable handles. Default: false
+   */
+  editable?: boolean
+
+  /**
+   * Set cursor-style when hovering
+   */
+  hoverStyle?: Shape2DStyle
+
+  children?: SingleOrArray<JSX.Element>
+  opacity?: number
+  fill?: ExtendedColor
+  composite?: Composite
+  clip?: Accessor<SingleOrArray<JSX.Element>>
+  controllers?: ((
+    props: Accessor<T | Omit<Shape2DProps, 'controllers'>>,
+    events: RegisterControllerEvents,
+  ) => T | Shape2DProps<T>)[]
+}
+
+export type ResolvedShape2DProps = {
+  style: RequiredPartially<
+    Shape2DStyle,
+    | 'stroke'
+    | 'fill'
+    | 'lineDash'
+    | 'lineCap'
+    | 'lineJoin'
+    | 'lineWidth'
+    | 'pointerEvents'
+    | 'opacity'
+    | 'cursor'
+  >
+  transform: Required<Transforms>
+}
+
+type Shape2DEvents = {
+  /**
+   * Set onMouseDown-eventhandler.
+   */
+  onMouseDown?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseUp-eventhandler.
+   */
+  onMouseUp?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseMove-eventhandler.
+   */
+  onMouseMove?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseEnter-eventhandler.
+   */
+  onMouseEnter?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  /**
+   * Set onMouseLeave-eventhandler.
+   */
+  onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
+}
+
+export type Transforms = {
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  position?: Vector
+  /**
+   * Default: { x: 0, y: 0 }
+   */
+  rotation?: number
+  /**
+   * Default: 0
+   */
+  skew?: Partial<Vector>
+}
+
+export type Shape2DStyle = {
+  /**
+   * Default: 'transparent'
+   */
+  fill?: ExtendedColor | undefined
+  /**
+   * Default: 'black'.
+   */
+  stroke?: ExtendedColor
+  /**
+   * Default: 2
+   */
+  lineWidth?: number
+  /**
+   * Default: []
+   */
+  lineDash?: number[]
+  /**
+   * Default: 'butt'
+   */
+  lineCap?: 'butt' | 'round' | 'square'
+  /**
+   * Default: 'butt'
+   */
+  lineJoin?: 'round' | 'bevel' | 'miter'
+  /**
+   * Default: 'butt'
+   */
+  miterLimit?: number
+
+  shadow?: {
+    blur?: number
+    color?: Color
+    offset?: Vector
+  }
+
+  /**
+   * Set the ctx.globalCompositeOperation. Default: source-over
+   */
+  composite?: Composite
+
+  /**
+   * Sets ctx.globalAlpha. Default: 1
+   */
+  opacity?: number
+
+  /**
+   * Set cursor-style when hovering. Default: 'default'
+   */
+  cursor?: CursorStyle
+  /**
+   * Set pointerEvents. Default: false
+   */
+  pointerEvents?: boolean
 }
 
 export type Vector = {
@@ -83,153 +222,6 @@ export type Composite =
   | 'soft-light'
   | 'difference'
   | 'exclusion'
-
-export type Object2DProps = Transforms & {
-  /**
-   * Defaults to { x: 0, y: 0}
-   */
-  position?: Vector
-  children?: SingleOrArray<JSX.Element>
-  opacity?: number
-  fill?: ExtendedColor
-  composite?: Composite
-  clip?: Accessor<SingleOrArray<JSX.Element>>
-  background?: Color
-  padding?: number
-  // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
-}
-
-type Shape2DEvents = {
-  /**
-   * Set onMouseDown-eventhandler.
-   */
-  onMouseDown?: SingleOrArray<(event: CanvasMouseEvent) => void>
-  /**
-   * Set onMouseUp-eventhandler.
-   */
-  onMouseUp?: SingleOrArray<(event: CanvasMouseEvent) => void>
-  /**
-   * Set onMouseMove-eventhandler.
-   */
-  onMouseMove?: SingleOrArray<(event: CanvasMouseEvent) => void>
-  /**
-   * Set onMouseEnter-eventhandler.
-   */
-  onMouseEnter?: SingleOrArray<(event: CanvasMouseEvent) => void>
-  /**
-   * Set onMouseLeave-eventhandler.
-   */
-  onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
-}
-
-export type Transforms = {
-  /**
-   * Default: { x: 0, y: 0 }
-   */
-  position?: Vector
-  /**
-   * Default: { x: 0, y: 0 }
-   */
-  rotation?: number
-  /**
-   * Default: 0
-   */
-  skew?: Partial<Vector>
-}
-
-type Shape2DStyle = {
-  /**
-   * Default: 'transparent'
-   */
-  fill?: ExtendedColor
-  /**
-   * Default: 'black'.
-   */
-  stroke?: ExtendedColor
-  /**
-   * Default: 2
-   */
-  lineWidth?: number
-  /**
-   * Default: []
-   */
-  lineDash?: number[]
-  /**
-   * Default: 'butt'
-   */
-  lineCap?: 'butt' | 'round' | 'square'
-  /**
-   * Default: 'butt'
-   */
-  lineJoin?: 'round' | 'bevel' | 'miter'
-  /**
-   * Default: 'butt'
-   */
-  miterLimit?: number
-
-  shadow?: {
-    blur?: number
-    color?: Color
-    offset?: Vector
-  }
-
-  /**
-   * Set the ctx.globalCompositeOperation. Default: source-over
-   */
-  composite?: Composite
-
-  /**
-   * Sets ctx.globalAlpha. Default: 1
-   */
-  opacity?: number
-}
-
-export type Shape2DProps<T = Object> = Transforms &
-  Shape2DStyle &
-  Shape2DEvents & {
-    /**
-     * Ignore all pointer-events. Default: false
-     */
-    pointerEvents?: boolean
-    /**
-     * Enable editable handles. Default: false
-     */
-    editable?: boolean
-
-    /**
-     * Set cursor-style when hovering
-     */
-    cursor?: CursorStyle
-
-    /**
-     * Set cursor-style when hovering
-     */
-    hoverStyle?: Shape2DStyle
-
-    children?: SingleOrArray<JSX.Element>
-    opacity?: number
-    fill?: ExtendedColor
-    composite?: Composite
-    clip?: Accessor<SingleOrArray<JSX.Element>>
-    controllers?: ((
-      props: Accessor<T | Omit<Shape2DProps, 'controllers'>>,
-      events: RegisterControllerEvents,
-    ) => T | Shape2DProps<T>)[]
-  }
-
-export type ResolvedShape2DProps<T = {}> = RequiredPartially<
-  Shape2DProps<T>,
-  | CanvasMouseEventTypes
-  | 'composite'
-  | 'fill'
-  | 'shadow'
-  | 'editable'
-  | 'cursor'
-  | 'hoverStyle'
-  | 'clip'
-  | 'children'
-  | 'controllers'
->
 
 export type CanvasMouseEventTypes =
   | 'onMouseDown'

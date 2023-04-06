@@ -1,42 +1,50 @@
-import { ResolvedShape2DProps } from 'src/types'
+import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 
-const defaultShape2DProps: ResolvedShape2DProps<{}> = {
-  position: { x: 0, y: 0 },
-  stroke: 'black',
-  rotation: 0,
-  fill: undefined,
-  lineDash: [],
-  lineCap: 'butt',
-  lineJoin: 'round',
-  miterLimit: 10,
-  lineWidth: 2,
-  skew: {
-    x: 0,
-    y: 0,
+const defaultShape2DProps: ResolvedShape2DProps = {
+  style: {
+    stroke: 'black',
+    fill: undefined,
+    lineDash: [],
+    lineCap: 'butt',
+    lineJoin: 'round',
+    miterLimit: 10,
+    lineWidth: 2,
+    pointerEvents: true,
+    opacity: 1,
+    cursor: 'default',
   },
-  pointerEvents: true,
-  opacity: 1,
-  cursor: undefined,
+  transform: {
+    position: { x: 0, y: 0 },
+    rotation: 0,
+    skew: {
+      x: 0,
+      y: 0,
+    },
+  },
 }
 
-const defaultBoundsProps: ResolvedShape2DProps<{}> = {
-  position: { x: 0, y: 0 },
-  stroke: 'grey',
-  rotation: 0,
-  fill: 'transparent',
-  lineDash: [],
-  lineCap: 'butt',
-  lineJoin: 'round',
-  miterLimit: 10,
-  lineWidth: 0.5,
-  skew: {
-    x: 0,
-    y: 0,
+const defaultBoundsProps: ResolvedShape2DProps = {
+  style: {
+    stroke: 'grey',
+    fill: 'transparent',
+    lineDash: [],
+    lineCap: 'butt',
+    lineJoin: 'round',
+    miterLimit: 10,
+    lineWidth: 0.5,
+    opacity: 1,
+    composite: 'destination-over',
+    cursor: undefined,
+    pointerEvents: true,
   },
-  pointerEvents: true,
-  opacity: 1,
-  composite: 'destination-over',
-  cursor: undefined,
+  transform: {
+    position: { x: 0, y: 0 },
+    rotation: 0,
+    skew: {
+      x: 0,
+      y: 0,
+    },
+  },
 }
 
 export { defaultShape2DProps, defaultBoundsProps }

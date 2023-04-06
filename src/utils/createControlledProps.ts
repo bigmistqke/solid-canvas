@@ -1,7 +1,7 @@
 import { createLazyMemo } from '@solid-primitives/memo'
 import { Accessor, mapArray } from 'solid-js'
 import { ControllerEvents } from 'src/controllers/controllers'
-import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
+import { Shape2DProps } from 'src/types'
 
 const createControlledProps = <
   T extends Record<string, any>,
@@ -41,9 +41,7 @@ const createControlledProps = <
   //        It's a bit tricky to figure out.
   //        The current state is a compromise.
   //@ts-ignore
-  const controllers: Accessor<
-    Accessor<Required<U> & ResolvedShape2DProps<U>>[]
-  > = createLazyMemo(
+  const controllers: Accessor<Accessor<T | Shape2DProps<T>>[]> = createLazyMemo(
     mapArray(
       () => props.controllers,
       (controller, index) => {
@@ -66,7 +64,8 @@ const createControlledProps = <
 
   return {
     get props() {
-      return controllers()[controllers().length - 1]?.() ?? props
+      return (controllers()[controllers().length - 1]?.() ??
+        props) as Required<U>
     },
     emit,
   }
