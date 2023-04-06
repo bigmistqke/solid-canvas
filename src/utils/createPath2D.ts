@@ -33,7 +33,14 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
   const controlled = createControlledProps(props())
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
-  const path = createMemo(() => arg.path(props()))
+
+  const untransformedPath = createMemo(() => arg.path(props()))
+  let p
+  const path = createMemo(() => {
+    p = new Path2D()
+    p.addPath(untransformedPath(), context.matrix)
+    return p
+  })
 
   const bounds = createBounds(() => arg.bounds(props()), context)
 
@@ -59,7 +66,7 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
       if (controlled.props.style.pointerEvents === false) return false
 
       context.ctx.save()
-      context.ctx.setTransform(context.matrix)
+      // context.ctx.setTransform(context.matrix)
 
       context.ctx.lineWidth = controlled.props.style.lineWidth
         ? controlled.props.style.lineWidth < 20
@@ -67,7 +74,11 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
           : controlled.props.style.lineWidth
         : 20
 
-      const hit = isPointInShape2D(event, controlled.props, path())
+      const hit = context.ctx.isPointInPath(
+        path(),
+        event.position.x,
+        event.position.y,
+      )
 
       if (hit) {
         event.target.push(token)

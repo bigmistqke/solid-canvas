@@ -185,7 +185,6 @@ export const Canvas: Component<{
     })
 
     ctx.save()
-    ctx.beginPath()
     if (typeof props.feedback === 'number' || props.feedback) {
       if (typeof props.feedback === 'function') props.feedback(ctx)
       else if (typeof props.feedback === 'object') {
@@ -220,10 +219,8 @@ export const Canvas: Component<{
     ctx.restore()
 
     for (const token of tokens()) {
-      ctx.save()
       if ('debug' in token.data && props.debug) token.data.debug(ctx)
       if ('render' in token.data) token.data.render(ctx)
-      ctx.restore()
     }
 
     if (props.fill) {

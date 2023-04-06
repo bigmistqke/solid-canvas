@@ -7,7 +7,6 @@ export default (
   props: ResolvedShape2DProps<any>,
   path: Path2D,
 ) => {
-  props.style.lineWidth
   context.ctx.save()
   if (props.style.shadow) {
     context.ctx.shadowBlur = props.style.shadow.blur ?? 0
@@ -28,9 +27,7 @@ export default (
   context.ctx.miterLimit = props.style.miterLimit ?? 1
   context.ctx.lineJoin = props.style.lineJoin ?? 'bevel'
   context.ctx.lineCap = props.style.lineCap ?? 'round'
-  context.ctx.setLineDash(props.style.lineDash ?? [])
-
-  context.ctx.setTransform(context.matrix)
+  if (props.style.lineDash) context.ctx.setLineDash(props.style.lineDash)
 
   context.ctx.fill(path)
   context.ctx.stroke(path)
