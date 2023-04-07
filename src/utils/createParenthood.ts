@@ -74,7 +74,7 @@ function createParenthood<T>(
 
   const hitTest = (event: CanvasMouseEvent) => {
     let result: TokenElement<CanvasToken>[] = []
-    forEachReversed(tokens(), token => {
+    tokens().forEach(token => {
       if (!event.propagation) return
       if ('hitTest' in token.data) {
         const hit = token.data.hitTest(event)
@@ -83,6 +83,8 @@ function createParenthood<T>(
         }
       }
     })
+    /* forEachReversed(tokens(), token => {
+    }) */
 
     return false
   }

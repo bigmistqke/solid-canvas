@@ -12,6 +12,7 @@ import {
 } from 'src/types'
 import { createMatrix } from 'src/utils/createMatrix'
 import { createShape2D } from 'src/utils/createShape2D'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import resolveImageSource from 'src/utils/resolveImageSource'
 
 /**
@@ -21,50 +22,51 @@ import resolveImageSource from 'src/utils/resolveImageSource'
 
 type ImageProps = {
   image: ImageSource
-  dimensions?: Dimensions
-  fontFamily?: string
-  background?: ExtendedColor
+  style: {
+    dimensions?: Dimensions
+    background?: ExtendedColor
+  }
 }
 
 const Image = createToken(
   parser,
   (props: Shape2DProps & Object2DProps & ImageProps) => {
     const image = resolveImageSource(() => props.image)
-    const [context, setContext] = createSignal<InternalContextType>()
-
-    const matrix = createMatrix(() => props, context())
 
     return createShape2D({
       props,
       id: 'Image',
       setup: (props, context) => {
-        setContext(context)
+        // setContext(context)
       },
       render: (props, context) => {
         if (!image()) return
         if (props.opacity) context.ctx.globalAlpha = props.opacity
-        context.ctx.setTransform(matrix())
+        context.ctx.setTransform(context.matrix)
 
         context.ctx.drawImage(
           image()!,
-          context.matrix.e,
-          context.matrix.f,
-          props.dimensions.width,
-          props.dimensions.height,
+          0,
+          0,
+          props.style.dimensions?.width ?? 0,
+          props.style.dimensions?.height ?? 0,
         )
+        context.ctx.resetTransform()
       },
       get dimensions() {
         return (
-          props.dimensions ?? {
+          props.style?.dimensions ?? {
             width: 100,
             height: 100,
           }
         )
       },
       defaultValues: {
-        dimensions: {
-          width: 100,
-          height: 100,
+        style: {
+          dimensions: {
+            width: 100,
+            height: 100,
+          },
         },
       },
     })

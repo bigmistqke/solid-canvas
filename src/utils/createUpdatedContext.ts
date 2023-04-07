@@ -13,7 +13,6 @@ const createUpdatedContext = (
     get matrix() {
       return matrix()
     },
-    // style: props().style,
   })
 }
 

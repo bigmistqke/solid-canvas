@@ -12,7 +12,7 @@ import { createPath2D } from '../../../../utils/createPath2D'
 
 type PathProps = {
   d: PathResult
-  close: boolean
+  close?: boolean
 }
 
 const Path = createToken(parser, (props: Shape2DProps<PathProps> & PathProps) =>

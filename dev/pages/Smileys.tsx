@@ -1,5 +1,6 @@
 import { Component, createMemo, createSignal, For, on } from 'solid-js'
 import { Arc, Bezier, Canvas, Group } from 'src'
+import { Drag } from 'src/controllers/Drag'
 
 const Smiley = (props: { counter: number }) => {
   const [offset, setOffset] = createSignal({ x: 0, y: 0 })
@@ -26,19 +27,34 @@ const Smiley = (props: { counter: number }) => {
   const color = createMemo(() => ({ h: Math.random() * 360, s: 50, l: 50 }))
   return (
     <Arc
-      position={{ x: position().x, y: position().y }}
-      radius={50}
-      fill={color()}
-      stroke="transparent"
-      draggable
+      transform={{
+        position: position(),
+      }}
+      style={{
+        radius: 50,
+        fill: color(),
+        stroke: 'undefined',
+      }}
+      controllers={[Drag()]}
     >
-      <Group position={{ x: 0, y: 25 }}>
-        <Arc position={{ x: 20, y: 0 }} radius={5} fill="black" />
-        <Arc position={{ x: 70, y: 0 }} radius={5} fill="black" />
+      <Group transform={{ position: { x: 0, y: 25 } }}>
+        <Arc
+          transform={{ position: { x: 20, y: 0 } }}
+          style={{ radius: 5, fill: 'black' }}
+        />
+        <Arc
+          transform={{ position: { x: 70, y: 0 } }}
+          style={{ radius: 5, fill: 'black' }}
+        />
       </Group>
-      <Group position={{ x: 0, y: 60 }}>
+      <Group transform={{ position: { x: 0, y: 60 } }}>
         <Bezier
-          lineWidth={5}
+          transform={{
+            position: { x: 0, y: 60 },
+          }}
+          style={{
+            lineWidth: 5,
+          }}
           // shadow={{ blur: 0, offset: { x: 5, y: 5 }, color: 'black' }}
           points={[
             { point: { x: 25, y: 0 }, control: { x: 0, y: 15 } },

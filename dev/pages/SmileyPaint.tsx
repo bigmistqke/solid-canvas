@@ -8,7 +8,8 @@ import {
   Show,
 } from 'solid-js'
 import { Arc, Bezier, Canvas, Group, useCanvas, createClock } from 'src'
-import { Position } from 'src/types'
+import { Drag } from 'src/controllers/Drag'
+import { Vector } from 'src/types'
 
 const randomColor = (alpha?: number) => ({
   h: Math.random() * 360,
@@ -17,7 +18,7 @@ const randomColor = (alpha?: number) => ({
   a: alpha ?? 0.5,
 })
 
-const Smiley = (props: { counter: number; position: Position }) => {
+const Smiley = (props: { counter: number; position: Vector }) => {
   const context = useCanvas()
   const [position, setPosition] = createSignal({ x: 0, y: 0 })
 
@@ -43,35 +44,58 @@ const Smiley = (props: { counter: number; position: Position }) => {
     ),
   )
 
+  createEffect(() => console.log(position()))
+
   const scale = 2
   return (
     <Arc
-      position={{ x: position().x, y: position().y }}
-      radius={50 * scale}
-      fill={fill()}
-      stroke="transparent"
-      draggable
-      pointerEvents={false}
+      transform={{
+        position: {
+          x: position().x,
+          y: position().y,
+        },
+      }}
+      style={{
+        radius: 50 * scale,
+        fill: fill(),
+        stroke: 'transparent',
+        pointerEvents: false,
+      }}
+      controllers={[Drag()]}
     >
-      <Group position={{ x: 0, y: 25 * scale }}>
+      <Group transform={{ position: { x: 0, y: 25 * scale } }}>
         <Arc
-          position={{ x: 20 * scale, y: 0 }}
-          radius={5 * scale}
-          fill="black"
-          stroke="transparent"
+          transform={{
+            position: { x: 20 * scale, y: 0 },
+          }}
+          style={{
+            radius: 5 * scale,
+            fill: 'black',
+            stroke: 'transparent',
+          }}
         />
         <Arc
-          position={{ x: 70 * scale, y: 0 }}
-          radius={5 * scale}
-          fill="black"
-          stroke="transparent"
+          transform={{
+            position: { x: 70 * scale, y: 0 },
+          }}
+          style={{
+            radius: 5 * scale,
+            fill: 'black',
+            stroke: 'transparent',
+          }}
         />
       </Group>
-      <Group position={{ x: 0, y: 60 * scale }}>
+      <Group
+        transform={{
+          position: { x: 0, y: 60 * scale },
+        }}
+      >
         <Bezier
-          lineCap="round"
-          lineWidth={5 * scale}
-          stroke="black"
+          style={{
+            lineCap: 'round',
+            lineWidth: 5,
+            stroke: 'black',
+          }}
           points={[
             {
               point: { x: 25 * scale, y: 0 },

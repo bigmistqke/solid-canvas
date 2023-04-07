@@ -19,8 +19,8 @@ export default (
     context.ctx.shadowColor =
       resolveColor(props.style.shadow.color ?? 'black') ?? 'black'
   }
-  if (props.style.composite)
-    context.ctx.globalCompositeOperation = props.style.composite
+  // if (props.style.composite)
+  context.ctx.globalCompositeOperation = props.style.composite ?? 'source-over'
   if (props.style.opacity) context.ctx.globalAlpha = props.style.opacity
 
   context.ctx.setTransform(context.matrix)

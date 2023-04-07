@@ -6,11 +6,13 @@ import { linkTo } from './linkTo'
 function createCubic(values: CubicPoint[]): PathResult
 function createCubic(
   values: CubicPoint[] | CubicPoint,
-  previous: CreatePathParams,
+  previous: CreatePathParams | undefined,
+  final?: boolean,
 ): PathResult
 function createCubic(
   values: CubicPoint[] | CubicPoint,
-  previous?: CreatePathParams,
+  previous?: CreatePathParams | undefined,
+  final?: boolean,
 ) {
   let point: Vector
   let control: Vector | undefined
@@ -36,7 +38,8 @@ function createCubic(
       if (
         !value.oppositeControl &&
         command === 'C' &&
-        i !== values.length - 1
+        i !== 1 &&
+        (!final || i !== values.length - 1 || value.control)
       ) {
         string += 'S'
         command = 'S'

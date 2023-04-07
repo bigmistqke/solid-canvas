@@ -8,12 +8,14 @@ import {
   createSignal,
   JSX,
   on,
+  onCleanup,
   onMount,
   Show,
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
 import { InternalContext } from 'src/context/InternalContext'
+import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
 import {
@@ -22,6 +24,7 @@ import {
   Color,
   Composite,
   CursorStyle,
+  Transforms,
   Vector,
 } from 'src/types'
 import { createMatrix } from 'src/utils/createMatrix'
@@ -38,11 +41,7 @@ export const Canvas: Component<{
   children: JSX.Element
   style?: JSX.CSSProperties
   fill?: Color
-  transform?: {
-    position: Vector
-    skew: Vector
-    rotation: number
-  }
+  transform?: Transforms
   alpha?: boolean
   stats?: boolean
   draggable?: boolean
@@ -145,7 +144,7 @@ export const Canvas: Component<{
             },
           },
         },
-        /* {
+        {
           context: UserContext,
           value: {
             onFrame: (callback: (args: { clock: number }) => void) => {
@@ -153,7 +152,7 @@ export const Canvas: Component<{
               onCleanup(() => frameQueue.delete(callback))
             },
           },
-        }, */
+        },
       ],
     ),
   )
@@ -202,10 +201,10 @@ export const Canvas: Component<{
 
     ctx.restore()
 
-    for (const token of tokens()) {
+    forEachReversed(tokens(), token => {
       if (props.debug && 'debug' in token.data) token.data.debug(ctx)
       if ('render' in token.data) token.data.render(ctx)
-    }
+    })
 
     if (props.fill) {
       ctx.save()

@@ -14,6 +14,7 @@ import { createUpdatedContext } from './createUpdatedContext'
 import { deepMergeGetters } from './mergeGetters'
 import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 import { Hover } from 'src/controllers/Hover'
+import { isPointInShape2D } from './isPointInShape2D'
 
 const createPath2D = <T extends { [key: string]: any }>(arg: {
   id: string
@@ -22,7 +23,6 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
   path: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Path2D
   bounds: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Vector[]
 }) => {
-  console.log('createPath2D')
   const props = deepMergeGetters(
     { ...defaultShape2DProps, ...arg.defaultProps },
     arg.props,
@@ -30,14 +30,15 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
 
   const controlled = createControlledProps(props, [
     Hover({
-      style: props.style?.['&:hover'] ?? {},
-      transform: props.transform?.['&:hover'] ?? {},
+      style: props.style?.['&:hover'],
+      transform: props.transform?.['&:hover'],
     }),
   ])
   const context = createUpdatedContext(() => controlled.props)
+
   const parenthood = createParenthood(arg.props, context)
 
-  const path = createMemo(() => arg.path(props))
+  const path = createMemo(() => arg.path(controlled.props))
 
   // const bounds = createBounds(() => arg.bounds(props), context)
 
@@ -64,31 +65,36 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
 
       context.ctx.save()
       context.ctx.setTransform(context.matrix)
-
       context.ctx.lineWidth = controlled.props.style.lineWidth
         ? controlled.props.style.lineWidth < 20
           ? 20
           : controlled.props.style.lineWidth
         : 20
 
-      const hit = context.ctx.isPointInPath(
-        path(),
-        event.position.x,
-        event.position.y,
-      )
+      const hit = isPointInShape2D(event, props, path())
 
       context.ctx.resetTransform()
 
       if (hit) {
         event.target.push(token)
-        let listeners = controlled.props[
+        let controlledListeners = controlled.props[
           event.type
         ] as SingleOrArray<CanvasMouseEventListener>
 
-        if (listeners) {
-          if (Array.isArray(listeners)) listeners.forEach(l => l(event))
-          else listeners(event)
+        if (controlledListeners) {
+          if (Array.isArray(controlledListeners))
+            controlledListeners.forEach(l => l(event))
+          else controlledListeners(event)
         }
+
+        /*  let propListeners = props[
+          event.type
+        ] as SingleOrArray<CanvasMouseEventListener>
+
+        if (propListeners) {
+          if (Array.isArray(propListeners)) propListeners.forEach(l => l(event))
+          else propListeners(event)
+        } */
 
         if (controlled.props.cursor)
           event.cursor = controlled.props.style.cursor

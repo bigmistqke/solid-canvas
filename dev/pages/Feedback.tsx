@@ -1,6 +1,6 @@
 import { Component, createMemo, createSignal, on, Show } from 'solid-js'
 import { Arc, Canvas, useCanvas, createClock } from 'src'
-import { Composite, Position } from 'src/types'
+import { Composite, Vector } from 'src/types'
 
 const randomColor = (alpha?: number) => ({
   h: Math.random() * 360,
@@ -11,26 +11,27 @@ const randomColor = (alpha?: number) => ({
 
 const Dot = (props: {
   switchColor: number
-  position: Position
+  position: Vector
   switchScene: number
 }) => {
-  const context = useCanvas()
-  const [position, setPosition] = createSignal({ x: 0, y: 0 })
-
+  const radius = createMemo(
+    on(
+      () => props.switchScene,
+      () => 50 * Math.random() * 2 + 25,
+    ),
+  )
   const delta = Math.random() * 10 + 20
 
-  context?.onFrame(() => {
-    setPosition({
-      x:
-        props.position.x -
-        radius() +
-        Math.sin(performance.now() / (10 * delta) + delta) * 10,
-      y:
-        props.position.y -
-        radius() +
-        Math.cos(performance.now() / (10 * delta) + delta) * 10,
-    })
-  })
+  const position = createMemo(() => ({
+    x:
+      props.position.x -
+      radius() +
+      Math.sin(performance.now() / (10 * delta) + delta) * 10,
+    y:
+      props.position.y -
+      radius() +
+      Math.cos(performance.now() / (10 * delta) + delta) * 10,
+  }))
 
   const fill = createMemo(
     on(
@@ -39,20 +40,18 @@ const Dot = (props: {
     ),
   )
 
-  const radius = createMemo(
-    on(
-      () => props.switchScene,
-      () => 50 * Math.random() * 2 + 25,
-    ),
-  )
   return (
     <Arc
-      position={{ x: position().x, y: position().y }}
-      radius={radius()}
-      fill={fill()}
-      stroke="transparent"
-      draggable
-      pointerEvents={false}
+      transform={{
+        position: { x: position().x, y: position().y },
+      }}
+      style={{
+        angle: { start: 0, end: 2 * Math.PI },
+        radius: radius(),
+        fill: fill(),
+        stroke: undefined,
+        pointerEvents: false,
+      }}
     />
   )
 }
@@ -65,7 +64,7 @@ const fxs: {
   double?: boolean
 }[] = [
   {
-    filter: ``,
+    filter: '',
     alpha: 0.9,
     composite: 'source-over',
   },
@@ -126,8 +125,7 @@ const App: Component = () => {
       ctx.save()
       ctx.globalAlpha = fx?.alpha ?? 1
       if (fx?.composite) ctx.globalCompositeOperation = fx?.composite
-
-      ctx.filter = fx?.filter ?? ''
+      if (fx?.filter) ctx.filter = fx?.filter
 
       const offset =
         typeof fx?.offset === 'function' ? fx?.offset() : fx?.offset

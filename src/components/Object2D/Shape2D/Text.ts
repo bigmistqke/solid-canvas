@@ -18,15 +18,24 @@ type Rounded =
   | [topLeft: number, topRightAndBottomLeft: number, bottomRight: number]
 
 type TextProps = Shape2DProps & {
+  style?: {
+    background?: ExtendedColor
+    rounded?: Rounded
+    padding?: number
+    fontSize?: number
+    fontFamily?: string
+    '&:hover'?: {
+      background?: ExtendedColor
+      rounded?: Rounded
+      padding?: number
+      fontSize?: number
+      fontFamily?: string
+    }
+  }
   text: string
-  size?: number
-  fontFamily?: string
-  background?: ExtendedColor
-  padding?: number
   /**
    * Currently not yet supported in firefox [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/roundRect#browser_compatibility)
    */
-  rounded?: Rounded
   isHovered?: boolean
   isSelected?: boolean
 }
@@ -42,20 +51,21 @@ const getFontString = (size?: number, fontFamily?: string) =>
 const Text = createToken(
   parser,
   (props: Shape2DProps & Object2DProps & TextProps) => {
-    const [dimensions, setDimensions] = createSignal<Dimensions>({
-      width: 0,
-      height: 0,
-    })
+    const [dimensions, setDimensions] = createSignal<Dimensions | undefined>()
 
     return createShape2D({
       id: 'Text',
-      render: (props, context, matrix) => {
+      render: (props, context) => {
         if (props.text !== '') {
-          context.ctx.font = getFontString(props.size, props.fontFamily)
+          context.ctx.font = getFontString(
+            props.style?.fontSize,
+            props.style?.fontFamily,
+          )
 
           if (props.opacity) context.ctx.globalAlpha = props.opacity
 
-          context.ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'black'
+          context.ctx.fillStyle =
+            resolveExtendedColor(props.style?.fill) ?? 'black'
           context.ctx.strokeStyle =
             resolveExtendedColor(props.stroke) ?? 'transparent'
 
@@ -68,23 +78,25 @@ const Text = createToken(
               context.ctx.strokeStyle
           }
 
-          context.ctx.setTransform(matrix)
-
-          const domPoint = new DOMPoint()
-          domPoint.matrixTransform(context.matrix)
-
-          // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame
-          if (context.ctx.fillStyle !== 'transparent')
+          // TODO:  optimization: render text to OffscreenCanvas instead of re-rendering each frame          context.ctx.resetTransform()
+          if (
+            context.ctx.fillStyle &&
+            context.ctx.fillStyle !== 'transparent'
+          ) {
             context.ctx.fillText(
               props.text,
               context.matrix.e,
-              context.matrix.f + dimensions().height,
+              context.matrix.f + dimensions()!.height,
             )
-          if (context.ctx.strokeStyle !== 'transparent')
+          }
+          if (
+            context.ctx.strokeStyle &&
+            context.ctx.strokeStyle !== 'transparent'
+          )
             context.ctx.strokeText(
               props.text,
               context.matrix.e,
-              context.matrix.f + dimensions().height,
+              context.matrix.f + dimensions()!.height,
             )
         }
       },
@@ -97,7 +109,10 @@ const Text = createToken(
       },
       setup: (props, context) => {
         setTimeout(() => {
-          context.ctx.font = getFontString(props.size, props.fontFamily)
+          context.ctx.font = getFontString(
+            props.style?.fontSize,
+            props.style?.fontFamily,
+          )
           const metrics = context.ctx.measureText(props.text)
           setDimensions({
             width: metrics.width,

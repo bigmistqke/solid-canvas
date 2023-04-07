@@ -21,7 +21,7 @@ const createShape2D = <
 >(arg: {
   id: string
   props: Object2DProps & Shape2DProps & T
-  dimensions: Dimensions
+  dimensions: Dimensions | undefined
   setup: (
     props: Object2DProps & Shape2DProps & T & U,
     context: InternalContextType,
@@ -38,28 +38,36 @@ const createShape2D = <
     // TODO:  fix any
     deepMergeGetters(arg.defaultValues, arg.props),
   )
-  const matrix = createMatrix(() => arg.props)
+  // const matrix = createMatrix(() => arg.props)
 
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
 
   // TODO:  fix any
-  arg.setup(controlled.props as any, context, matrix())
+  arg.setup(controlled.props as any, context, context.matrix)
 
-  const [shapeProps] = splitProps(arg.props, ['transform', 'style'])
+  const [shapeProps] = splitProps(arg.props, [
+    // 'transform',
+    'style',
+    'onMouseDown',
+    'onMouseUp',
+    'onMouseMove',
+    'onMouseLeave',
+    'onMouseEnter',
+  ])
   const rectangleProps = deepMergeGetters(shapeProps, {
     style: {
       get fill() {
-        return arg.props.style?.background ?? 'black'
+        return arg.props.style?.background ?? undefined
       },
       get stroke() {
-        return arg.props.style?.background ?? 'black'
+        return arg.props.style?.background ?? undefined
       },
       get lineWidth() {
         return arg.props.style?.padding
       },
       get dimensions() {
-        return arg.dimensions
+        return arg.dimensions ?? { width: 0, height: 0 }
       },
     },
   })
@@ -87,9 +95,11 @@ const createShape2D = <
     },
     debug: event => path().data.debug(event),
     render: ctx => {
+      if (!arg.dimensions) return
+
       path().data.render(ctx)
       // TODO:  fix any
-      arg.render(controlled.props as any, context, matrix())
+      arg.render(controlled.props as any, context, context.matrix)
       parenthood.render(ctx)
       controlled.emit.onRender(ctx)
     },

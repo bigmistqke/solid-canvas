@@ -17,17 +17,16 @@ const fxs: {
   double?: boolean
 }[] = [
   {
-    filter: ``,
-    alpha: 0.9,
+    alpha: 0.2,
     composite: 'source-over',
   },
   {
-    filter: `hue-rotate(10deg) brightness(101%)`,
-    alpha: 0.1,
+    filter: `hue-rotate(10deg) brightness(101%) blur(0.1px)`,
+    alpha: 0.5,
     composite: 'source-over',
     offset: {
-      x: 2,
-      y: 2,
+      x: -5,
+      y: 0,
     },
   },
   {
@@ -74,6 +73,8 @@ const App: Component = () => {
       const fx = fxs[switchScene() % fxs.length]
       ctx.restore()
       ctx.save()
+      ctx.resetTransform()
+      ctx.globalAlpha = 0.5
       ctx.globalAlpha = fx?.alpha ?? 1
       if (fx?.composite) ctx.globalCompositeOperation = fx?.composite
       if (fx?.filter) ctx.filter = fx.filter
@@ -123,21 +124,22 @@ const App: Component = () => {
         fill={fill}
         clock={clock.clock()}
         style={{ width: '100%', height: '100%' }}
-        alpha
         feedback={feedback}
         cursor="none"
         onMouseMove={event => setCursor(event.position)}
         onMouseDown={event => incrementSwitchScene()}
+        stats
       >
         <Text
           text="link"
-          rounded={5}
-          padding={10}
-          fill={{ r: 0, g: 0, b: 250 }}
-          background="white"
-          size={15}
-          hover={{ background: 'black', fill: 'white' }}
-          position={{ x: position().x, y: position().y + 300 }}
+          style={{
+            background: 'white',
+            fontSize: 15,
+            fill: { r: 0, g: 0, b: 250 },
+          }}
+          transform={{
+            position: { x: position().x, y: position().y },
+          }}
           onMouseDown={() =>
             window.open(
               [
@@ -150,19 +152,26 @@ const App: Component = () => {
         />
         <Show when={cursor()}>
           <Image
-            pointerEvents={false}
-            dimensions={{ width: 100, height: 100 }}
-            position={{ x: cursor()!.x - 50, y: cursor()!.y - 50 }}
+            transform={{
+              position: { x: cursor()!.x - 50, y: cursor()!.y - 50 },
+            }}
+            style={{
+              dimensions: { width: 100, height: 100 },
+              pointerEvents: false,
+            }}
             image={image()!}
-            clip={() => <Arc radius={50} />}
+            clip={() => <Arc style={{ radius: 50 }} />}
           />
         </Show>
         <Image
-          pointerEvents={false}
-          dimensions={{ width: 500, height: 300 }}
-          position={position()}
+          transform={{
+            position: position(),
+          }}
+          style={{
+            pointerEvents: false,
+            dimensions: { width: 500, height: 300 },
+          }}
           image={image()!}
-          opacity={0.2}
         />
       </Canvas>
     </>
