@@ -236,7 +236,8 @@ const App = () => (
   - [ ] accepts a raw svg path-string
 - [x] MouseEvents for `Shape2D` 👉 `Shape2D.onMouseDown`, `Shape2D.onMouseMove` and `Shape2D.onMouseUp`
 - [x] MouseEvents for `Canvas` 👉 `Canvas.onMouseDown`, `Canvas.onMouseMove` and `Canvas.onMouseUp`
-- [x] HoverStyles for `Shape2D`
+- [x] HoverStyles for `Shape2D` with "&:hover" selector 👉 `"&:hover`: Shape2DStyles`
+- [ ] Transitions for `Shape2D`: automatic lerping between styles/transforms
 - [ ] Navigation
   - [x] Pan (draggable-prop in `Canvas`)
   - [ ] Zoom
