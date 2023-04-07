@@ -13,6 +13,7 @@ import renderPath from 'src/utils/renderPath'
 import { createUpdatedContext } from './createUpdatedContext'
 import { deepMergeGetters } from './mergeGetters'
 import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
+import { Hover } from 'src/controllers/Hover'
 
 const createPath2D = <T extends { [key: string]: any }>(arg: {
   id: string
@@ -22,20 +23,23 @@ const createPath2D = <T extends { [key: string]: any }>(arg: {
   bounds: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Vector[]
 }) => {
   console.log('createPath2D')
-  const props = createMemo(() =>
-    deepMergeGetters(
-      { ...defaultShape2DProps, ...arg.defaultProps },
-      arg.props,
-    ),
+  const props = deepMergeGetters(
+    { ...defaultShape2DProps, ...arg.defaultProps },
+    arg.props,
   )
 
-  const controlled = createControlledProps(props())
+  const controlled = createControlledProps(props, [
+    Hover({
+      style: props.style?.['&:hover'] ?? {},
+      transform: props.transform?.['&:hover'] ?? {},
+    }),
+  ])
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
 
-  const path = createMemo(() => arg.path(props()))
+  const path = createMemo(() => arg.path(props))
 
-  // const bounds = createBounds(() => arg.bounds(props()), context)
+  // const bounds = createBounds(() => arg.bounds(props), context)
 
   const [hover, setHover] = createSignal(false)
 

@@ -3,12 +3,14 @@ import { Accessor, createSignal, mapArray } from 'solid-js'
 import { ControllerEvents, Hover } from 'src/controllers/controllers'
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import { DeepRequired } from './typehelpers'
+import { createController } from 'src/controllers/createController'
 
 const createControlledProps = <
   T extends Record<string, any>,
   U extends Shape2DProps<T> & T,
 >(
   props: U,
+  defaultControllers: Accessor<T | Shape2DProps<T>>[] = [],
 ) => {
   const events: {
     [K in keyof ControllerEvents]: ControllerEvents[K][]
@@ -46,19 +48,8 @@ const createControlledProps = <
     mapArray(
       () =>
         props.controllers
-          ? [
-              Hover({
-                style: props.style?.['&:hover'],
-                transform: props.transform?.['&:hover'] ?? {},
-              }),
-              ...props.controllers,
-            ]
-          : [
-              Hover({
-                style: props.style?.['&:hover'] ?? {},
-                transform: props.transform?.['&:hover'] ?? {},
-              }),
-            ],
+          ? [...defaultControllers, ...props.controllers]
+          : [...defaultControllers],
       (controller, index) => {
         return controller(
           () =>
