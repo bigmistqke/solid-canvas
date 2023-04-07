@@ -1,17 +1,16 @@
-import { Accessor, createMemo, on } from 'solid-js'
+import { Accessor, createEffect, createMemo } from 'solid-js'
 import { InternalContextType } from 'src/context/InternalContext'
-import { Matrix, Shape2DProps } from 'src/types'
+import { Shape2DProps, Transforms } from 'src/types'
 
-const createMatrix = (props: Shape2DProps, context?: InternalContextType) => {
+const createMatrix = (
+  props: Accessor<{ transform?: Partial<Transforms> }>,
+  context?: InternalContextType,
+) => {
   let matrix = new DOMMatrix()
-  /* const point = new DOMPoint()
-  let offset: DOMPoint
-  const context = useInternalContext() */
 
   return createMemo(
     () => {
-      // matrix.setMatrixValue('')
-      // matrix.setMatrixValue(origin?.()?.toString() ?? '')
+      // silly, but the most performant: https://jsbench.me/6vlg41cgg8/1
       matrix.a = context?.matrix.a ?? 1
       matrix.b = context?.matrix.b ?? 0
       matrix.c = context?.matrix.c ?? 0
@@ -19,18 +18,13 @@ const createMatrix = (props: Shape2DProps, context?: InternalContextType) => {
       matrix.e = context?.matrix.e ?? 0
       matrix.f = context?.matrix.f ?? 0
 
-      matrix.translateSelf(props.position?.x, props.position?.y)
-      matrix.skewXSelf(props.skew?.x)
-      matrix.skewYSelf(props.skew?.y)
-
-      // NOTE:  skewing causes a horizontal/vertical offset
-      /* point.x = origin?.().x ?? 0
-    point.y = origin?.().y ?? 0
-    offset = point.matrixTransform(matrix)
-    matrix.translateSelf(point.x - offset.x, point.y - offset.y) */
-
-      // NOTE:  the rotation should not be included in this offset-calculation
-      matrix.rotateSelf(props.rotation)
+      matrix.translateSelf(
+        props().transform?.position?.x,
+        props().transform?.position?.y,
+      )
+      matrix.skewXSelf(props().transform?.skew?.x)
+      matrix.skewYSelf(props().transform?.skew?.y)
+      matrix.rotateSelf(props().transform?.rotation)
 
       return matrix
     },

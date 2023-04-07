@@ -1,4 +1,5 @@
 import { resolveTokens } from '@solid-primitives/jsx-tokenizer'
+import { createScheduled, throttle } from '@solid-primitives/scheduled'
 import {
   Accessor,
   Component,
@@ -24,6 +25,7 @@ import {
   Vector,
 } from 'src/types'
 import { createMatrix } from 'src/utils/createMatrix'
+import { createMouseEventHandler } from 'src/utils/createMouseEventHandler'
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
@@ -36,7 +38,7 @@ export const Canvas: Component<{
   children: JSX.Element
   style?: JSX.CSSProperties
   fill?: Color
-  origin?: {
+  transform?: {
     position: Vector
     skew: Vector
     rotation: number
@@ -78,15 +80,6 @@ export const Canvas: Component<{
     onMouseEnter: [],
     onMouseLeave: [],
   })
-  const [selectedToken, setSelectedtoken] = createSignal<CanvasToken>()
-  const [hoveredToken, setHoveredToken] = createSignal<CanvasToken>()
-
-  const isSelected = createSelector<CanvasToken | undefined, CanvasToken>(
-    selectedToken,
-  )
-  const isHovered = createSelector<CanvasToken | undefined, CanvasToken>(
-    hoveredToken,
-  )
 
   const [stats, setStats] = createStore<{
     fps?: number
@@ -114,7 +107,7 @@ export const Canvas: Component<{
 
   const frameQueue = new Set<(args: { clock: number }) => void>()
 
-  const matrix = createMatrix(props)
+  const matrix = createMatrix(() => props)
 
   const tokens = resolveTokens(
     parser,
@@ -130,15 +123,6 @@ export const Canvas: Component<{
             },
             get matrix() {
               return matrix()
-            },
-            get selected() {
-              return selectedToken()
-            },
-            isSelected,
-            isHovered: (token: CanvasToken) =>
-              !selectedToken() && isHovered(token),
-            get hovered() {
-              return hoveredToken()
             },
             addEventListener: (
               type: CanvasMouseEvent['type'],
@@ -185,7 +169,6 @@ export const Canvas: Component<{
     })
 
     ctx.save()
-    ctx.beginPath()
     if (typeof props.feedback === 'number' || props.feedback) {
       if (typeof props.feedback === 'function') props.feedback(ctx)
       else if (typeof props.feedback === 'object') {
@@ -219,12 +202,9 @@ export const Canvas: Component<{
 
     ctx.restore()
 
-    let data
-    for ({ data } of tokens()) {
-      ctx.save()
-      if ('debug' in data && props.debug) data.debug(ctx)
-      if ('render' in data) data.render(ctx)
-      ctx.restore()
+    for (const token of tokens()) {
+      if (props.debug && 'debug' in token.data) token.data.debug(ctx)
+      if ('render' in token.data) token.data.render(ctx)
     }
 
     if (props.fill) {
@@ -254,29 +234,33 @@ export const Canvas: Component<{
     }
   }
 
+  const scheduled = createScheduled(fn => throttle(fn, 1000 / 120))
+
   createEffect(() => {
     if (props.clock || props.clock === 0) return
-    render()
+    if (scheduled()) render()
   })
   createEffect(on(() => props.clock, render))
 
+  let position: Vector
+  let delta: Vector
+  let event: CanvasMouseEvent
   const mouseEventHandler = (
     e: MouseEvent,
     type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
     final: (event: CanvasMouseEvent) => void,
   ) => {
-    const position = { x: e.clientX, y: e.clientY }
-    const delta = lastCursorPosition
+    position = { x: e.clientX, y: e.clientY }
+    delta = lastCursorPosition
       ? {
           x: position.x - lastCursorPosition.x,
           y: position.y - lastCursorPosition.y,
         }
       : { x: 0, y: 0 }
     lastCursorPosition = position
-    let stop = false
 
     // NOTE:  `event` gets mutated by `token.hitTest`
-    const event: CanvasMouseEvent = {
+    event = {
       ctx,
       position,
       delta,
@@ -295,19 +279,7 @@ export const Canvas: Component<{
 
     if (event.propagation) final(event)
 
-    setCursorStyle(event.cursor)
-
-    if (type === 'onMouseDown' && event.target.length > 0) {
-      setSelectedtoken(event.target[0])
-    }
-    if (type === 'onMouseMove') {
-      if (event.target.length > 0) {
-        setHoveredToken(event.target[0])
-      } else {
-        setHoveredToken(undefined)
-      }
-    }
-    if (type === 'onMouseUp') setSelectedtoken(undefined)
+    // setCursorStyle(event.cursor)
 
     eventListeners[type].forEach(listener => listener(event))
 
@@ -332,8 +304,22 @@ export const Canvas: Component<{
     window.addEventListener('mouseup', handleMouseUp)
   }
 
-  const mouseDownHandler = (e: MouseEvent) => {
-    mouseEventHandler(e, 'onMouseDown', event => {
+  const mouseMoveHandler = createMouseEventHandler(
+    'onMouseMove',
+    tokens,
+    ctx,
+    eventListeners,
+    event => {
+      props.onMouseMove?.(event)
+    },
+  )
+
+  const mouseDownHandler = createMouseEventHandler(
+    'onMouseDown',
+    tokens,
+    ctx,
+    eventListeners,
+    event => {
       if (props.draggable) {
         initPan()
       }
@@ -344,28 +330,25 @@ export const Canvas: Component<{
           y: event.position.y - originPosition().y,
         },
       })
-    })
-  }
-  const mouseMoveHandler = (e: MouseEvent) => {
-    mouseEventHandler(e, 'onMouseMove', event => {
-      if (event.target.length === 0 && props.draggable) setCursorStyle('move')
-      else if (event.target.length === 0) {
-        setCursorStyle(props.cursor ?? 'default')
-      } else setCursorStyle('pointer')
-      props.onMouseMove?.(event)
-    })
-  }
-  const mouseUpHandler = (e: MouseEvent) => {
-    mouseEventHandler(e, 'onMouseUp', event => props.onMouseUp?.(event))
-    lastCursorPosition = undefined
-  }
+    },
+  )
+
+  const mouseUpHandler = createMouseEventHandler(
+    'onMouseUp',
+    tokens,
+    ctx,
+    eventListeners,
+    event => {
+      props.onMouseUp?.(event)
+    },
+  )
 
   onMount(() => {
     const updateDimensions = () => {
-      const { width, height } = document.body.getBoundingClientRect()
+      // const { width, height } = document.body.getBoundingClientRect()
       setCanvasDimensions({
-        width,
-        height,
+        width: window.innerWidth,
+        height: window.innerHeight,
       })
     }
 

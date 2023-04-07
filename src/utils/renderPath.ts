@@ -1,57 +1,48 @@
 import { InternalContextType } from 'src/context/InternalContext'
-import { Vector, ResolvedShape2DProps } from 'src/types'
+import { ResolvedShape2DProps } from 'src/types'
 import { resolveColor, resolveExtendedColor } from './resolveColor'
 
 export default (
   context: InternalContextType,
-  props: ResolvedShape2DProps,
+  props: ResolvedShape2DProps<any>,
   path: Path2D,
-  hover: boolean | undefined,
 ) => {
   context.ctx.save()
-  if (props.shadow) {
-    context.ctx.shadowBlur = props.shadow.blur ?? 0
-    context.ctx.shadowOffsetX = props.shadow.offset?.x ?? 0
-    context.ctx.shadowOffsetY = props.shadow.offset?.y ?? 0
+
+  // NOTE:  it would be more performant if we would compose commands from the styles with mapArray
+  //        and forEach execute them, instead of doing checks on each renderPath.
+
+  if (props.style.shadow) {
+    context.ctx.shadowBlur = props.style.shadow.blur ?? 0
+    context.ctx.shadowOffsetX = props.style.shadow.offset?.x ?? 0
+    context.ctx.shadowOffsetY = props.style.shadow.offset?.y ?? 0
     context.ctx.shadowColor =
-      resolveColor(props.shadow.color ?? 'black') ?? 'black'
+      resolveColor(props.style.shadow.color ?? 'black') ?? 'black'
   }
-
-  if (props.composite) context.ctx.globalCompositeOperation = props.composite
-  if (props.opacity) context.ctx.globalAlpha = props.opacity
-
-  context.ctx.strokeStyle = resolveExtendedColor(props.stroke) ?? 'black'
-  context.ctx.fillStyle = resolveExtendedColor(props.fill) ?? 'transparent'
-  context.ctx.lineWidth = props.lineWidth
-  context.ctx.miterLimit = props.miterLimit
-  context.ctx.lineJoin = props.lineJoin
-  context.ctx.lineCap = props.lineCap
-  context.ctx.setLineDash(props.lineDash)
+  if (props.style.composite)
+    context.ctx.globalCompositeOperation = props.style.composite
+  if (props.style.opacity) context.ctx.globalAlpha = props.style.opacity
 
   context.ctx.setTransform(context.matrix)
-
-  if (hover && props.hoverStyle) {
-    if (props.hoverStyle.stroke) {
-      context.ctx.strokeStyle =
-        resolveExtendedColor(props.hoverStyle.stroke) ?? context.ctx.strokeStyle
-    }
-    if (props.hoverStyle.fill) {
-      context.ctx.fillStyle =
-        resolveExtendedColor(props.hoverStyle.fill) ?? context.ctx.fillStyle
-    }
-    if (props.hoverStyle.lineWidth)
-      context.ctx.lineWidth = props.hoverStyle.lineWidth
-    if (props.hoverStyle.miterLimit)
-      context.ctx.miterLimit = props.hoverStyle.miterLimit
-    if (props.hoverStyle.lineJoin)
-      context.ctx.lineJoin = props.hoverStyle.lineJoin
-    if (props.hoverStyle.lineCap) context.ctx.lineCap = props.hoverStyle.lineCap
-    if (props.hoverStyle.lineDash)
-      context.ctx.setLineDash(props.hoverStyle.lineDash)
+  if (props.style.fill) {
+    context.ctx.fillStyle =
+      resolveExtendedColor(props.style.fill) ?? 'transparent'
+    context.ctx.fill(path)
   }
+  if (props.style.stroke && props.style.stroke !== 'transparent') {
+    if (props.style.lineWidth) context.ctx.lineWidth = props.style.lineWidth
+    if (props.style.miterLimit) context.ctx.miterLimit = props.style.miterLimit
+    if (props.style.lineJoin)
+      context.ctx.lineJoin = props.style.lineJoin ?? 'bevel'
+    if (context.ctx.lineCap)
+      context.ctx.lineCap = props.style.lineCap ?? 'round'
+    if (props.style.lineDash) context.ctx.setLineDash(props.style.lineDash)
 
-  context.ctx.fill(path)
-  context.ctx.stroke(path)
+    context.ctx.strokeStyle =
+      resolveExtendedColor(props.style.stroke) ?? 'black'
+    context.ctx.stroke(path)
+  }
+  context.ctx.resetTransform()
 
   context.ctx.setLineDash([])
   context.ctx.restore()

@@ -1,6 +1,6 @@
 import { Accessor, createMemo } from 'solid-js'
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
-import { mergeGetters } from 'src/utils/mergeGetters'
+import { deepMergeGetters, mergeGetters } from 'src/utils/mergeGetters'
 import { RegisterControllerEvents } from './controllers'
 
 const createController = <
@@ -8,27 +8,35 @@ const createController = <
   AdditionalProperties = {},
 >(
   callback: (
-    props: Accessor<ResolvedShape2DProps & AdditionalProperties>,
+    props: Accessor<
+      ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
+    >,
     events: RegisterControllerEvents,
     options: ControllerOptions,
-  ) => void,
+  ) => Partial<Shape2DProps & AdditionalProperties>,
 ) => {
   function Controller(
     options?: ControllerOptions,
   ): Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
   function Controller(
-    props: Accessor<ResolvedShape2DProps & AdditionalProperties>,
+    props: Accessor<
+      ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
+    >,
     events: RegisterControllerEvents,
     options: ControllerOptions,
   ): Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
   function Controller(
-    propsOrOptions?: Accessor<ResolvedShape2DProps> | ControllerOptions,
+    propsOrOptions?:
+      | Accessor<ResolvedShape2DProps<AdditionalProperties>>
+      | ControllerOptions,
     events?: RegisterControllerEvents,
     options?: ControllerOptions,
   ) {
     if (!events) {
       return (
-        props: Accessor<ResolvedShape2DProps & AdditionalProperties>,
+        props: Accessor<
+          ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
+        >,
         events: RegisterControllerEvents,
       ) => Controller(props, events, propsOrOptions as ControllerOptions)
     }
@@ -36,7 +44,9 @@ const createController = <
     // NOTE:  `result` needs to be defined outside `mergeProps` for unknown reasons
 
     const result = callback(
-      propsOrOptions as Accessor<ResolvedShape2DProps & AdditionalProperties>,
+      propsOrOptions as Accessor<
+        ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
+      >,
       events,
       options!,
     )
@@ -49,7 +59,7 @@ const createController = <
     //         while `Object.assign` or spreading would cause a merge with each update.
 
     return createMemo(() =>
-      mergeGetters(
+      deepMergeGetters(
         (
           propsOrOptions as Accessor<
             ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties

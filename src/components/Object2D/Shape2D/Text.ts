@@ -1,5 +1,5 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
-import { createSignal } from 'solid-js'
+import { createEffect, createSignal } from 'solid-js'
 
 import { parser } from 'src/parser'
 import {
@@ -46,6 +46,7 @@ const Text = createToken(
       width: 0,
       height: 0,
     })
+
     return createShape2D({
       id: 'Text',
       render: (props, context, matrix) => {

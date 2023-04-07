@@ -9,20 +9,47 @@ const Arm = (props: {
   length?: number
   children?: SingleOrArray<JSX.Element>
 }) => {
+  const [fill, setFill] = createSignal('black')
+  setTimeout(() => setFill('white'), 1000)
+
   return (
     <Group
-      position={{ x: props.position?.x ?? 0, y: (props.position?.y ?? 0) + 5 }}
-      rotation={props.rotation ?? 0}
+      transform={{
+        position: {
+          x: props.position?.x ?? 0,
+          y: (props.position?.y ?? 0) + 5,
+        },
+        rotation: props.rotation ?? 0,
+      }}
     >
       <Rectangle
-        position={{ x: 0, y: -5 }}
-        dimensions={{ width: props.length ?? 100, height: 10 }}
-        fill="white"
+        transform={{
+          position: { x: 0, y: -5 },
+        }}
+        style={{
+          dimensions: { width: props.length ?? 100, height: 10 },
+          fill: 'white',
+        }}
       >
-        <Group position={{ x: props.length ?? 100, y: 0 }}>
+        <Group
+          transform={{
+            position: { x: props.length ?? 100, y: 0 },
+          }}
+        >
           {props.children}
         </Group>
-        <Arc position={{ x: -5, y: -5 }} fill="black" />
+        <Arc
+          transform={{
+            position: { x: -10, y: -5 },
+          }}
+          style={{
+            // fill: 'black',
+            get fill() {
+              return fill()
+            },
+            radius: 10,
+          }}
+        />
       </Rectangle>
     </Group>
   )
@@ -45,11 +72,11 @@ const App: Component = () => {
             <Arm rotation={180 - clock.clock()} />
           </Arm>
         </Arm>
-        {/* <Arm rotation={clock.clock()} position={{ x: 850, y: 300 }}>
+        <Arm rotation={clock.clock()} position={{ x: 850, y: 300 }}>
           <Arm rotation={clock.clock()}>
             <Arm rotation={clock.clock()} />
           </Arm>
-        </Arm> */}
+        </Arm>
       </Canvas>
     </>
   )
