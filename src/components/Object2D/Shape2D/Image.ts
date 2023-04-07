@@ -32,7 +32,6 @@ const Image = createToken(
   parser,
   (props: Shape2DProps & Object2DProps & ImageProps) => {
     const image = resolveImageSource(() => props.image)
-
     return createShape2D({
       props,
       id: 'Image',
@@ -43,7 +42,6 @@ const Image = createToken(
         if (!image()) return
         if (props.opacity) context.ctx.globalAlpha = props.opacity
         context.ctx.setTransform(context.matrix)
-
         context.ctx.drawImage(
           image()!,
           0,

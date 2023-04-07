@@ -2,7 +2,7 @@ import { createToken } from '@solid-primitives/jsx-tokenizer'
 
 import { createCubic } from 'src/d/d'
 import { parser } from 'src/parser'
-import { Vector, Shape2DProps } from 'src/types'
+import { Shape2DProps, Vector } from 'src/types'
 import { createPath2D } from 'src/utils/createPath2D'
 
 export type BezierProps = {
@@ -20,14 +20,14 @@ export type BezierProps = {
  */
 const Bezier = createToken(
   parser,
-  (props: Shape2DProps<BezierProps> & BezierProps) =>
-    createPath2D<BezierProps>({
+  (props: Shape2DProps<BezierProps> & BezierProps) => {
+    let svgString: string, path2D: Path2D
+    return createPath2D<BezierProps>({
       id: 'Bezier',
       props,
       defaultProps: { close: false },
       path: props => {
-        const svgString = createCubic(props.points).string
-        const path2D = new Path2D(svgString)
+        svgString = createCubic(props.points, undefined, true).string
         if (props.close) path2D.closePath()
         return path2D
       },
@@ -36,7 +36,8 @@ const Bezier = createToken(
           .map(Object.values)
           .flat()
           .filter(v => typeof v === 'object'),
-    }),
+    })
+  },
 )
 
 export { Bezier }
