@@ -1,5 +1,5 @@
-import { Accessor, createEffect, createMemo, createSignal } from 'solid-js'
-import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
+import { createMemo, createSignal } from 'solid-js'
+import { defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import {
   CanvasMouseEventListener,
@@ -7,12 +7,10 @@ import {
   Shape2DProps,
   Vector,
 } from 'src/types'
-import { createBounds } from 'src/utils/createBounds'
 import { createControlledProps } from 'src/utils/createControlledProps'
 import { createParenthood } from 'src/utils/createParenthood'
 import renderPath from 'src/utils/renderPath'
 import { createUpdatedContext } from './createUpdatedContext'
-import { isPointInShape2D } from './isPointInShape2D'
 import { deepMergeGetters } from './mergeGetters'
 import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 
