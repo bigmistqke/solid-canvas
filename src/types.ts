@@ -17,7 +17,7 @@ export type Object2DProps = {
 }
 
 export type Shape2DProps<T = Object> = Shape2DEvents & {
-  transform?: Transforms
+  transform?: Transforms & { '&:hover'?: Transforms }
   style?: Shape2DStyle & { '&:hover'?: Shape2DStyle }
 
   /**
@@ -96,7 +96,6 @@ export interface Transforms {
   /**
    * Set transforms while hovering. Default: undefined
    */
-  '&:hover'?: Transforms
 }
 
 export interface Shape2DStyle {
