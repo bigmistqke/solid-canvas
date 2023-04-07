@@ -80,7 +80,7 @@ type Shape2DEvents = {
   onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
 }
 
-export type Transforms = {
+export interface Transforms {
   /**
    * Default: { x: 0, y: 0 }
    */
@@ -93,9 +93,13 @@ export type Transforms = {
    * Default: 0
    */
   skew?: Partial<Vector>
+  /**
+   * Set transforms while hovering. Default: undefined
+   */
+  '&:hover'?: Transforms
 }
 
-export type Shape2DStyle = {
+export interface Shape2DStyle {
   /**
    * Default: 'transparent'
    */

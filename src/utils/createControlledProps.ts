@@ -47,10 +47,18 @@ const createControlledProps = <
       () =>
         props.controllers
           ? [
-              Hover({ style: props.style?.['&:hover'] ?? {} }),
+              Hover({
+                style: props.style?.['&:hover'],
+                transform: props.transform?.['&:hover'] ?? {},
+              }),
               ...props.controllers,
             ]
-          : [Hover({ style: props.style?.['&:hover'] ?? {} })],
+          : [
+              Hover({
+                style: props.style?.['&:hover'] ?? {},
+                transform: props.transform?.['&:hover'] ?? {},
+              }),
+            ],
       (controller, index) => {
         return controller(
           () =>
