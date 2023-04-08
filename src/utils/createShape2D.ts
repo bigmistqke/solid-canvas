@@ -84,12 +84,14 @@ const createShape2D = <
     hitTest: event => {
       parenthood.hitTest(event)
       if (!event.propagation) return false
-      let hit = path().data.hitTest(event)
+      if (!arg.props.style?.pointerEvents) return false
 
+      let hit = path().data.hitTest(event)
       if (hit) {
         controlled.emit[event.type](event)
       }
       controlled.emit.onHitTest(event)
+
       if (!event.propagation) return false
       return hit
     },

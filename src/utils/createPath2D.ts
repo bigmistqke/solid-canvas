@@ -37,10 +37,10 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
   })
 
   const controlled = createControlledProps(props, [
-    /* Hover({
+    Hover({
       style: props.style?.['&:hover'],
       transform: props.transform?.['&:hover'],
-    }), */
+    }),
   ])
 
   const context = useInternalContext()
@@ -78,6 +78,8 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
       // renderPath(context, defaultBoundsProps, bounds().path)
     },
     hitTest: event => {
+      // NOTE:  we could prevent having to transform ctx
+      //        if props.children.length === 0 && !style.pointerEvents;
       event.ctx.translate(
         controlled.props.transform?.position?.x ?? 0,
         controlled.props.transform?.position?.y ?? 0,
@@ -85,56 +87,58 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
       event.ctx.rotate(controlled.props.transform?.rotation ?? 0)
 
       parenthood.hitTest(event)
-      if (!event.propagation) return false
-      controlled.emit.onHitTest(event)
-      if (!event.propagation) return false
 
-      event.ctx.save()
-      event.ctx.lineWidth = controlled.props.style.lineWidth
-        ? controlled.props.style.lineWidth < 20
-          ? 20
-          : controlled.props.style.lineWidth
-        : 20
+      let hit = false
+      if (controlled.props.style.pointerEvents) {
+        if (!event.propagation) return false
+        controlled.emit.onHitTest(event)
+        if (!event.propagation) return false
 
-      const hit = isPointInShape2D(event, props, path())
+        event.ctx.lineWidth = controlled.props.style.lineWidth
+          ? controlled.props.style.lineWidth < 20
+            ? 20
+            : controlled.props.style.lineWidth
+          : 20
 
-      if (hit) {
-        event.target.push(token)
-        let controlledListeners = controlled.props[
-          event.type
-        ] as SingleOrArray<CanvasMouseEventListener>
+        hit = isPointInShape2D(event, props, path())
 
-        if (controlledListeners) {
-          if (Array.isArray(controlledListeners))
-            controlledListeners.forEach(l => l(event))
-          else controlledListeners(event)
-        }
+        if (hit) {
+          event.target.push(token)
+          let controlledListeners = controlled.props[
+            event.type
+          ] as SingleOrArray<CanvasMouseEventListener>
 
-        if (controlled.props.cursor)
-          event.cursor = controlled.props.style.cursor
+          if (controlledListeners) {
+            if (Array.isArray(controlledListeners))
+              controlledListeners.forEach(l => l(event))
+            else controlledListeners(event)
+          }
 
-        if (event.type === 'onMouseMove') {
-          if (event.target.length === 1) {
-            if (!hover()) {
-              setHover(true)
-              controlled.emit.onMouseEnter(event)
-            }
-          } else {
-            if (hover()) {
-              setHover(false)
-              controlled.emit.onMouseLeave(event)
+          if (controlled.props.cursor)
+            event.cursor = controlled.props.style.cursor
+
+          if (event.type === 'onMouseMove') {
+            if (event.target.length === 1) {
+              if (!hover()) {
+                setHover(true)
+                controlled.emit.onMouseEnter(event)
+              }
+            } else {
+              if (hover()) {
+                setHover(false)
+                controlled.emit.onMouseLeave(event)
+              }
             }
           }
-        }
 
-        controlled.emit[event.type](event)
-      } else {
-        if (hover() && event.type === 'onMouseMove') {
-          setHover(false)
-          controlled.emit.onMouseLeave(event)
+          controlled.emit[event.type](event)
+        } else {
+          if (hover() && event.type === 'onMouseMove') {
+            setHover(false)
+            controlled.emit.onMouseLeave(event)
+          }
         }
       }
-      event.ctx.restore()
       event.ctx.translate(
         (controlled.props.transform?.position?.x ?? 0) * -1,
         (controlled.props.transform?.position?.y ?? 0) * -1,

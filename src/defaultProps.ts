@@ -9,7 +9,7 @@ const defaultShape2DProps: ResolvedShape2DProps<unknown> = {
     lineJoin: 'round',
     miterLimit: 10,
     lineWidth: 2,
-    pointerEvents: true,
+    pointerEvents: false,
     opacity: 1,
     cursor: 'default',
   },
@@ -35,7 +35,7 @@ const defaultBoundsProps: ResolvedShape2DProps<unknown> = {
     opacity: 1,
     composite: 'destination-over',
     cursor: undefined,
-    pointerEvents: true,
+    pointerEvents: false,
   },
   transform: {
     position: { x: 0, y: 0 },

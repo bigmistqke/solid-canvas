@@ -57,7 +57,18 @@ const Group = createToken(parser, (props: Object2DProps) => {
     },
     debug: () => {},
     hitTest: event => {
+      event.ctx.translate(
+        props.transform?.position?.x ?? 0,
+        props.transform?.position?.y ?? 0,
+      )
+      event.ctx.rotate(props.transform?.rotation ?? 0)
       parenthood.hitTest(event)
+      event.ctx.translate(
+        (props.transform?.position?.x ?? 0) * -1,
+        (props.transform?.position?.y ?? 0) * -1,
+      )
+      event.ctx.rotate((props.transform?.rotation ?? 0) * -1)
+
       if (!event.propagation) return false
       return true
     },
