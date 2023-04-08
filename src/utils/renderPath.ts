@@ -19,11 +19,10 @@ export default (
     context.ctx.shadowColor =
       resolveColor(props.style.shadow.color ?? 'black') ?? 'black'
   }
-  // if (props.style.composite)
-  context.ctx.globalCompositeOperation = props.style.composite ?? 'source-over'
+  if (props.style.composite)
+    context.ctx.globalCompositeOperation = props.style.composite
   if (props.style.opacity) context.ctx.globalAlpha = props.style.opacity
 
-  context.ctx.setTransform(context.matrix)
   if (props.style.fill) {
     context.ctx.fillStyle =
       resolveExtendedColor(props.style.fill) ?? 'transparent'
@@ -36,13 +35,12 @@ export default (
       context.ctx.lineJoin = props.style.lineJoin ?? 'bevel'
     if (context.ctx.lineCap)
       context.ctx.lineCap = props.style.lineCap ?? 'round'
-    // if (props.style.lineDash) context.ctx.setLineDash(props.style.lineDash)
+    if (props.style.lineDash) context.ctx.setLineDash(props.style.lineDash)
 
     context.ctx.strokeStyle =
       resolveExtendedColor(props.style.stroke) ?? 'black'
     context.ctx.stroke(path)
   }
-  context.ctx.resetTransform()
 
   context.ctx.restore()
 }

@@ -15,6 +15,7 @@ import { deepMergeGetters } from './mergeGetters'
 import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 import { Hover } from 'src/controllers/Hover'
 import { isPointInShape2D } from './isPointInShape2D'
+import { useInternalContext } from 'src/context/InternalContext'
 
 const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
   id: string
@@ -36,15 +37,15 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
   })
 
   const controlled = createControlledProps(props, [
-    /*  Hover({
+    /* Hover({
       style: props.style?.['&:hover'],
       transform: props.transform?.['&:hover'],
     }), */
   ])
 
-  const context = createUpdatedContext(() => controlled.props)
+  const context = useInternalContext()
 
-  const parenthood = createParenthood(arg.props, context)
+  const parenthood = createParenthood(arg.props, context!)
 
   const path = createMemo(() => arg.path(controlled.props))
 
@@ -57,31 +58,45 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
     id: arg.id,
     path,
     render: ctx => {
-      renderPath(context, controlled.props, path())
+      ctx.translate(
+        controlled.props.transform?.position?.x ?? 0,
+        controlled.props.transform?.position?.y ?? 0,
+      )
+      ctx.rotate(controlled.props.transform?.rotation ?? 0)
+
+      renderPath(context!, controlled.props, path())
       parenthood.render(ctx)
+
+      ctx.translate(
+        (controlled.props.transform?.position?.x ?? 0) * -1,
+        (controlled.props.transform?.position?.y ?? 0) * -1,
+      )
+      ctx.rotate((controlled.props.transform?.rotation ?? 0) * -1)
       controlled.emit.onRender(ctx)
     },
     debug: ctx => {
       // renderPath(context, defaultBoundsProps, bounds().path)
     },
     hitTest: event => {
+      event.ctx.translate(
+        controlled.props.transform?.position?.x ?? 0,
+        controlled.props.transform?.position?.y ?? 0,
+      )
+      event.ctx.rotate(controlled.props.transform?.rotation ?? 0)
+
       parenthood.hitTest(event)
       if (!event.propagation) return false
       controlled.emit.onHitTest(event)
       if (!event.propagation) return false
-      if (controlled.props.style.pointerEvents === false) return false
 
-      context.ctx.save()
-      context.ctx.setTransform(context.matrix)
-      context.ctx.lineWidth = controlled.props.style.lineWidth
+      event.ctx.save()
+      event.ctx.lineWidth = controlled.props.style.lineWidth
         ? controlled.props.style.lineWidth < 20
           ? 20
           : controlled.props.style.lineWidth
         : 20
 
       const hit = isPointInShape2D(event, props, path())
-
-      context.ctx.resetTransform()
 
       if (hit) {
         event.target.push(token)
@@ -94,15 +109,6 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
             controlledListeners.forEach(l => l(event))
           else controlledListeners(event)
         }
-
-        /*  let propListeners = props[
-          event.type
-        ] as SingleOrArray<CanvasMouseEventListener>
-
-        if (propListeners) {
-          if (Array.isArray(propListeners)) propListeners.forEach(l => l(event))
-          else propListeners(event)
-        } */
 
         if (controlled.props.cursor)
           event.cursor = controlled.props.style.cursor
@@ -128,8 +134,12 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
           controlled.emit.onMouseLeave(event)
         }
       }
-      context.ctx.restore()
-
+      event.ctx.restore()
+      event.ctx.translate(
+        (controlled.props.transform?.position?.x ?? 0) * -1,
+        (controlled.props.transform?.position?.y ?? 0) * -1,
+      )
+      event.ctx.rotate((controlled.props.transform?.rotation ?? 0) * -1)
       return hit
     },
   }

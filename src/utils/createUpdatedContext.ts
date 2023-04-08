@@ -8,12 +8,13 @@ const createUpdatedContext = (
   props: Accessor<{ transform?: Partial<Transforms> }>,
 ) => {
   const internalContext = useInternalContext()
-  const matrix = createMatrix(props, internalContext)
+  /* const matrix = createMatrix(props, internalContext)
   return deepMergeGetters(internalContext, {
     get matrix() {
       return matrix()
     },
-  })
+  }) */
+  return internalContext!
 }
 
 export { createUpdatedContext }

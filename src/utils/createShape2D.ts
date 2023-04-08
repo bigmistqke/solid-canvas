@@ -96,12 +96,21 @@ const createShape2D = <
     debug: event => path().data.debug(event),
     render: ctx => {
       if (!arg.dimensions) return
-
+      ctx.translate(
+        arg.props.transform?.position?.x ?? 0,
+        arg.props.transform?.position?.y ?? 0,
+      )
+      ctx.rotate(arg.props.transform?.rotation ?? 0)
       path().data.render(ctx)
       // TODO:  fix any
       arg.render(controlled.props as any, context, context.matrix)
       parenthood.render(ctx)
       controlled.emit.onRender(ctx)
+      ctx.translate(
+        (arg.props.transform?.position?.x ?? 0) * -1,
+        (arg.props.transform?.position?.x ?? 0) * -1,
+      )
+      ctx.rotate(arg.props.transform?.rotation ?? 0)
     },
   }
   return token
