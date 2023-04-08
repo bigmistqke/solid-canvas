@@ -60,6 +60,8 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
 
   const [hover, setHover] = createSignal(false)
 
+  let matrix: DOMMatrix
+
   const token: Shape2DToken = {
     type: 'Shape2D',
     id: arg.id,
@@ -69,6 +71,12 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
         renderPath(context!, controlled.props, path())
         parenthood.render(ctx)
         controlled.emit.onRender(ctx)
+        if (
+          controlled.props.style.pointerEvents &&
+          context?.flags.shouldHitTest
+        ) {
+          matrix = ctx.getTransform()
+        }
       })
     },
     debug: ctx => {
@@ -76,57 +84,54 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
     },
     hitTest: event => {
       if (!event.propagation) return false
+      parenthood.hitTest(event)
 
-      return transformedCallback(event.ctx, controlled.props, () => {
-        parenthood.hitTest(event)
+      event.ctx.setTransform(matrix)
+      let hit = false
+      if (controlled.props.style.pointerEvents) {
+        controlled.emit.onHitTest(event)
+        event.ctx.lineWidth = controlled.props.style.lineWidth
+          ? controlled.props.style.lineWidth < 20
+            ? 20
+            : controlled.props.style.lineWidth
+          : 20
 
-        let hit = false
-        if (controlled.props.style.pointerEvents) {
-          controlled.emit.onHitTest(event)
-          event.ctx.lineWidth = controlled.props.style.lineWidth
-            ? controlled.props.style.lineWidth < 20
-              ? 20
-              : controlled.props.style.lineWidth
-            : 20
+        hit = isPointInShape2D(event, props, path())
 
-          hit = isPointInShape2D(event, props, path())
+        if (hit) {
+          event.propagation = false
+          event.target.push(token)
 
-          if (hit) {
-            event.propagation = false
-            event.target.push(token)
+          controlled.props[event.type]?.(event)
 
-            controlled.props[event.type]?.(event)
+          if (controlled.props.cursor)
+            event.cursor = controlled.props.style.cursor
 
-            if (controlled.props.cursor)
-              event.cursor = controlled.props.style.cursor
-
-            if (event.type === 'onMouseMove') {
-              if (event.target.length === 1) {
-                if (!hover()) {
-                  setHover(true)
-                  controlled.emit.onMouseEnter(event)
-                }
-              } else {
-                if (hover()) {
-                  setHover(false)
-                  controlled.emit.onMouseLeave(event)
-                }
+          if (event.type === 'onMouseMove') {
+            if (event.target.length === 1) {
+              if (!hover()) {
+                setHover(true)
+                controlled.emit.onMouseEnter(event)
+              }
+            } else {
+              if (hover()) {
+                setHover(false)
+                controlled.emit.onMouseLeave(event)
               }
             }
+          }
 
-            controlled.emit[event.type](event)
-          } else {
-            if (hover() && event.type === 'onMouseMove') {
-              setHover(false)
-              controlled.emit.onMouseLeave(event)
-            }
+          controlled.emit[event.type](event)
+        } else {
+          if (hover() && event.type === 'onMouseMove') {
+            setHover(false)
+            controlled.emit.onMouseLeave(event)
           }
         }
-        return hit
-      })
+      }
+      event.ctx.resetTransform()
 
-      // NOTE:  we could prevent having to transform ctx
-      //        if props.children.length === 0 && !style.pointerEvents;
+      return hit
     },
   }
 

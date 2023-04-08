@@ -11,7 +11,7 @@ import {
 
 const createMouseEventHandler = (
   type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
-  tokens: Accessor<TokenElement<CanvasToken>[]>,
+  tokens: Accessor<CanvasToken[]>,
   context: InternalContextType,
   eventListeners: Record<
     CanvasMouseEventTypes,
@@ -45,7 +45,7 @@ const createMouseEventHandler = (
       cursor: 'move',
     }
     if (context.flags.shouldHitTest && context.flags.hasInteractiveTokens) {
-      tokens().forEach(({ data }) => {
+      tokens().forEach(data => {
         if (!event.propagation) return
         if ('hitTest' in data) {
           data.hitTest(event)

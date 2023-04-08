@@ -310,7 +310,7 @@ export const Canvas: Component<{
 
   const mouseMoveHandler = createMouseEventHandler(
     'onMouseMove',
-    tokens,
+    interactiveTokens,
     context,
     eventListeners,
     event => {
@@ -320,7 +320,7 @@ export const Canvas: Component<{
 
   const mouseDownHandler = createMouseEventHandler(
     'onMouseDown',
-    tokens,
+    interactiveTokens,
     context,
     eventListeners,
     event => {
@@ -339,7 +339,7 @@ export const Canvas: Component<{
 
   const mouseUpHandler = createMouseEventHandler(
     'onMouseUp',
-    tokens,
+    interactiveTokens,
     context,
     eventListeners,
     event => {
