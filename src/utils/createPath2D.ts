@@ -16,6 +16,7 @@ import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 import { Hover } from 'src/controllers/Hover'
 import { isPointInShape2D } from './isPointInShape2D'
 import { useInternalContext } from 'src/context/InternalContext'
+import { transformedCallback } from './transformedCallback'
 
 const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
   id: string
@@ -58,21 +59,11 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
     id: arg.id,
     path,
     render: ctx => {
-      ctx.translate(
-        controlled.props.transform?.position?.x ?? 0,
-        controlled.props.transform?.position?.y ?? 0,
-      )
-      ctx.rotate(controlled.props.transform?.rotation ?? 0)
-
-      renderPath(context!, controlled.props, path())
-      parenthood.render(ctx)
-
-      ctx.translate(
-        (controlled.props.transform?.position?.x ?? 0) * -1,
-        (controlled.props.transform?.position?.y ?? 0) * -1,
-      )
-      ctx.rotate((controlled.props.transform?.rotation ?? 0) * -1)
-      controlled.emit.onRender(ctx)
+      transformedCallback(ctx, controlled.props, () => {
+        renderPath(context!, controlled.props, path())
+        parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
+      })
     },
     debug: ctx => {
       // renderPath(context, defaultBoundsProps, bounds().path)
@@ -80,64 +71,56 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
     hitTest: event => {
       if (!event.propagation) return false
 
-      // NOTE:  we could prevent having to transform ctx
-      //        if props.children.length === 0 && !style.pointerEvents;
-      event.ctx.translate(
-        controlled.props.transform?.position?.x ?? 0,
-        controlled.props.transform?.position?.y ?? 0,
-      )
-      event.ctx.rotate(controlled.props.transform?.rotation ?? 0)
+      return transformedCallback(event.ctx, controlled.props, () => {
+        parenthood.hitTest(event)
 
-      parenthood.hitTest(event)
+        let hit = false
+        if (controlled.props.style.pointerEvents) {
+          controlled.emit.onHitTest(event)
+          event.ctx.lineWidth = controlled.props.style.lineWidth
+            ? controlled.props.style.lineWidth < 20
+              ? 20
+              : controlled.props.style.lineWidth
+            : 20
 
-      let hit = false
-      if (controlled.props.style.pointerEvents) {
-        controlled.emit.onHitTest(event)
-        event.ctx.lineWidth = controlled.props.style.lineWidth
-          ? controlled.props.style.lineWidth < 20
-            ? 20
-            : controlled.props.style.lineWidth
-          : 20
+          hit = isPointInShape2D(event, props, path())
 
-        hit = isPointInShape2D(event, props, path())
+          if (hit) {
+            event.propagation = false
+            event.target.push(token)
 
-        if (hit) {
-          event.propagation = false
-          event.target.push(token)
+            controlled.props[event.type]?.(event)
 
-          controlled.props[event.type]?.(event)
+            if (controlled.props.cursor)
+              event.cursor = controlled.props.style.cursor
 
-          if (controlled.props.cursor)
-            event.cursor = controlled.props.style.cursor
-
-          if (event.type === 'onMouseMove') {
-            if (event.target.length === 1) {
-              if (!hover()) {
-                setHover(true)
-                controlled.emit.onMouseEnter(event)
-              }
-            } else {
-              if (hover()) {
-                setHover(false)
-                controlled.emit.onMouseLeave(event)
+            if (event.type === 'onMouseMove') {
+              if (event.target.length === 1) {
+                if (!hover()) {
+                  setHover(true)
+                  controlled.emit.onMouseEnter(event)
+                }
+              } else {
+                if (hover()) {
+                  setHover(false)
+                  controlled.emit.onMouseLeave(event)
+                }
               }
             }
-          }
 
-          controlled.emit[event.type](event)
-        } else {
-          if (hover() && event.type === 'onMouseMove') {
-            setHover(false)
-            controlled.emit.onMouseLeave(event)
+            controlled.emit[event.type](event)
+          } else {
+            if (hover() && event.type === 'onMouseMove') {
+              setHover(false)
+              controlled.emit.onMouseLeave(event)
+            }
           }
         }
-      }
-      event.ctx.translate(
-        (controlled.props.transform?.position?.x ?? 0) * -1,
-        (controlled.props.transform?.position?.y ?? 0) * -1,
-      )
-      event.ctx.rotate((controlled.props.transform?.rotation ?? 0) * -1)
-      return hit
+        return hit
+      })
+
+      // NOTE:  we could prevent having to transform ctx
+      //        if props.children.length === 0 && !style.pointerEvents;
     },
   }
   return token

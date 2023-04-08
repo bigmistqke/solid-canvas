@@ -14,6 +14,7 @@ import { createUpdatedContext } from './createUpdatedContext'
 import { deepMergeGetters, mergeGetters } from './mergeGetters'
 import { mergeShape2DProps } from './mergeShape2DProps'
 import withContext from './withContext'
+import { transformedCallback } from './transformedCallback'
 
 const createShape2D = <
   T,
@@ -86,32 +87,28 @@ const createShape2D = <
       parenthood.hitTest(event)
       if (!event.propagation) return false
       if (!arg.props.style?.pointerEvents) return false
-      let hit = path().data.hitTest(event)
-      if (hit) {
-        controlled.emit[event.type](event)
-        arg.props[event.type]?.(event)
-      }
-      controlled.emit.onHitTest(event)
-      return hit
+
+      return transformedCallback(event.ctx, arg.props, () => {
+        let hit = path().data.hitTest(event)
+        if (hit) {
+          controlled.emit[event.type](event)
+          arg.props[event.type]?.(event)
+        }
+        controlled.emit.onHitTest(event)
+        return hit
+      })
     },
     debug: event => path().data.debug(event),
     render: ctx => {
       if (!arg.dimensions) return
-      ctx.translate(
-        arg.props.transform?.position?.x ?? 0,
-        arg.props.transform?.position?.y ?? 0,
-      )
-      ctx.rotate(arg.props.transform?.rotation ?? 0)
-      path().data.render(ctx)
-      // TODO:  fix any
-      arg.render(controlled.props as any, context, context.matrix)
-      parenthood.render(ctx)
-      controlled.emit.onRender(ctx)
-      ctx.translate(
-        (arg.props.transform?.position?.x ?? 0) * -1,
-        (arg.props.transform?.position?.x ?? 0) * -1,
-      )
-      ctx.rotate(arg.props.transform?.rotation ?? 0)
+
+      transformedCallback(ctx, arg.props, () => {
+        path().data.render(ctx)
+        // TODO:  fix any
+        arg.render(controlled.props as any, context, context.matrix)
+        parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
+      })
     },
   }
   return token

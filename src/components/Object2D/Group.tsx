@@ -6,6 +6,7 @@ import { RegisterControllerEvents } from 'src/controllers/controllers'
 import { CanvasToken, parser } from 'src/parser'
 import { Color, Object2DProps, ResolvedShape2DProps, Vector } from 'src/types'
 import { createParenthood } from 'src/utils/createParenthood'
+import { transformedCallback } from 'src/utils/transformedCallback'
 import { SingleOrArray } from 'src/utils/typehelpers'
 import { T } from 'vitest/dist/types-c800444e'
 
@@ -58,22 +59,14 @@ const Group = createToken(parser, (props: Object2DProps) => {
     debug: () => {},
     hitTest: event => {
       if (!event.propagation) return
-      event.ctx.translate(
-        props.transform?.position?.x ?? 0,
-        props.transform?.position?.y ?? 0,
-      )
-      event.ctx.rotate(props.transform?.rotation ?? 0)
-      const hit = parenthood.hitTest(event)
-      if (hit) {
-        props[event.type]?.(event)
-      }
-      event.ctx.translate(
-        (props.transform?.position?.x ?? 0) * -1,
-        (props.transform?.position?.y ?? 0) * -1,
-      )
-      event.ctx.rotate((props.transform?.rotation ?? 0) * -1)
 
-      return hit
+      return transformedCallback(event.ctx, props, () => {
+        const hit = parenthood.hitTest(event)
+        if (hit) {
+          props[event.type]?.(event)
+        }
+        return hit
+      })
     },
     paths: () => [],
     tokens: [],
