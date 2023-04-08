@@ -3,22 +3,21 @@ import { Accessor } from 'solid-js'
 import { InternalContextType } from 'src/context/InternalContext'
 import { CanvasToken } from 'src/parser'
 import {
-  Vector,
+  CanvasFlags,
   CanvasMouseEvent,
-  CanvasMouseEventListener,
   CanvasMouseEventTypes,
+  Vector,
 } from 'src/types'
-import forEachReversed from './forEachReversed'
 
 const createMouseEventHandler = (
   type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
   tokens: Accessor<TokenElement<CanvasToken>[]>,
-  ctx: CanvasRenderingContext2D,
+  context: InternalContextType,
   eventListeners: Record<
     CanvasMouseEventTypes,
     ((event: CanvasMouseEvent) => void)[]
   >,
-  final?: (event: CanvasMouseEvent) => void,
+  final: (event: CanvasMouseEvent) => void,
 ) => {
   let position: Vector
   let delta: Vector
@@ -37,7 +36,7 @@ const createMouseEventHandler = (
 
     // NOTE:  `event` gets mutated by `token.hitTest`
     event = {
-      ctx,
+      ctx: context.ctx,
       position,
       delta,
       propagation: true,
@@ -45,14 +44,14 @@ const createMouseEventHandler = (
       type,
       cursor: 'move',
     }
-
-    tokens().forEach(({ data }) => {
-      // forEachReversed(tokens(), ({ data }) => {
-      if (!event.propagation) return
-      if ('hitTest' in data) {
-        data.hitTest(event)
-      }
-    })
+    if (context.flags.shouldHitTest) {
+      tokens().forEach(({ data }) => {
+        if (!event.propagation) return
+        if ('hitTest' in data) {
+          data.hitTest(event)
+        }
+      })
+    }
 
     if (event.propagation && final) final(event)
 

@@ -19,6 +19,7 @@ import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
 import {
+  CanvasFlags,
   CanvasMouseEvent,
   CanvasMouseEventTypes,
   Color,
@@ -32,6 +33,7 @@ import { createMouseEventHandler } from 'src/utils/createMouseEventHandler'
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
+import { should } from 'vitest'
 
 /**
  * All `solid-canvas`-components have to be inside a `Canvas`
@@ -107,6 +109,47 @@ export const Canvas: Component<{
 
   const matrix = createMatrix(() => props)
 
+  const flags: Record<CanvasFlags, boolean> = {
+    shouldHitTest: true,
+  }
+
+  const setFlag = (key: CanvasFlags, value: boolean) => {
+    flags[key] = value
+  }
+
+  const context = {
+    ctx,
+    setFlag: setFlag,
+    get flags() {
+      return flags
+    },
+    get debug() {
+      return !!props.debug
+    },
+    get matrix() {
+      return matrix()
+    },
+    addEventListener: (
+      type: CanvasMouseEvent['type'],
+      callback: (event: CanvasMouseEvent) => void,
+    ) => {
+      setEventListeners(type, listeners => [...listeners, callback])
+    },
+    removeEventListener: (
+      type: CanvasMouseEvent['type'],
+      callback: (event: CanvasMouseEvent) => void,
+    ) => {
+      setEventListeners(type, listeners => {
+        const index = listeners.indexOf(callback)
+        const result = [
+          ...listeners.slice(0, index),
+          ...listeners.slice(index + 1),
+        ]
+        return result
+      })
+    },
+  }
+
   const tokens = resolveTokens(
     parser,
     withContext(
@@ -114,34 +157,7 @@ export const Canvas: Component<{
       [
         {
           context: InternalContext,
-          value: {
-            ctx,
-            get debug() {
-              return !!props.debug
-            },
-            get matrix() {
-              return matrix()
-            },
-            addEventListener: (
-              type: CanvasMouseEvent['type'],
-              callback: (event: CanvasMouseEvent) => void,
-            ) => {
-              setEventListeners(type, listeners => [...listeners, callback])
-            },
-            removeEventListener: (
-              type: CanvasMouseEvent['type'],
-              callback: (event: CanvasMouseEvent) => void,
-            ) => {
-              setEventListeners(type, listeners => {
-                const index = listeners.indexOf(callback)
-                const result = [
-                  ...listeners.slice(0, index),
-                  ...listeners.slice(index + 1),
-                ]
-                return result
-              })
-            },
-          },
+          value: context,
         },
         {
           context: UserContext,
@@ -232,7 +248,7 @@ export const Canvas: Component<{
     }
   }
 
-  const scheduled = createScheduled(fn => throttle(fn, 1000 / 120))
+  const scheduled = createScheduled(fn => throttle(fn))
 
   createEffect(() => {
     if (!!props.clock || props.clock === 0) return
@@ -265,7 +281,7 @@ export const Canvas: Component<{
   const mouseMoveHandler = createMouseEventHandler(
     'onMouseMove',
     tokens,
-    ctx,
+    context,
     eventListeners,
     event => {
       props.onMouseMove?.(event)
@@ -275,7 +291,7 @@ export const Canvas: Component<{
   const mouseDownHandler = createMouseEventHandler(
     'onMouseDown',
     tokens,
-    ctx,
+    context,
     eventListeners,
     event => {
       if (props.draggable) {
@@ -294,7 +310,7 @@ export const Canvas: Component<{
   const mouseUpHandler = createMouseEventHandler(
     'onMouseUp',
     tokens,
-    ctx,
+    context,
     eventListeners,
     event => {
       props.onMouseUp?.(event)

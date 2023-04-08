@@ -1,6 +1,6 @@
-import { Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Vector, Shape2DProps } from 'src/types'
+import { CanvasMouseEvent, Vector } from 'src/types'
 import { createController } from './createController'
 
 type DragOptions = {
@@ -30,6 +30,7 @@ const Drag = createController<DragOptions>((props, events, options) => {
     options.onDragMove?.(dragPosition(), event)
   }
   const handleMouseUp = (event: CanvasMouseEvent) => {
+    internalContext?.setFlag('shouldHitTest', true)
     setSelected(false)
   }
 
@@ -54,6 +55,7 @@ const Drag = createController<DragOptions>((props, events, options) => {
         ? true
         : options.active
     ) {
+      internalContext?.setFlag('shouldHitTest', false)
       setSelected(true)
       event.propagation = false
     }

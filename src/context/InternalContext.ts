@@ -1,8 +1,10 @@
-import { createContext, useContext } from 'solid-js'
+import { Accessor, Setter, createContext, useContext } from 'solid-js'
 import { CanvasToken } from 'src/parser'
-import { CanvasMouseEvent } from '../types'
+import { CanvasFlags, CanvasMouseEvent } from '../types'
 
 export type InternalContextType = {
+  setFlag: (key: CanvasFlags, value: boolean) => void
+  flags: Record<CanvasFlags, boolean>
   ctx: CanvasRenderingContext2D
   matrix: DOMMatrix
   debug: boolean

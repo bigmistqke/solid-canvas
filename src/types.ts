@@ -4,6 +4,8 @@ import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
 import { InternalContextType } from './context/InternalContext'
 
+export type CanvasFlags = 'shouldHitTest'
+
 export type Object2DProps = {
   transform?: Transforms
   style?: {
