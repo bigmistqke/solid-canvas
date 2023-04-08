@@ -78,6 +78,8 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
       // renderPath(context, defaultBoundsProps, bounds().path)
     },
     hitTest: event => {
+      if (!event.propagation) return false
+
       // NOTE:  we could prevent having to transform ctx
       //        if props.children.length === 0 && !style.pointerEvents;
       event.ctx.translate(
@@ -90,10 +92,7 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
 
       let hit = false
       if (controlled.props.style.pointerEvents) {
-        if (!event.propagation) return false
         controlled.emit.onHitTest(event)
-        if (!event.propagation) return false
-
         event.ctx.lineWidth = controlled.props.style.lineWidth
           ? controlled.props.style.lineWidth < 20
             ? 20
@@ -103,16 +102,10 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
         hit = isPointInShape2D(event, props, path())
 
         if (hit) {
+          event.propagation = false
           event.target.push(token)
-          let controlledListeners = controlled.props[
-            event.type
-          ] as SingleOrArray<CanvasMouseEventListener>
 
-          if (controlledListeners) {
-            if (Array.isArray(controlledListeners))
-              controlledListeners.forEach(l => l(event))
-            else controlledListeners(event)
-          }
+          controlled.props[event.type]?.(event)
 
           if (controlled.props.cursor)
             event.cursor = controlled.props.style.cursor

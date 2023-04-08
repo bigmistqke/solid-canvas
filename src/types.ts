@@ -6,7 +6,7 @@ import { InternalContextType } from './context/InternalContext'
 
 export type CanvasFlags = 'shouldHitTest'
 
-export type Object2DProps = {
+export type Object2DProps = CanvasMouseEvents & {
   transform?: Transforms
   style?: {
     composite?: Composite
@@ -19,7 +19,7 @@ export type Object2DProps = {
   // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
 }
 
-export type Shape2DProps<T = Object> = Shape2DEvents & {
+export type Shape2DProps<T = Object> = CanvasMouseEvents & {
   transform?: Transforms & { '&:hover'?: Transforms }
   style?: Shape2DStyle & { '&:hover'?: Shape2DStyle }
 
@@ -59,27 +59,27 @@ export type ResolvedShape2DProps<T> = Shape2DProps<T> & {
   transform: Required<Transforms>
 }
 
-type Shape2DEvents = {
+type CanvasMouseEvents = {
   /**
    * Set onMouseDown-eventhandler.
    */
-  onMouseDown?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseDown?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseUp-eventhandler.
    */
-  onMouseUp?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseUp?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseMove-eventhandler.
    */
-  onMouseMove?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseMove?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseEnter-eventhandler.
    */
-  onMouseEnter?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseEnter?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseLeave-eventhandler.
    */
-  onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseLeave?: (event: CanvasMouseEvent) => void
 }
 
 export interface Transforms {

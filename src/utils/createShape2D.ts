@@ -82,17 +82,16 @@ const createShape2D = <
     type: 'Object2D',
     id: arg.id,
     hitTest: event => {
+      if (!event.propagation) return false
       parenthood.hitTest(event)
       if (!event.propagation) return false
       if (!arg.props.style?.pointerEvents) return false
-
       let hit = path().data.hitTest(event)
       if (hit) {
         controlled.emit[event.type](event)
+        arg.props[event.type]?.(event)
       }
       controlled.emit.onHitTest(event)
-
-      if (!event.propagation) return false
       return hit
     },
     debug: event => path().data.debug(event),
