@@ -60,13 +60,11 @@ const Group = createToken(parser, (props: Object2DProps) => {
     hitTest: event => {
       if (!event.propagation) return
 
-      return transformedCallback(event.ctx, props, () => {
-        const hit = parenthood.hitTest(event)
-        if (hit) {
-          props[event.type]?.(event)
-        }
-        return hit
-      })
+      const hit = parenthood.hitTest(event)
+      if (hit) {
+        props[event.type]?.(event)
+      }
+      return hit
     },
     paths: () => [],
     tokens: [],

@@ -79,6 +79,8 @@ const createShape2D = <
     context,
   ) as Accessor<TokenElement<Shape2DToken>>
 
+  let matrix: DOMMatrix
+
   const token: Object2DToken = {
     type: 'Object2D',
     id: arg.id,
@@ -88,15 +90,15 @@ const createShape2D = <
       if (!event.propagation) return false
       if (!arg.props.style?.pointerEvents) return false
 
-      return transformedCallback(event.ctx, arg.props, () => {
-        let hit = path().data.hitTest(event)
-        if (hit) {
-          controlled.emit[event.type](event)
-          arg.props[event.type]?.(event)
-        }
-        controlled.emit.onHitTest(event)
-        return hit
-      })
+      event.ctx.setTransform(matrix)
+      let hit = path().data.hitTest(event)
+      if (hit) {
+        controlled.emit[event.type](event)
+        arg.props[event.type]?.(event)
+      }
+      controlled.emit.onHitTest(event)
+      event.ctx.resetTransform()
+      return hit
     },
     debug: event => path().data.debug(event),
     render: ctx => {
@@ -108,6 +110,9 @@ const createShape2D = <
         arg.render(controlled.props as any, context, context.matrix)
         parenthood.render(ctx)
         controlled.emit.onRender(ctx)
+        if (arg.props.style?.pointerEvents && context.flags.shouldHitTest) {
+          matrix = ctx.getTransform()
+        }
       })
     },
   }
