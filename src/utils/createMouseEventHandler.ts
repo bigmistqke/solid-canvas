@@ -46,7 +46,8 @@ const createMouseEventHandler = (
       cursor: 'move',
     }
 
-    forEachReversed(tokens(), ({ data }) => {
+    tokens().forEach(({ data }) => {
+      // forEachReversed(tokens(), ({ data }) => {
       if (!event.propagation) return
       if ('hitTest' in data) {
         data.hitTest(event)

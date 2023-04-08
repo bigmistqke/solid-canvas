@@ -1,10 +1,8 @@
 import { createStore } from 'solid-js/store'
 import { Canvas, Quadratic } from 'src'
-import { Position } from 'src/types'
+import { Vector } from 'src/types'
 
-const [path, setPath] = createStore<{ point: Position; control?: Position }[]>(
-  [],
-)
+const [path, setPath] = createStore<{ point: Vector; control?: Vector }[]>([])
 
 const App = () => (
   <Canvas

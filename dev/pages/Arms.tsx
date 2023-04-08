@@ -28,7 +28,7 @@ const Arm = (props: {
         }}
         style={{
           dimensions: { width: props.length ?? 100, height: 10 },
-          fill: 'white',
+          fill: 'grey',
         }}
       >
         <Group
@@ -43,10 +43,7 @@ const Arm = (props: {
             position: { x: -10, y: -5 },
           }}
           style={{
-            // fill: 'black',
-            get fill() {
-              return fill()
-            },
+            fill: 'black',
             radius: 10,
           }}
         />

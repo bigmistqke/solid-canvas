@@ -19,25 +19,24 @@ type ArcProps = {
  * Paints an elliptic Arc to the canvas
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/rect)
  */
-const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) =>
-  createPath2D<ArcProps>({
+const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) => {
+  let path: Path2D
+  return createPath2D<ArcProps>({
     id: 'Arc',
     props,
-    defaultProps: {
-      style: {
-        angle: { start: 0, end: 2 * Math.PI },
-        close: false,
-        radius: 10,
-      },
+    defaultStyle: {
+      angle: { start: 0, end: 2 * Math.PI },
+      close: false,
+      radius: 10,
     },
     path: props => {
-      const path = new Path2D()
+      path = new Path2D()
       path.arc(
-        props.style.radius,
-        props.style.radius,
-        props.style.radius,
+        props.style.radius ?? 30,
+        props.style.radius ?? 30,
+        props.style.radius ?? 30,
         props.style.angle.start,
-        props.style.angle.end,
+        props.style.angle.end ?? 2 * Math.PI,
       )
       return path
     },
@@ -59,6 +58,6 @@ const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) =>
         y: props.style.radius * 2,
       },
     ],
-  }),
-)
+  })
+})
 export { Arc }

@@ -67,11 +67,13 @@ const RandomBezier = (props: { counter: number; scale: number }) => {
   return (
     <Bezier
       points={points()!}
-      lineWidth={2}
-      stroke="transparent"
-      fill={randomFill()}
+      style={{
+        lineWidth: 0,
+        composite: 'hard-light',
+        stroke: 'transparent',
+        fill: randomFill(),
+      }}
       close
-      composite={'hard-light'}
     />
   )
 }
@@ -104,7 +106,7 @@ const App: Component = () => {
         onMouseDown={increment}
         debug={debug()}
       >
-        <Group position={{ x: 0, y: 0 }}>
+        <Group transform={{ position: { x: 0, y: 0 } }}>
           <For each={new Array(amount).fill('')}>
             {(_, i) => (
               <RandomBezier

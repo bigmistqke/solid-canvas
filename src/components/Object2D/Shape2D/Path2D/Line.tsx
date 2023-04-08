@@ -6,34 +6,40 @@ import { createPath2D } from '../../../../utils/createPath2D'
 
 type LineProps = {
   points: Vector[]
-  close?: boolean
+  style: {
+    close?: boolean
+  }
 }
 
 /**
  * Paints a straight line to the canvas
  * [link](https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/lineTo)
  */
-const Line = createToken(parser, (props: Shape2DProps<LineProps> & LineProps) =>
-  createPath2D<LineProps>({
-    id: 'Line',
-    props,
-    defaultProps: {
-      close: false,
-    },
-    path: props => {
-      const path2D = new Path2D()
-      let point = props.points[0]
-      path2D.moveTo(point!.x, point!.y)
-      let i = 0
-      while ((point = props.points[i])) {
-        path2D.lineTo(point.x, point.y)
-        i++
-      }
-      if (props.close) path2D.closePath()
+const Line = createToken(
+  parser,
+  (props: Shape2DProps<LineProps> & LineProps) => {
+    let path2D: Path2D, point: Vector | undefined, index: number
+    return createPath2D<LineProps>({
+      id: 'Line',
+      props,
+      defaultStyle: {
+        close: false,
+      },
+      path: props => {
+        path2D = new Path2D()
+        point = props.points[0]
+        path2D.moveTo(point!.x, point!.y)
+        index = 0
+        while ((point = props.points[index])) {
+          path2D.lineTo(point.x, point.y)
+          index++
+        }
+        if (props.style.close) path2D.closePath()
 
-      return path2D
-    },
-    bounds: props => props.points,
-  }),
+        return path2D
+      },
+      bounds: props => props.points,
+    })
+  },
 )
 export { Line }

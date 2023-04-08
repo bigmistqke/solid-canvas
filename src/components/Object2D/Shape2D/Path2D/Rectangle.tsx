@@ -27,11 +27,9 @@ const Rectangle = createToken(
     createPath2D<RectangleProps>({
       id: 'Rectangle',
       props,
-      defaultProps: {
-        style: {
-          dimensions: { width: 10, height: 10 },
-          rounded: false,
-        },
+      defaultStyle: {
+        dimensions: { width: 10, height: 10 },
+        rounded: false,
       },
       path: props => {
         const path = new Path2D()

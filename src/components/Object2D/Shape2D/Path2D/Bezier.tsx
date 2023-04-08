@@ -11,7 +11,9 @@ export type BezierProps = {
     control: Vector
     oppositeControl?: Vector
   }[]
-  close?: boolean
+  style: {
+    close?: boolean
+  }
 }
 
 /**
@@ -20,15 +22,16 @@ export type BezierProps = {
  */
 const Bezier = createToken(
   parser,
-  (props: Shape2DProps<BezierProps> & BezierProps) =>
-    createPath2D<BezierProps>({
+  (props: Shape2DProps<BezierProps> & BezierProps) => {
+    let svgString: string, path2D: Path2D
+    return createPath2D<BezierProps>({
       id: 'Bezier',
       props,
-      defaultProps: { close: false },
+      defaultStyle: { close: false },
       path: props => {
-        const svgString = createCubic(props.points).string
-        const path2D = new Path2D(svgString)
-        if (props.close) path2D.closePath()
+        svgString = createCubic(props.points).string
+        path2D = new Path2D(svgString)
+        if (props.style.close) path2D.closePath()
         return path2D
       },
       bounds: props =>
@@ -36,7 +39,8 @@ const Bezier = createToken(
           .map(Object.values)
           .flat()
           .filter(v => typeof v === 'object'),
-    }),
+    })
+  },
 )
 
 export { Bezier }

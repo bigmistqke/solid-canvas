@@ -20,22 +20,22 @@ const Drag = createController<DragOptions>((props, events, options) => {
     ...options,
   }
 
+  const handleMouseMove = (event: CanvasMouseEvent) => {
+    event.propagation = false
+    setDragPosition(position => ({
+      x: position.x + event.delta.x,
+      y: position.y + event.delta.y,
+    }))
+
+    options.onDragMove?.(dragPosition(), event)
+  }
+  const handleMouseUp = (event: CanvasMouseEvent) => {
+    setSelected(false)
+  }
+
   createEffect(() => {
     if (!internalContext) return
     if (selected()) {
-      const handleMouseMove = (event: CanvasMouseEvent) => {
-        event.propagation = false
-        setDragPosition(position => ({
-          x: position.x + event.delta.x,
-          y: position.y + event.delta.y,
-        }))
-
-        options.onDragMove?.(dragPosition(), event)
-      }
-      const handleMouseUp = (event: CanvasMouseEvent) => {
-        setSelected(false)
-      }
-
       internalContext.addEventListener('onMouseMove', handleMouseMove)
       internalContext.addEventListener('onMouseUp', handleMouseUp)
 
@@ -60,16 +60,16 @@ const Drag = createController<DragOptions>((props, events, options) => {
   }
 
   events.onMouseDown(dragEventHandler)
-
+  let position = { x: 0, y: 0 }
   return {
     transform: {
       get position() {
-        return options.controlled
-          ? props().transform.position
-          : {
-              x: (props().transform.position?.x || 0) + dragPosition().x,
-              y: (props().transform.position?.y || 0) + dragPosition().y,
-            }
+        if (options.controlled) return props().transform.position
+        else {
+          position.x = (props().transform.position?.x || 0) + dragPosition().x
+          position.y = (props().transform.position?.y || 0) + dragPosition().y
+          return position
+        }
       },
     },
   }

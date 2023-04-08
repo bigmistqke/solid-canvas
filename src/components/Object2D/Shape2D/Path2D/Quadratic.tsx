@@ -15,21 +15,24 @@ type QuadraticPoints = { point: Vector; control?: Vector }[]
 
 export type QuadraticProps = {
   points: QuadraticPoints
-  close?: boolean
+  style: {
+    close?: boolean
+  }
 }
 
 const Quadratic = createToken(
   parser,
-  (props: Shape2DProps<QuadraticProps> & QuadraticProps) =>
-    createPath2D<QuadraticProps>({
+  (props: Shape2DProps<QuadraticProps> & QuadraticProps) => {
+    let path2D: Path2D, control: Vector, nextPoint: Vector | undefined
+    return createPath2D<QuadraticProps>({
       id: 'Quadratic',
       props,
-      defaultProps: {
+      defaultStyle: {
         close: false,
       },
       path: props => {
-        const path2D = new Path2D(createQuadratic(props.points).string)
-        if (props.close) path2D.closePath()
+        path2D = new Path2D(createQuadratic(props.points).string)
+        if (props.style.close) path2D.closePath()
         return path2D
       },
       bounds: props =>
@@ -37,8 +40,8 @@ const Quadratic = createToken(
           .map((point, i) => {
             let result: Vector[] = [point.point]
             if (point.control) {
-              const control = addPositions(point.point, point.control)
-              const nextPoint = props.points[i + 1]?.point
+              control = addPositions(point.point, point.control)
+              nextPoint = props.points[i + 1]?.point
               if (nextPoint) {
                 result.push(control, point.point)
               } else {
@@ -48,6 +51,7 @@ const Quadratic = createToken(
             return result
           })
           .flat(),
-    }),
+    })
+  },
 )
 export { Quadratic, type QuadraticPoints }

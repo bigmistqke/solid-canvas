@@ -12,22 +12,28 @@ import { createPath2D } from '../../../../utils/createPath2D'
 
 type PathProps = {
   d: PathResult
-  close: boolean
+  style: {
+    close?: boolean
+  }
 }
 
-const Path = createToken(parser, (props: Shape2DProps<PathProps> & PathProps) =>
-  createPath2D<PathProps>({
-    id: 'Path',
-    props,
-    defaultProps: {
-      close: false,
-    },
-    path: props => {
-      const path2D = new Path2D(props.d.string)
-      if (props.close) path2D.closePath()
-      return path2D
-    },
-    bounds: props => [],
-  }),
+const Path = createToken(
+  parser,
+  (props: Shape2DProps<PathProps> & PathProps) => {
+    let path2D: Path2D
+    return createPath2D<PathProps>({
+      id: 'Path',
+      props,
+      defaultStyle: {
+        close: false,
+      },
+      path: props => {
+        path2D = new Path2D(props.d.string)
+        if (props.style.close) path2D.closePath()
+        return path2D
+      },
+      bounds: props => [],
+    })
+  },
 )
 export { Path }

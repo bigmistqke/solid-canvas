@@ -1,16 +1,20 @@
 import { Component } from 'solid-js'
 import { Canvas, Path } from 'src'
-import { createLine } from 'src/d'
+import { createLine } from 'src/d/d'
 
 const App: Component = () => (
   <Canvas
     style={{ width: '100%', height: '100%' }}
     alpha
     draggable
-    origin={{ x: 200, y: 0 }}
+    transform={{
+      position: { x: 200, y: 0 },
+    }}
   >
     <Path
-      position={{ x: 100, y: 100 }}
+      transform={{
+        position: { x: 100, y: 100 },
+      }}
       d={createLine([
         { x: 100, y: 100 },
         { x: 200, y: 200 },

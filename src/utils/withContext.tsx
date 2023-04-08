@@ -1,4 +1,5 @@
 import { Accessor, Context, JSX, untrack } from 'solid-js'
+import { SingleOrArray } from './typehelpers'
 
 type CheckSingle<Arg> = Arg extends {
   context: infer TContext
@@ -30,21 +31,21 @@ const nestContexts = (contexts: any, index: number, callback: () => void) => {
   })
 }
 
-function withContext<T extends [...any[]]>(
-  children: Accessor<JSX.Element | JSX.Element[]>,
+function withContext<T extends [...any[]], U>(
+  children: Accessor<U>,
   contexts: CheckContexts<T>,
-): Accessor<JSX.Element | JSX.Element[]>
-function withContext<T>(
-  children: Accessor<JSX.Element | JSX.Element[]>,
+): Accessor<U>
+function withContext<T extends any, U>(
+  children: Accessor<U>,
   context: Context<T>,
   value: T,
-): Accessor<JSX.Element | JSX.Element[]>
-function withContext<T extends [...any[]]>(
-  children: Accessor<JSX.Element | JSX.Element[]>,
+): Accessor<U>
+function withContext<T extends [...any[]], U>(
+  children: Accessor<U>,
   ContextOrContexts: Context<T> | CheckContexts<T>,
   value?: T,
 ) {
-  let result: JSX.Element | JSX.Element[]
+  let result: U
 
   if (Array.isArray(ContextOrContexts)) {
     nestContexts(ContextOrContexts, 0, () => (result = children()))

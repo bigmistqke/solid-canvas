@@ -72,19 +72,29 @@ function createParenthood<T>(
     })
   }
 
+  let hitTestResult: TokenElement<CanvasToken>[], hitTestHit: boolean
   const hitTest = (event: CanvasMouseEvent) => {
-    let result: TokenElement<CanvasToken>[] = []
-    forEachReversed(tokens(), token => {
+    hitTestResult = []
+    hitTestHit
+    tokens().forEach(token => {
       if (!event.propagation) return
       if ('hitTest' in token.data) {
-        const hit = token.data.hitTest(event)
-        if (hit) {
-          result.push(token)
+        hitTestHit = token.data.hitTest(event)
+        if (hitTestHit) {
+          hitTestResult.push(token)
         }
       }
     })
-
-    return false
+    /*  forEachReversed(tokens(), token => {
+      if (!event.propagation) return
+      if ('hitTest' in token.data) {
+        hitTestHit = token.data.hitTest(event)
+        if (hitTestHit) {
+          hitTestResult.push(token)
+        }
+      }
+    }) */
+    return hitTestHit
   }
 
   return { render, hitTest }

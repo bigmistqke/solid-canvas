@@ -28,8 +28,6 @@ type GradientProps = { stops: { offset: number; color: Color }[] } & (
 )
 
 const Gradient = createToken(parser, (props: GradientProps) => {
-  const merged = mergeProps({}, props)
-
   const internalContext = useInternalContext()
 
   const getGradient = () => {
@@ -65,14 +63,10 @@ const Gradient = createToken(parser, (props: GradientProps) => {
     const gradient = getGradient()
     if (!gradient) return
 
-    // Add three color stops
-
     for (let { offset, color } of props.stops) {
       gradient.addColorStop(offset, resolveColor(color) ?? 'black')
     }
-    /* gradient.addColorStop(0, 'green')
-    gradient.addColorStop(0.5, 'cyan')
-    gradient.addColorStop(1, 'green') */
+
     return gradient
   }
 

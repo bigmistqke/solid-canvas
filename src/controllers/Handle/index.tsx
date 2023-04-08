@@ -6,16 +6,18 @@ import { Accessor, For, Index, JSX, Show, untrack } from 'solid-js'
 import { Arc, Group, Line } from 'src'
 import {
   InternalContext,
+  InternalContextType,
   useInternalContext,
 } from 'src/context/InternalContext'
 import { Drag } from 'src/controllers/Drag'
 import { Object2DToken } from 'src/parser'
 import { createProcessedPoints } from 'src/utils/createProcessedPoints'
-import { mergeGetters } from 'src/utils/mergeGetters'
+import { deepMergeGetters, mergeGetters } from 'src/utils/mergeGetters'
 import withContext from 'src/utils/withContext'
 import { createController } from '../createController'
 import { QuadraticProps } from 'src/components/Object2D/Shape2D/Path2D/Quadratic'
 import { BezierProps } from 'src/components/Object2D/Shape2D/Path2D/Bezier'
+import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 
 type CubicPoint = {
   point: Vector
@@ -152,7 +154,8 @@ const constructBezierHandle = (props: any, events: any, options: any) => {
       processedPoints()[index]![type] = value
   }
 
-  const internalContext = useInternalContext()
+  const context = createUpdatedContext(props)
+  // const context = useInternalContext()
 
   const handles = withContext(
     () => (
@@ -174,15 +177,25 @@ const constructBezierHandle = (props: any, events: any, options: any) => {
       </Show>
     ),
     InternalContext,
-    mergeGetters(internalContext!, {
-      get origin() {
-        return {
-          x: (internalContext?.matrix.e ?? 0) + props().position.x,
-          y: (internalContext?.matrix.f ?? 0) + props().position.y,
-        }
-      },
-    }),
+    context,
   ) as any as Accessor<Accessor<TokenElement<Object2DToken>>>
+
+  /* const handles = (
+    <Show when={true}>
+      <Group>
+        <Index each={processedPoints()}>
+          {(value, i) => (
+            <BezierHandles
+              index={i}
+              updateOffset={(position, type) => updateOffset(i, position, type)}
+              type={options.type}
+              value={value()}
+            />
+          )}
+        </Index>
+      </Group>
+    </Show>
+  ) as any as Accessor<TokenElement<Object2DToken>> */
 
   events.onRender((ctx: any) => {
     if (options.active) handles()().data.render(ctx)

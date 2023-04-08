@@ -2,6 +2,7 @@ import { Accessor, JSX } from 'solid-js'
 import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
+import { InternalContextType } from './context/InternalContext'
 
 export type Object2DProps = {
   transform?: Transforms
@@ -32,7 +33,6 @@ export type Shape2DProps<T = Object> = Shape2DEvents & {
 
   children?: SingleOrArray<JSX.Element>
   opacity?: number
-  fill?: ExtendedColor
   composite?: Composite
   clip?: Accessor<SingleOrArray<JSX.Element>>
   controllers?: ((
@@ -152,6 +152,10 @@ export interface Shape2DStyle {
    * Set pointerEvents. Default: false
    */
   pointerEvents?: boolean
+
+  transitions?: {
+    fill?: boolean
+  }
 }
 
 export type Vector = {
