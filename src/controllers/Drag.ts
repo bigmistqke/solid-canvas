@@ -61,6 +61,9 @@ const Drag = createController<DragOptions>((props, events, options) => {
 
   events.onMouseDown(dragEventHandler)
   let position = { x: 0, y: 0 }
+
+  createEffect(() => {})
+
   return {
     transform: {
       get position() {
@@ -71,6 +74,9 @@ const Drag = createController<DragOptions>((props, events, options) => {
           return position
         }
       },
+    },
+    style: {
+      pointerEvents: true,
     },
   }
 })

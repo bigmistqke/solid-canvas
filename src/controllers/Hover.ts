@@ -32,19 +32,17 @@ const Hover = createController<HoverOptions>((props, events, options) => {
     })
   })
 
-  const styles = createMemo(() => mergeProps(props().style, options.style))
-  const transforms = createMemo(() =>
-    options.transform
-      ? mergeProps(props().transform, options.transform)
-      : props().transform,
-  )
+  const mergedStyle = mergeProps(props().style, options.style)
+  const mergedTransform = mergeProps(props().transform, options.transform)
 
   return {
     get style() {
-      return options.style && isHovered() ? styles() : props().style
+      return options.style && isHovered() ? mergedStyle : props().style
     },
     get transform() {
-      return options.transform && isHovered() ? transforms() : props().transform
+      return options.transform && isHovered()
+        ? mergedTransform
+        : props().transform
     },
   }
 })
