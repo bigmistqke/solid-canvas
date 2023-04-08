@@ -111,6 +111,12 @@ const createShape2D = <
       })
     },
   }
+  createEffect(() =>
+    context?.registerInteractiveToken(
+      token,
+      controlled.props.style.pointerEvents,
+    ),
+  )
   return token
 }
 export { createShape2D }

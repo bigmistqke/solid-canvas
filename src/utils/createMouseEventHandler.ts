@@ -44,7 +44,7 @@ const createMouseEventHandler = (
       type,
       cursor: 'move',
     }
-    if (context.flags.shouldHitTest) {
+    if (context.flags.shouldHitTest && context.flags.hasInteractiveTokens) {
       tokens().forEach(({ data }) => {
         if (!event.propagation) return
         if ('hitTest' in data) {

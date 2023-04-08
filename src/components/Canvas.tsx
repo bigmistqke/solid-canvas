@@ -14,7 +14,10 @@ import {
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
-import { InternalContext } from 'src/context/InternalContext'
+import {
+  InternalContext,
+  InternalContextType,
+} from 'src/context/InternalContext'
 import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
@@ -111,13 +114,36 @@ export const Canvas: Component<{
 
   const flags: Record<CanvasFlags, boolean> = {
     shouldHitTest: true,
+    hasInteractiveTokens: false,
+  }
+
+  const [interactiveTokens, setInteractiveTokens] = createSignal<CanvasToken[]>(
+    [],
+  )
+
+  createEffect(() => {
+    if (interactiveTokens().length > 0) {
+      setFlag('hasInteractiveTokens', true)
+    } else {
+      setFlag('hasInteractiveTokens', false)
+    }
+  })
+
+  const registerInteractiveToken = (token: CanvasToken, add = true) => {
+    if (add) {
+      setInteractiveTokens(tokens => [...tokens, token])
+    } else {
+      if (interactiveTokens().includes(token)) {
+        setInteractiveTokens(tokens => tokens.filter(t => t !== token))
+      }
+    }
   }
 
   const setFlag = (key: CanvasFlags, value: boolean) => {
     flags[key] = value
   }
 
-  const context = {
+  const context: InternalContextType = {
     ctx,
     setFlag: setFlag,
     get flags() {
@@ -128,6 +154,10 @@ export const Canvas: Component<{
     },
     get matrix() {
       return matrix()
+    },
+    registerInteractiveToken,
+    get interactiveTokens() {
+      return interactiveTokens()
     },
     addEventListener: (
       type: CanvasMouseEvent['type'],

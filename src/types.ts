@@ -2,9 +2,8 @@ import { Accessor, JSX } from 'solid-js'
 import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
-import { InternalContextType } from './context/InternalContext'
 
-export type CanvasFlags = 'shouldHitTest'
+export type CanvasFlags = 'shouldHitTest' | 'hasInteractiveTokens'
 
 export type Object2DProps = CanvasMouseEvents & {
   transform?: Transforms

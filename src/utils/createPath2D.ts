@@ -1,4 +1,10 @@
-import { createMemo, createSignal, createUniqueId, mergeProps } from 'solid-js'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  mergeProps,
+} from 'solid-js'
 import { defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import {
@@ -123,6 +129,14 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
       //        if props.children.length === 0 && !style.pointerEvents;
     },
   }
+
+  createEffect(() =>
+    context?.registerInteractiveToken(
+      token,
+      controlled.props.style.pointerEvents,
+    ),
+  )
+
   return token
 }
 
