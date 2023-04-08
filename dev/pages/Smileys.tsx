@@ -1,26 +1,34 @@
-import { Component, createMemo, createSignal, For, on } from 'solid-js'
-import { Arc, Bezier, Canvas, Group } from 'src'
+import {
+  Component,
+  createEffect,
+  createMemo,
+  createSignal,
+  For,
+  on,
+} from 'solid-js'
+import { Arc, Bezier, Canvas, createClock, Group } from 'src'
 import { Drag } from 'src/controllers/Drag'
 
 const Smiley = (props: { counter: number }) => {
-  const [offset, setOffset] = createSignal({ x: 0, y: 0 })
   const randomPosition = {
     x: Math.random() * (window.innerWidth + 100) - 50,
     y: Math.random() * (window.innerHeight + 100) - 50,
   }
   const delta = Math.random() * 10 + 20
-
-  const position = createMemo(
+  const x = createMemo(
     on(
       () => props.counter,
-      () => ({
-        x:
-          randomPosition.x +
-          Math.sin(performance.now() / (20 * delta) + delta) * 20,
-        y:
-          randomPosition.y +
-          Math.cos(performance.now() / (20 * delta) + delta) * 20,
-      }),
+      () =>
+        randomPosition.x +
+        Math.sin(performance.now() / (20 * delta) + delta) * 20,
+    ),
+  )
+  const y = createMemo(
+    on(
+      () => props.counter,
+      () =>
+        randomPosition.y +
+        Math.cos(performance.now() / (20 * delta) + delta) * 20,
     ),
   )
 
@@ -28,38 +36,44 @@ const Smiley = (props: { counter: number }) => {
   return (
     <Arc
       transform={{
-        position: position(),
+        position: {
+          get x() {
+            return x()
+          },
+          get y() {
+            return y()
+          },
+        },
       }}
       style={{
-        radius: 50,
+        radius: 70,
         fill: color(),
-        stroke: 'undefined',
+        stroke: false,
       }}
       controllers={[Drag()]}
     >
-      <Group transform={{ position: { x: 0, y: 25 } }}>
+      <Group transform={{ position: { x: 0, y: 35 } }}>
         <Arc
-          transform={{ position: { x: 20, y: 0 } }}
-          style={{ radius: 5, fill: 'black' }}
+          transform={{ position: { x: 40, y: 0 } }}
+          style={{ radius: 10, fill: 'black', stroke: false }}
         />
         <Arc
-          transform={{ position: { x: 70, y: 0 } }}
-          style={{ radius: 5, fill: 'black' }}
+          transform={{ position: { x: 80, y: 0 } }}
+          style={{ radius: 10, fill: 'black', stroke: false }}
         />
       </Group>
-      <Group transform={{ position: { x: 0, y: 60 } }}>
+      <Group transform={{ position: { x: 20, y: 80 } }}>
         <Bezier
-          transform={{
-            position: { x: 0, y: 60 },
-          }}
           style={{
-            lineWidth: 5,
+            lineWidth: 15,
+            lineCap: 'round',
+            stroke: 'black',
+            fill: false,
           }}
-          // shadow={{ blur: 0, offset: { x: 5, y: 5 }, color: 'black' }}
           points={[
-            { point: { x: 25, y: 0 }, control: { x: 0, y: 15 } },
-            { point: { x: 50, y: 25 }, control: { x: -15, y: 0 } },
-            { point: { x: 75, y: 0 }, control: { x: 0, y: 15 } },
+            { point: { x: 10, y: 0 }, control: { x: 0, y: 20 } },
+            { point: { x: 50, y: 40 }, control: { x: -20, y: 0 } },
+            { point: { x: 90, y: 0 }, control: { x: 0, y: 20 } },
           ]}
         />
       </Group>
@@ -68,31 +82,23 @@ const Smiley = (props: { counter: number }) => {
 }
 
 const App: Component = () => {
-  const [counter, setCounter] = createSignal(0)
-  const increment = () => setCounter(c => c + 1)
-  window.addEventListener('keydown', event => {
-    if (event.code === 'Space') increment()
-  })
-  window.addEventListener('resize', increment)
-
   const fill = `rgb(${Math.random() * 200}, ${Math.random() * 200}, ${
     Math.random() * 200
   })`
-  const loop = () => {
-    requestAnimationFrame(loop)
-    increment()
-  }
-  loop()
+
+  const clock = createClock()
+  clock.start()
+
   return (
     <>
       <Canvas
+        clock={clock.clock()}
         style={{ width: '100%', height: '100%', fill }}
         alpha
         stats
-        onMouseDown={increment}
       >
-        <For each={new Array(100).fill('')}>
-          {() => <Smiley counter={counter()} />}
+        <For each={new Array(500).fill('')}>
+          {() => <Smiley counter={clock.clock()} />}
         </For>
       </Canvas>
     </>

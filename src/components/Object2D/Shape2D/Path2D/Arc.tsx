@@ -24,21 +24,19 @@ const Arc = createToken(parser, (props: Shape2DProps<ArcProps> & ArcProps) => {
   return createPath2D<ArcProps>({
     id: 'Arc',
     props,
-    defaultProps: {
-      style: {
-        angle: { start: 0, end: 2 * Math.PI },
-        close: false,
-        radius: 10,
-      },
+    defaultStyle: {
+      angle: { start: 0, end: 2 * Math.PI },
+      close: false,
+      radius: 10,
     },
     path: props => {
       path = new Path2D()
       path.arc(
-        props.style.radius,
-        props.style.radius,
-        props.style.radius,
+        props.style.radius ?? 30,
+        props.style.radius ?? 30,
+        props.style.radius ?? 30,
         props.style.angle.start,
-        props.style.angle.end,
+        props.style.angle.end ?? 2 * Math.PI,
       )
       return path
     },

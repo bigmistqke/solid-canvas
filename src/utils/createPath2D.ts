@@ -1,4 +1,4 @@
-import { createMemo, createSignal } from 'solid-js'
+import { createMemo, createSignal, createUniqueId, mergeProps } from 'solid-js'
 import { defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import {
@@ -16,24 +16,32 @@ import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 import { Hover } from 'src/controllers/Hover'
 import { isPointInShape2D } from './isPointInShape2D'
 
-const createPath2D = <T extends { [key: string]: any }>(arg: {
+const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
   id: string
   props: Shape2DProps<T> & T
-  defaultProps: RequireOptionals<T>
+  defaultStyle: RequireOptionals<T['style']>
   path: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Path2D
   bounds: (props: DeepRequired<T> & ResolvedShape2DProps<T>) => Vector[]
 }) => {
-  const props = deepMergeGetters(
-    { ...defaultShape2DProps, ...arg.defaultProps },
-    arg.props,
+  const style = createMemo(() =>
+    deepMergeGetters(
+      { ...arg.defaultStyle, ...defaultShape2DProps.style },
+      arg.props.style,
+    ),
   )
+  const props = deepMergeGetters(arg.props, {
+    get style() {
+      return style()
+    },
+  })
 
   const controlled = createControlledProps(props, [
-    Hover({
+    /*  Hover({
       style: props.style?.['&:hover'],
       transform: props.transform?.['&:hover'],
-    }),
+    }), */
   ])
+
   const context = createUpdatedContext(() => controlled.props)
 
   const parenthood = createParenthood(arg.props, context)

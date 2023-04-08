@@ -5,6 +5,7 @@ export { CubicHandle, QuadraticHandle } from './Handle'
 export { Noop } from './Noop'
 export { ClickStyle } from './ClickStyle'
 export { Hover } from './Hover'
+export { Transition } from './Transition'
 
 export type ControllerEvents = {
   [K in CanvasMouseEventTypes]: (event: CanvasMouseEvent) => void

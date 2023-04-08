@@ -12,7 +12,9 @@ import { createPath2D } from '../../../../utils/createPath2D'
 
 type PathProps = {
   d: PathResult
-  close?: boolean
+  style: {
+    close?: boolean
+  }
 }
 
 const Path = createToken(
@@ -22,12 +24,12 @@ const Path = createToken(
     return createPath2D<PathProps>({
       id: 'Path',
       props,
-      defaultProps: {
+      defaultStyle: {
         close: false,
       },
       path: props => {
         path2D = new Path2D(props.d.string)
-        if (props.close) path2D.closePath()
+        if (props.style.close) path2D.closePath()
         return path2D
       },
       bounds: props => [],

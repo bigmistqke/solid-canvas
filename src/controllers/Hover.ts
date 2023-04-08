@@ -44,7 +44,7 @@ const Hover = createController<HoverOptions>((props, events, options) => {
       return options.style && isHovered() ? styles() : props().style
     },
     get transform() {
-      return options.transform && isHovered() ? transforms : props().transform
+      return options.transform && isHovered() ? transforms() : props().transform
     },
   }
 })

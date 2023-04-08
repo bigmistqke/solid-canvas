@@ -6,7 +6,9 @@ import { createPath2D } from '../../../../utils/createPath2D'
 
 type LineProps = {
   points: Vector[]
-  close?: boolean
+  style: {
+    close?: boolean
+  }
 }
 
 /**
@@ -20,7 +22,7 @@ const Line = createToken(
     return createPath2D<LineProps>({
       id: 'Line',
       props,
-      defaultProps: {
+      defaultStyle: {
         close: false,
       },
       path: props => {
@@ -32,7 +34,7 @@ const Line = createToken(
           path2D.lineTo(point.x, point.y)
           index++
         }
-        if (props.close) path2D.closePath()
+        if (props.style.close) path2D.closePath()
 
         return path2D
       },

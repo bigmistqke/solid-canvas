@@ -15,7 +15,9 @@ type QuadraticPoints = { point: Vector; control?: Vector }[]
 
 export type QuadraticProps = {
   points: QuadraticPoints
-  close?: boolean
+  style: {
+    close?: boolean
+  }
 }
 
 const Quadratic = createToken(
@@ -25,12 +27,12 @@ const Quadratic = createToken(
     return createPath2D<QuadraticProps>({
       id: 'Quadratic',
       props,
-      defaultProps: {
+      defaultStyle: {
         close: false,
       },
       path: props => {
         path2D = new Path2D(createQuadratic(props.points).string)
-        if (props.close) path2D.closePath()
+        if (props.style.close) path2D.closePath()
         return path2D
       },
       bounds: props =>

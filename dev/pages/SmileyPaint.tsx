@@ -44,8 +44,6 @@ const Smiley = (props: { counter: number; position: Vector }) => {
     ),
   )
 
-  createEffect(() => console.log(position()))
-
   const scale = 2
   return (
     <Arc

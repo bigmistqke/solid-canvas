@@ -85,7 +85,6 @@ export const Canvas: Component<{
     memory?: { used: number; total: number }
   }>({})
 
-  let lastCursorPosition: Vector | undefined
   let startRenderTime: number
 
   const canvas = (
@@ -215,7 +214,7 @@ export const Canvas: Component<{
     }
 
     if (props.stats) {
-      setStats('fps', Math.floor(1000 / (performance.now() - startRenderTime)))
+      setStats('fps', performance.now() - startRenderTime)
       setStats(
         'memory',
         'memory' in performance
@@ -236,54 +235,15 @@ export const Canvas: Component<{
   const scheduled = createScheduled(fn => throttle(fn, 1000 / 120))
 
   createEffect(() => {
-    if (props.clock || props.clock === 0) return
+    if (!!props.clock || props.clock === 0) return
     if (scheduled()) render()
   })
-  createEffect(on(() => props.clock, render))
-
-  let position: Vector
-  let delta: Vector
-  let event: CanvasMouseEvent
-  const mouseEventHandler = (
-    e: MouseEvent,
-    type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
-    final: (event: CanvasMouseEvent) => void,
-  ) => {
-    position = { x: e.clientX, y: e.clientY }
-    delta = lastCursorPosition
-      ? {
-          x: position.x - lastCursorPosition.x,
-          y: position.y - lastCursorPosition.y,
-        }
-      : { x: 0, y: 0 }
-    lastCursorPosition = position
-
-    // NOTE:  `event` gets mutated by `token.hitTest`
-    event = {
-      ctx,
-      position,
-      delta,
-      propagation: true,
-      target: [],
-      type,
-      cursor: 'move',
-    }
-
-    forEachReversed(tokens(), ({ data }) => {
-      if (!event.propagation) return
-      if ('hitTest' in data) {
-        data.hitTest(event)
-      }
-    })
-
-    if (event.propagation) final(event)
-
-    // setCursorStyle(event.cursor)
-
-    eventListeners[type].forEach(listener => listener(event))
-
-    return event
-  }
+  createEffect(
+    on(
+      () => props.clock,
+      () => untrack(() => render()),
+    ),
+  )
 
   const initPan = () => {
     const handleMouseMove = (event: MouseEvent) => {
@@ -294,7 +254,6 @@ export const Canvas: Component<{
     }
     const handleMouseUp = (event: MouseEvent) => {
       setCursorStyle('default')
-
       window.removeEventListener('mousemove', handleMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
@@ -344,7 +303,6 @@ export const Canvas: Component<{
 
   onMount(() => {
     const updateDimensions = () => {
-      // const { width, height } = document.body.getBoundingClientRect()
       setCanvasDimensions({
         width: window.innerWidth,
         height: window.innerHeight,
@@ -370,9 +328,13 @@ export const Canvas: Component<{
             'user-select': 'none',
           }}
         >
-          fps: {stats.fps}
+          spf: {Math.floor(stats.fps ?? 0) / 1000}
           <br />
-          mem: {stats.memory?.used} / {stats.memory?.total}
+          fps: {stats.fps ? Math.floor(1000 / stats.fps) : undefined}
+          <br />
+          {stats.memory
+            ? `mem: ${stats.memory.used} / ${stats.memory.total}`
+            : undefined}
         </div>
       </Show>
       {canvas}

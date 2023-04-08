@@ -36,7 +36,7 @@ export default (
       context.ctx.lineJoin = props.style.lineJoin ?? 'bevel'
     if (context.ctx.lineCap)
       context.ctx.lineCap = props.style.lineCap ?? 'round'
-    if (props.style.lineDash) context.ctx.setLineDash(props.style.lineDash)
+    // if (props.style.lineDash) context.ctx.setLineDash(props.style.lineDash)
 
     context.ctx.strokeStyle =
       resolveExtendedColor(props.style.stroke) ?? 'black'
@@ -44,6 +44,5 @@ export default (
   }
   context.ctx.resetTransform()
 
-  context.ctx.setLineDash([])
   context.ctx.restore()
 }
