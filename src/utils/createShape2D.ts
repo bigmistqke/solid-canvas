@@ -36,10 +36,10 @@ const createShape2D = <
   defaultValues: U
 }) => {
   const controlled = createControlledProps(
-    // TODO:  fix any
     deepMergeGetters(arg.defaultValues, arg.props),
+    [],
+    () => token,
   )
-  // const matrix = createMatrix(() => arg.props)
 
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
@@ -103,7 +103,6 @@ const createShape2D = <
       return hit
     },
     debug: event => {
-      console.log('this happens?')
       path().data.debug(event)
     },
     render: ctx => {
