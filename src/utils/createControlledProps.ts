@@ -3,6 +3,7 @@ import { Accessor, createMemo, mapArray } from 'solid-js'
 import { ControllerEvents } from 'src/controllers/controllers'
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import { DeepRequired } from './typehelpers'
+import { CanvasToken } from 'src/parser'
 
 const createControlledProps = <
   T extends Record<string, any>,
@@ -10,6 +11,7 @@ const createControlledProps = <
 >(
   props: U,
   defaultControllers: Accessor<T | Shape2DProps<T>>[] = [],
+  token: Accessor<CanvasToken>,
 ) => {
   const events: {
     [K in keyof ControllerEvents]: ControllerEvents[K][]
@@ -62,6 +64,7 @@ const createControlledProps = <
             onRender: callback => events.onRender.push(callback),
             onHitTest: callback => events.onHitTest.push(callback),
           },
+          token,
         )
       },
     ),

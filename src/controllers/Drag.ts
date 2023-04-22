@@ -9,7 +9,7 @@ type DragOptions = {
   onDragMove?: (position: Vector, event: CanvasMouseEvent) => void
 }
 
-const Drag = createController<DragOptions>((props, events, options) => {
+const Drag = createController<DragOptions>((props, events, token, options) => {
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
   const internalContext = useInternalContext()
@@ -63,6 +63,10 @@ const Drag = createController<DragOptions>((props, events, options) => {
 
   events.onMouseDown(dragEventHandler)
   let position = { x: 0, y: 0 }
+  /*  const position = createMemo(() => ({
+    x: (props().transform.position?.x || 0) + dragPosition().x,
+    y: (props().transform.position?.y || 0) + dragPosition().y
+  })) */
 
   createEffect(() => {})
 
