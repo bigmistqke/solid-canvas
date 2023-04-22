@@ -39,6 +39,7 @@ export type Shape2DProps<T = Object> = CanvasMouseEvents & {
   controllers?: ((
     props: Accessor<T | Omit<Shape2DProps, 'controllers'>>,
     events: RegisterControllerEvents,
+    token: Accessor<CanvasToken>,
   ) => T | Shape2DProps<T>)[]
 }
 
