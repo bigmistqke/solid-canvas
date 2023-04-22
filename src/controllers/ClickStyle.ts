@@ -8,20 +8,22 @@ type HoverOptions = {
   stroke?: ExtendedColor
   fill?: ExtendedColor
 }
-const ClickStyle = createController<HoverOptions>((props, events, options) => {
-  const [selected, setSelected] = createSignal(false)
+const ClickStyle = createController<HoverOptions>(
+  (props, events, token, options) => {
+    const [selected, setSelected] = createSignal(false)
 
-  events.onMouseDown(() => setSelected(true))
-  events.onMouseUp(() => setSelected(false))
+    events.onMouseDown(() => setSelected(true))
+    events.onMouseUp(() => setSelected(false))
 
-  return mergeGetters(props(), {
-    get stroke() {
-      return selected() ? options.stroke : props().style.stroke
-    },
-    get fill() {
-      return selected() ? options.fill : props().style.fill
-    },
-  })
-})
+    return mergeGetters(props(), {
+      get stroke() {
+        return selected() ? options.stroke : props().style.stroke
+      },
+      get fill() {
+        return selected() ? options.fill : props().style.fill
+      },
+    })
+  },
+)
 
 export { ClickStyle }
