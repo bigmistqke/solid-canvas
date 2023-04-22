@@ -26,21 +26,22 @@ function deepMergeGetters<
   props1 = Object.getOwnPropertyNames(obj1)
   props2 = Object.getOwnPropertyNames(obj2)
 
-  for (prop of [...props1, ...props2]) {
+  for (prop of [...props1, ...props2] as (keyof T & U)[]) {
     descriptor1 = Object.getOwnPropertyDescriptor(obj1, prop)
     descriptor2 = Object.getOwnPropertyDescriptor(obj2, prop)
     if (descriptor2 && descriptor2.get) {
       Object.defineProperty(result, prop, descriptor2)
-    } else if (typeof obj2[prop] === 'object') {
-      result[prop] = deepMergeGetters(obj1[prop], obj2[prop])
-    } else if (obj2[prop]) {
-      result[prop] = obj2[prop]
+    } else if (typeof obj2[prop as string] === 'object') {
+      result[prop] = deepMergeGetters(obj1[prop], obj2[prop as string])
+    } else if (obj2[prop as string]) {
+      result[prop] = obj2[prop as string]
     } else if (descriptor1 && descriptor1.get) {
       Object.defineProperty(result, prop, descriptor1)
     } else if (typeof obj1[prop] === 'object') {
-      result[prop] = deepMergeGetters(obj1[prop], obj2[prop])
+      result[prop] = deepMergeGetters(obj1[prop], obj2[prop as string])
     } else {
-      result[prop] = obj2[prop] !== undefined ? obj2[prop] : obj1[prop]
+      result[prop] =
+        obj2[prop as string] !== undefined ? obj2[prop as string] : obj1[prop]
     }
   }
 
