@@ -6,9 +6,7 @@ import { RegisterControllerEvents } from 'src/controllers/controllers'
 import { CanvasToken, parser } from 'src/parser'
 import { Color, Object2DProps, ResolvedShape2DProps, Vector } from 'src/types'
 import { createParenthood } from 'src/utils/createParenthood'
-import { transformedCallback } from 'src/utils/transformedCallback'
 import { SingleOrArray } from 'src/utils/typehelpers'
-import { T } from 'vitest/dist/types-c800444e'
 
 export type GroupProps = {
   children: SingleOrArray<JSX.Element>
