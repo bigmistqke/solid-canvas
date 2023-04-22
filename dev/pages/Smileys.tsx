@@ -95,9 +95,9 @@ const App: Component = () => {
   })`
 
   const clock = createClock()
-  clock.start()
+  clock.start(1000 / 30)
 
-  const [amount, setAmount] = createSignal(1)
+  const [amount, setAmount] = createSignal(300)
   const [shouldUseClock, setShouldUseClock] = createSignal(false)
 
   return (
