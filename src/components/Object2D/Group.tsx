@@ -56,7 +56,9 @@ const Group = createToken(parser, (props: Object2DProps) => {
       )
       ctx.rotate((props.transform?.rotation ?? 0) * -1)
     },
-    debug: () => {},
+    debug: ctx => {
+      parenthood.debug(ctx)
+    },
     hitTest: event => {
       if (!event.propagation) return
 

@@ -67,6 +67,9 @@ function createParenthood<T>(
     forEachReversed(tokens(), ({ data }) => {
       if ('render' in data) data.render?.(ctx)
     })
+  }
+
+  const debug = (ctx: CanvasRenderingContext2D) => {
     forEachReversed(tokens(), ({ data }) => {
       if ('debug' in data && context.debug) data.debug(ctx)
     })
@@ -85,19 +88,10 @@ function createParenthood<T>(
         }
       }
     })
-    /*  forEachReversed(tokens(), token => {
-      if (!event.propagation) return
-      if ('hitTest' in token.data) {
-        hitTestHit = token.data.hitTest(event)
-        if (hitTestHit) {
-          hitTestResult.push(token)
-        }
-      }
-    }) */
     return hitTestHit
   }
 
-  return { render, hitTest }
+  return { render, hitTest, debug }
 }
 
 export { createParenthood }
