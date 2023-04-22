@@ -8,6 +8,7 @@ import {
   CanvasMouseEventTypes,
   Vector,
 } from 'src/types'
+import { throttle } from './throttle'
 
 const createMouseEventHandler = (
   type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
@@ -24,7 +25,7 @@ const createMouseEventHandler = (
   let event: CanvasMouseEvent
   let lastCursorPosition: Vector
 
-  return (e: MouseEvent) => {
+  const func = throttle((e: MouseEvent) => {
     position = { x: e.clientX, y: e.clientY }
     delta = lastCursorPosition
       ? {
@@ -53,14 +54,16 @@ const createMouseEventHandler = (
       })
     }
 
-    if (event.propagation && final) final(event)
+    final?.(event)
 
     // setCursorStyle(event.cursor)
 
     eventListeners[type].forEach(listener => listener(event))
 
     return event
-  }
+  })
+
+  return func
 }
 
 export { createMouseEventHandler }
