@@ -25,7 +25,7 @@ import { useInternalContext } from 'src/context/InternalContext'
 import { createTransformedCallback } from './transformedCallback'
 import { createBounds } from './createBounds'
 
-const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
+const createPath2D = <T extends { [key: string]: any; style?: any }>(arg: {
   id: string
   props: Shape2DProps<T> & T
   defaultStyle: RequireOptionals<T['style']>
