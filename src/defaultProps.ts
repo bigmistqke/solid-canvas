@@ -26,14 +26,15 @@ const defaultShape2DProps: ResolvedShape2DProps<unknown> = {
 const defaultBoundsProps: ResolvedShape2DProps<unknown> = {
   style: {
     stroke: 'grey',
-    fill: 'transparent',
+    // fill: 'black',
+    fill: false,
     lineDash: [],
     lineCap: 'butt',
     lineJoin: 'round',
     miterLimit: 10,
-    lineWidth: 0.5,
+    lineWidth: 2,
     opacity: 1,
-    composite: 'destination-over',
+    composite: 'source-over',
     cursor: undefined,
     pointerEvents: false,
   },
