@@ -9,6 +9,8 @@ function mergeGetters<A, B>(a: A, b: B) {
   return result as A & Omit<B, keyof A>
 }
 
+// a bit unorthodox maybe, but since deepMergeGetters can run a lot, I believe it's worth it.
+let prop, props1, props2, descriptor1, descriptor2
 function deepMergeGetters<
   T extends { [key: string]: any },
   U extends { [key: string]: any },
@@ -21,13 +23,12 @@ function deepMergeGetters<
   }
 
   const result = {} as T & U
+  props1 = Object.getOwnPropertyNames(obj1)
+  props2 = Object.getOwnPropertyNames(obj2)
 
-  const props1 = Object.getOwnPropertyNames(obj1)
-  const props2 = Object.getOwnPropertyNames(obj2)
-  let prop: keyof T & keyof U
   for (prop of [...props1, ...props2]) {
-    const descriptor1 = Object.getOwnPropertyDescriptor(obj1, prop)
-    const descriptor2 = Object.getOwnPropertyDescriptor(obj2, prop)
+    descriptor1 = Object.getOwnPropertyDescriptor(obj1, prop)
+    descriptor2 = Object.getOwnPropertyDescriptor(obj2, prop)
     if (descriptor2 && descriptor2.get) {
       Object.defineProperty(result, prop, descriptor2)
     } else if (typeof obj2[prop] === 'object') {
