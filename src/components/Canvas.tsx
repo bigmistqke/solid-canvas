@@ -247,10 +247,12 @@ export const Canvas: Component<{
     ctx.restore()
 
     forEachReversed(tokens(), token => {
-      if (props.debug && 'debug' in token.data) token.data.debug(ctx)
       if ('render' in token.data) token.data.render(ctx)
     })
-
+    ctx.resetTransform()
+    forEachReversed(tokens(), token => {
+      if (props.debug && 'debug' in token.data) token.data.debug(ctx)
+    })
     if (props.fill) {
       ctx.save()
       ctx.globalCompositeOperation = 'destination-over'
