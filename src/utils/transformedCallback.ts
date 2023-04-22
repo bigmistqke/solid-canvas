@@ -1,44 +1,60 @@
-import { Transforms } from 'src/types'
+import { Transforms, Vector } from 'src/types'
 
-let matrix: DOMMatrix, matrix2: DOMMatrix, result: any
+const transferMatrix = (matrix1: DOMMatrix, matrix2: DOMMatrix) => {
+  matrix1.a = matrix2.a
+  matrix1.b = matrix2.b
+  matrix1.c = matrix2.c
+  matrix1.d = matrix2.d
+  matrix1.e = matrix2.e
+  matrix1.f = matrix2.f
+}
 
-const transformedCallback = <T>(
-  ctx: CanvasRenderingContext2D,
-  props: { transform?: Transforms },
-  callback: () => T,
-): T => {
-  if (!props.transform) {
-    return callback()
-  } else if (props.transform.skew) {
-    matrix = ctx.getTransform()
-    matrix2 = ctx.getTransform()
-    matrix.translateSelf(
-      props.transform.position?.x ?? 0,
-      props.transform.position?.y ?? 0,
-    )
-    matrix.rotateSelf(props.transform.rotation ?? 0)
-    matrix.skewXSelf(props.transform.skew?.x ?? 0)
-    matrix.skewYSelf(props.transform.skew?.y ?? 0)
-    ctx.setTransform(matrix)
-    result = callback()
-    ctx.setTransform(matrix2)
-    return result
-  } else {
-    ctx.translate(
-      props.transform.position?.x ?? 0,
-      props.transform.position?.y ?? 0,
-    )
-    ctx.rotate(props.transform.rotation ?? 0)
+const createTransformedCallback = () => {
+  let matrix = new DOMMatrix()
+  let matrix2 = new DOMMatrix()
+  let result: unknown | undefined
+  let position: Vector | undefined
+  let rotation: number | undefined
+  let transform: Partial<Transforms> | undefined
+  let left: number
+  let top: number
 
-    result = callback()
+  return <T>(
+    ctx: CanvasRenderingContext2D,
+    props: { transform?: Transforms },
+    callback: () => T,
+  ) => {
+    transform = props.transform
+    position = props.transform?.position
+    left = position?.x ?? 0
+    top = position?.y ?? 0
+    rotation = transform?.rotation ?? 0
 
-    ctx.translate(
-      (props.transform.position?.x ?? 0) * -1,
-      (props.transform.position?.y ?? 0) * -1,
-    )
-    ctx.rotate((props.transform.rotation ?? 0) * -1)
-    return result
+    if (!transform) {
+      return callback()
+    } else if (transform.skew) {
+      transferMatrix(matrix2, matrix)
+
+      matrix.translateSelf(left, top)
+      matrix.rotateSelf(rotation ?? 0)
+      matrix.skewXSelf(transform.skew?.x ?? 0)
+      matrix.skewYSelf(transform.skew?.y ?? 0)
+
+      ctx.setTransform(matrix)
+      result = callback()
+      ctx.setTransform(matrix2)
+
+      transferMatrix(matrix, matrix2)
+
+      return result
+    } else {
+      ctx.translate(left, top)
+      result = callback()
+      ctx.translate(left * -1, top * -1)
+      ctx.rotate(rotation * -1)
+      return result
+    }
   }
 }
 
-export { transformedCallback }
+export { createTransformedCallback }

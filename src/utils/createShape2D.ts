@@ -14,7 +14,7 @@ import { createUpdatedContext } from './createUpdatedContext'
 import { deepMergeGetters, mergeGetters } from './mergeGetters'
 import { mergeShape2DProps } from './mergeShape2DProps'
 import withContext from './withContext'
-import { transformedCallback } from './transformedCallback'
+import { createTransformedCallback } from './transformedCallback'
 
 const createShape2D = <
   T,
@@ -81,6 +81,8 @@ const createShape2D = <
 
   let matrix: DOMMatrix
 
+  const transformedCallback = createTransformedCallback()
+
   const token: Object2DToken = {
     type: 'Object2D',
     id: arg.id,
@@ -100,7 +102,10 @@ const createShape2D = <
       event.ctx.resetTransform()
       return hit
     },
-    debug: event => path().data.debug(event),
+    debug: event => {
+      console.log('this happens?')
+      path().data.debug(event)
+    },
     render: ctx => {
       if (!arg.dimensions) return
 

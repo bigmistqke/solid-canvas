@@ -1,9 +1,8 @@
 import { Accessor, createMemo } from 'solid-js'
-import { InternalContextType } from 'src/context/InternalContext'
 
-const createBounds = (
+export const createBounds = (
   points: Accessor<{ x: number; y: number }[]>,
-  context: InternalContextType,
+  matrix: Accessor<DOMMatrix>,
 ) => {
   let dimensions: { width: number; height: number }
   let position: { x: number; y: number }
@@ -19,6 +18,7 @@ const createBounds = (
       max: -Infinity,
     },
   }
+
   return createMemo(() => {
     bounds = {
       x: {
@@ -32,11 +32,11 @@ const createBounds = (
     }
 
     points().forEach(({ x, y }) => {
-      point = new DOMPoint(x, y).matrixTransform(context.matrix)
-      if (point.x < bounds.x.min) bounds.x.min = x
-      if (point.x > bounds.x.max) bounds.x.max = x
-      if (point.y < bounds.y.min) bounds.y.min = y
-      if (point.y > bounds.y.max) bounds.y.max = y
+      point = new DOMPoint(x, y).matrixTransform(matrix())
+      if (point.x < bounds.x.min) bounds.x.min = point.x
+      if (point.x > bounds.x.max) bounds.x.max = point.x
+      if (point.y < bounds.y.min) bounds.y.min = point.y
+      if (point.y > bounds.y.max) bounds.y.max = point.y
     })
 
     dimensions = {
@@ -50,7 +50,6 @@ const createBounds = (
 
     path = new Path2D()
     path.rect(position.x, position.y, dimensions.width, dimensions.height)
-
     return {
       path,
       position,
@@ -58,5 +57,3 @@ const createBounds = (
     }
   })
 }
-
-export { createBounds }

@@ -5,7 +5,7 @@ import {
   createUniqueId,
   mergeProps,
 } from 'solid-js'
-import { defaultShape2DProps } from 'src/defaultProps'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import {
   CanvasMouseEventListener,
@@ -22,7 +22,8 @@ import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 import { Hover } from 'src/controllers/Hover'
 import { isPointInShape2D } from './isPointInShape2D'
 import { useInternalContext } from 'src/context/InternalContext'
-import { transformedCallback } from './transformedCallback'
+import { createTransformedCallback } from './transformedCallback'
+import { createBounds } from './createBounds'
 
 const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
   id: string
@@ -43,12 +44,16 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
     },
   })
 
-  const controlled = createControlledProps(props, [
-    Hover({
-      style: props.style?.['&:hover'],
-      transform: props.transform?.['&:hover'],
-    }),
-  ])
+  const controlled = createControlledProps(
+    props,
+    [
+      Hover({
+        style: props.style?.['&:hover'],
+        transform: props.transform?.['&:hover'],
+      }),
+    ],
+    () => token,
+  )
 
   const context = useInternalContext()
 
@@ -56,37 +61,36 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
 
   const path = createMemo(() => arg.path(controlled.props))
 
-  // const bounds = createBounds(() => arg.bounds(props), context)
-
   const [hover, setHover] = createSignal(false)
 
-  let matrix: DOMMatrix
+  const [matrix, setMatrix] = createSignal<DOMMatrix>(new DOMMatrix())
+  const bounds = createBounds(() => arg.bounds(controlled.props), matrix)
+
+  const transformedCallback = createTransformedCallback()
 
   const token: Shape2DToken = {
     type: 'Shape2D',
     id: arg.id,
     path,
+    bounds,
     render: ctx => {
       transformedCallback(ctx, controlled.props, () => {
+        setMatrix(ctx.getTransform())
         renderPath(context!, controlled.props, path())
         parenthood.render(ctx)
         controlled.emit.onRender(ctx)
-        if (
-          controlled.props.style.pointerEvents &&
-          context?.flags.shouldHitTest
-        ) {
-          matrix = ctx.getTransform()
-        }
+        return 0
       })
     },
     debug: ctx => {
-      // renderPath(context, defaultBoundsProps, bounds().path)
+      parenthood.debug(ctx)
+      renderPath(context!, defaultBoundsProps, bounds().path)
     },
     hitTest: event => {
       if (!event.propagation) return false
       parenthood.hitTest(event)
 
-      event.ctx.setTransform(matrix)
+      event.ctx.setTransform(matrix())
       let hit = false
       if (controlled.props.style.pointerEvents) {
         controlled.emit.onHitTest(event)
