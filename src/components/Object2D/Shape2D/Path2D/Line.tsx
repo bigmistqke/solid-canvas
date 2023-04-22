@@ -6,7 +6,7 @@ import { createPath2D } from '../../../../utils/createPath2D'
 
 type LineProps = {
   points: Vector[]
-  style: {
+  style?: {
     close?: boolean
   }
 }
@@ -18,7 +18,9 @@ type LineProps = {
 const Line = createToken(
   parser,
   (props: Shape2DProps<LineProps> & LineProps) => {
-    let path2D: Path2D, point: Vector | undefined, index: number
+    let path2D: Path2D
+    let point: Vector | undefined
+    let index: number
     return createPath2D<LineProps>({
       id: 'Line',
       props,
