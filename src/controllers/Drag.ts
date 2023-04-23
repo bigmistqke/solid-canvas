@@ -1,6 +1,6 @@
-import { Accessor, createEffect, createSignal, onCleanup } from 'solid-js'
+import { createEffect, createSignal, onCleanup } from 'solid-js'
 import { useInternalContext } from 'src/context/InternalContext'
-import { CanvasMouseEvent, Vector, Shape2DProps } from 'src/types'
+import { CanvasMouseEvent, Vector } from 'src/types'
 import { createController } from './createController'
 
 type DragOptions = {
@@ -9,7 +9,7 @@ type DragOptions = {
   onDragMove?: (position: Vector, event: CanvasMouseEvent) => void
 }
 
-const Drag = createController<DragOptions>((props, events, options) => {
+const Drag = createController<DragOptions>((props, events, token, options) => {
   const [dragPosition, setDragPosition] = createSignal({ x: 0, y: 0 })
   const [selected, setSelected] = createSignal(false)
   const internalContext = useInternalContext()
@@ -30,6 +30,7 @@ const Drag = createController<DragOptions>((props, events, options) => {
     options.onDragMove?.(dragPosition(), event)
   }
   const handleMouseUp = (event: CanvasMouseEvent) => {
+    internalContext?.setFlag('shouldHitTest', true)
     setSelected(false)
   }
 
@@ -54,6 +55,7 @@ const Drag = createController<DragOptions>((props, events, options) => {
         ? true
         : options.active
     ) {
+      internalContext?.setFlag('shouldHitTest', false)
       setSelected(true)
       event.propagation = false
     }
@@ -61,6 +63,13 @@ const Drag = createController<DragOptions>((props, events, options) => {
 
   events.onMouseDown(dragEventHandler)
   let position = { x: 0, y: 0 }
+  /*  const position = createMemo(() => ({
+    x: (props().transform.position?.x || 0) + dragPosition().x,
+    y: (props().transform.position?.y || 0) + dragPosition().y
+  })) */
+
+  createEffect(() => {})
+
   return {
     transform: {
       get position() {
@@ -71,6 +80,9 @@ const Drag = createController<DragOptions>((props, events, options) => {
           return position
         }
       },
+    },
+    style: {
+      pointerEvents: true,
     },
   }
 })

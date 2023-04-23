@@ -1,5 +1,11 @@
-import { createMemo, createSignal, createUniqueId, mergeProps } from 'solid-js'
-import { defaultShape2DProps } from 'src/defaultProps'
+import {
+  createEffect,
+  createMemo,
+  createSignal,
+  createUniqueId,
+  mergeProps,
+} from 'solid-js'
+import { defaultBoundsProps, defaultShape2DProps } from 'src/defaultProps'
 import { Shape2DToken } from 'src/parser'
 import {
   CanvasMouseEventListener,
@@ -15,8 +21,11 @@ import { deepMergeGetters } from './mergeGetters'
 import { DeepRequired, RequireOptionals, SingleOrArray } from './typehelpers'
 import { Hover } from 'src/controllers/Hover'
 import { isPointInShape2D } from './isPointInShape2D'
+import { useInternalContext } from 'src/context/InternalContext'
+import { createTransformedCallback } from './transformedCallback'
+import { createBounds } from './createBounds'
 
-const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
+const createPath2D = <T extends { [key: string]: any; style?: any }>(arg: {
   id: string
   props: Shape2DProps<T> & T
   defaultStyle: RequireOptionals<T['style']>
@@ -35,104 +44,108 @@ const createPath2D = <T extends { [key: string]: any; style: any }>(arg: {
     },
   })
 
-  const controlled = createControlledProps(props, [
-    /*  Hover({
-      style: props.style?.['&:hover'],
-      transform: props.transform?.['&:hover'],
-    }), */
-  ])
+  const controlled = createControlledProps(
+    props,
+    [
+      Hover({
+        style: props.style?.['&:hover'],
+        transform: props.transform?.['&:hover'],
+      }),
+    ],
+    () => token,
+  )
 
-  const context = createUpdatedContext(() => controlled.props)
+  const context = useInternalContext()
 
-  const parenthood = createParenthood(arg.props, context)
+  const parenthood = createParenthood(arg.props, context!)
 
   const path = createMemo(() => arg.path(controlled.props))
 
-  // const bounds = createBounds(() => arg.bounds(props), context)
-
   const [hover, setHover] = createSignal(false)
+
+  const [matrix, setMatrix] = createSignal<DOMMatrix>(new DOMMatrix())
+  const bounds = createBounds(() => arg.bounds(controlled.props), matrix)
+
+  const transformedCallback = createTransformedCallback()
 
   const token: Shape2DToken = {
     type: 'Shape2D',
     id: arg.id,
     path,
+    bounds,
     render: ctx => {
-      renderPath(context, controlled.props, path())
-      parenthood.render(ctx)
-      controlled.emit.onRender(ctx)
+      transformedCallback(ctx, controlled.props, () => {
+        setMatrix(ctx.getTransform())
+        renderPath(context!, controlled.props, path())
+        parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
+        return 0
+      })
     },
     debug: ctx => {
-      // renderPath(context, defaultBoundsProps, bounds().path)
+      parenthood.debug(ctx)
+      renderPath(context!, defaultBoundsProps, bounds().path)
     },
     hitTest: event => {
+      if (!event.propagation) return false
       parenthood.hitTest(event)
-      if (!event.propagation) return false
-      controlled.emit.onHitTest(event)
-      if (!event.propagation) return false
-      if (controlled.props.style.pointerEvents === false) return false
 
-      context.ctx.save()
-      context.ctx.setTransform(context.matrix)
-      context.ctx.lineWidth = controlled.props.style.lineWidth
-        ? controlled.props.style.lineWidth < 20
-          ? 20
-          : controlled.props.style.lineWidth
-        : 20
+      event.ctx.setTransform(matrix())
+      let hit = false
+      if (controlled.props.style.pointerEvents) {
+        controlled.emit.onHitTest(event)
+        event.ctx.lineWidth = controlled.props.style.lineWidth
+          ? controlled.props.style.lineWidth < 20
+            ? 20
+            : controlled.props.style.lineWidth
+          : 20
 
-      const hit = isPointInShape2D(event, props, path())
+        hit = isPointInShape2D(event, props, path())
 
-      context.ctx.resetTransform()
+        if (hit) {
+          event.propagation = false
+          event.target.push(token)
 
-      if (hit) {
-        event.target.push(token)
-        let controlledListeners = controlled.props[
-          event.type
-        ] as SingleOrArray<CanvasMouseEventListener>
+          controlled.props[event.type]?.(event)
 
-        if (controlledListeners) {
-          if (Array.isArray(controlledListeners))
-            controlledListeners.forEach(l => l(event))
-          else controlledListeners(event)
-        }
+          if (controlled.props.cursor)
+            event.cursor = controlled.props.style.cursor
 
-        /*  let propListeners = props[
-          event.type
-        ] as SingleOrArray<CanvasMouseEventListener>
-
-        if (propListeners) {
-          if (Array.isArray(propListeners)) propListeners.forEach(l => l(event))
-          else propListeners(event)
-        } */
-
-        if (controlled.props.cursor)
-          event.cursor = controlled.props.style.cursor
-
-        if (event.type === 'onMouseMove') {
-          if (event.target.length === 1) {
-            if (!hover()) {
-              setHover(true)
-              controlled.emit.onMouseEnter(event)
-            }
-          } else {
-            if (hover()) {
-              setHover(false)
-              controlled.emit.onMouseLeave(event)
+          if (event.type === 'onMouseMove') {
+            if (event.target.length === 1) {
+              if (!hover()) {
+                setHover(true)
+                controlled.emit.onMouseEnter(event)
+              }
+            } else {
+              if (hover()) {
+                setHover(false)
+                controlled.emit.onMouseLeave(event)
+              }
             }
           }
-        }
 
-        controlled.emit[event.type](event)
-      } else {
-        if (hover() && event.type === 'onMouseMove') {
-          setHover(false)
-          controlled.emit.onMouseLeave(event)
+          controlled.emit[event.type](event)
+        } else {
+          if (hover() && event.type === 'onMouseMove') {
+            setHover(false)
+            controlled.emit.onMouseLeave(event)
+          }
         }
       }
-      context.ctx.restore()
+      event.ctx.resetTransform()
 
       return hit
     },
   }
+
+  createEffect(() =>
+    context?.registerInteractiveToken(
+      token,
+      controlled.props.style.pointerEvents,
+    ),
+  )
+
   return token
 }
 

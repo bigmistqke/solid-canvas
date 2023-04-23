@@ -2,18 +2,21 @@ import { Accessor, createMemo } from 'solid-js'
 import { ResolvedShape2DProps, Shape2DProps } from 'src/types'
 import { deepMergeGetters } from 'src/utils/mergeGetters'
 import { RegisterControllerEvents } from './controllers'
+import { CanvasToken } from 'src/parser'
 
 const createController = <
   ControllerOptions extends Record<string, any>,
   AdditionalProperties = {},
+  Token = CanvasToken,
 >(
   callback: (
     props: Accessor<
       ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
     >,
     events: RegisterControllerEvents,
+    token: Accessor<Token>,
     options: ControllerOptions,
-  ) => Partial<Shape2DProps & AdditionalProperties>,
+  ) => Partial<Shape2DProps & AdditionalProperties> | undefined,
 ) => {
   function Controller(
     options?: ControllerOptions,
@@ -23,6 +26,7 @@ const createController = <
       ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
     >,
     events: RegisterControllerEvents,
+    token: Accessor<Token>,
     options: ControllerOptions,
   ): Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
   function Controller(
@@ -30,6 +34,7 @@ const createController = <
       | Accessor<ResolvedShape2DProps<AdditionalProperties>>
       | ControllerOptions,
     events?: RegisterControllerEvents,
+    token?: Accessor<Token>,
     options?: ControllerOptions,
   ) {
     if (!events) {
@@ -38,7 +43,8 @@ const createController = <
           ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
         >,
         events: RegisterControllerEvents,
-      ) => Controller(props, events, propsOrOptions as ControllerOptions)
+        token: Accessor<Token>,
+      ) => Controller(props, events, token, propsOrOptions as ControllerOptions)
     }
 
     // NOTE:  `result` needs to be defined outside `mergeProps` for unknown reasons
@@ -48,6 +54,7 @@ const createController = <
         ResolvedShape2DProps<AdditionalProperties> & AdditionalProperties
       >,
       events,
+      token!,
       options!,
     )
 
@@ -67,7 +74,7 @@ const createController = <
         )(),
         result,
       ),
-    ) as Accessor<Shape2DProps<AdditionalProperties> & AdditionalProperties>
+    ) as Accessor<Shape2DProps<AdditionalProperties & AdditionalProperties>>
   }
   return Controller
 }

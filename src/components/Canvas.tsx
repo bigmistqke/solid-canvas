@@ -14,11 +14,15 @@ import {
   untrack,
 } from 'solid-js'
 import { createStore } from 'solid-js/store'
-import { InternalContext } from 'src/context/InternalContext'
+import {
+  InternalContext,
+  InternalContextType,
+} from 'src/context/InternalContext'
 import { UserContext } from 'src/context/UserContext'
 
 import { CanvasToken, parser } from 'src/parser'
 import {
+  CanvasFlags,
   CanvasMouseEvent,
   CanvasMouseEventTypes,
   Color,
@@ -32,6 +36,7 @@ import { createMouseEventHandler } from 'src/utils/createMouseEventHandler'
 import forEachReversed from 'src/utils/forEachReversed'
 import { resolveColor } from 'src/utils/resolveColor'
 import withContext from 'src/utils/withContext'
+import { should } from 'vitest'
 
 /**
  * All `solid-canvas`-components have to be inside a `Canvas`
@@ -107,6 +112,74 @@ export const Canvas: Component<{
 
   const matrix = createMatrix(() => props)
 
+  const flags: Record<CanvasFlags, boolean> = {
+    shouldHitTest: true,
+    hasInteractiveTokens: false,
+  }
+
+  const [interactiveTokens, setInteractiveTokens] = createSignal<CanvasToken[]>(
+    [],
+  )
+
+  createEffect(() => {
+    if (interactiveTokens().length > 0) {
+      setFlag('hasInteractiveTokens', true)
+    } else {
+      setFlag('hasInteractiveTokens', false)
+    }
+  })
+
+  const registerInteractiveToken = (token: CanvasToken, add = true) => {
+    if (add) {
+      setInteractiveTokens(tokens => [...tokens, token])
+    } else {
+      if (interactiveTokens().includes(token)) {
+        setInteractiveTokens(tokens => tokens.filter(t => t !== token))
+      }
+    }
+  }
+
+  const setFlag = (key: CanvasFlags, value: boolean) => {
+    flags[key] = value
+  }
+
+  const context: InternalContextType = {
+    ctx,
+    setFlag: setFlag,
+    get flags() {
+      return flags
+    },
+    get debug() {
+      return !!props.debug
+    },
+    get matrix() {
+      return matrix()
+    },
+    registerInteractiveToken,
+    get interactiveTokens() {
+      return interactiveTokens()
+    },
+    addEventListener: (
+      type: CanvasMouseEvent['type'],
+      callback: (event: CanvasMouseEvent) => void,
+    ) => {
+      setEventListeners(type, listeners => [...listeners, callback])
+    },
+    removeEventListener: (
+      type: CanvasMouseEvent['type'],
+      callback: (event: CanvasMouseEvent) => void,
+    ) => {
+      setEventListeners(type, listeners => {
+        const index = listeners.indexOf(callback)
+        const result = [
+          ...listeners.slice(0, index),
+          ...listeners.slice(index + 1),
+        ]
+        return result
+      })
+    },
+  }
+
   const tokens = resolveTokens(
     parser,
     withContext(
@@ -114,34 +187,7 @@ export const Canvas: Component<{
       [
         {
           context: InternalContext,
-          value: {
-            ctx,
-            get debug() {
-              return !!props.debug
-            },
-            get matrix() {
-              return matrix()
-            },
-            addEventListener: (
-              type: CanvasMouseEvent['type'],
-              callback: (event: CanvasMouseEvent) => void,
-            ) => {
-              setEventListeners(type, listeners => [...listeners, callback])
-            },
-            removeEventListener: (
-              type: CanvasMouseEvent['type'],
-              callback: (event: CanvasMouseEvent) => void,
-            ) => {
-              setEventListeners(type, listeners => {
-                const index = listeners.indexOf(callback)
-                const result = [
-                  ...listeners.slice(0, index),
-                  ...listeners.slice(index + 1),
-                ]
-                return result
-              })
-            },
-          },
+          value: context,
         },
         {
           context: UserContext,
@@ -201,10 +247,12 @@ export const Canvas: Component<{
     ctx.restore()
 
     forEachReversed(tokens(), token => {
-      if (props.debug && 'debug' in token.data) token.data.debug(ctx)
       if ('render' in token.data) token.data.render(ctx)
     })
-
+    ctx.resetTransform()
+    forEachReversed(tokens(), token => {
+      if (props.debug && 'debug' in token.data) token.data.debug(ctx)
+    })
     if (props.fill) {
       ctx.save()
       ctx.globalCompositeOperation = 'destination-over'
@@ -232,7 +280,7 @@ export const Canvas: Component<{
     }
   }
 
-  const scheduled = createScheduled(fn => throttle(fn, 1000 / 120))
+  const scheduled = createScheduled(fn => throttle(fn))
 
   createEffect(() => {
     if (!!props.clock || props.clock === 0) return
@@ -264,8 +312,8 @@ export const Canvas: Component<{
 
   const mouseMoveHandler = createMouseEventHandler(
     'onMouseMove',
-    tokens,
-    ctx,
+    interactiveTokens,
+    context,
     eventListeners,
     event => {
       props.onMouseMove?.(event)
@@ -274,8 +322,8 @@ export const Canvas: Component<{
 
   const mouseDownHandler = createMouseEventHandler(
     'onMouseDown',
-    tokens,
-    ctx,
+    interactiveTokens,
+    context,
     eventListeners,
     event => {
       if (props.draggable) {
@@ -293,8 +341,8 @@ export const Canvas: Component<{
 
   const mouseUpHandler = createMouseEventHandler(
     'onMouseUp',
-    tokens,
-    ctx,
+    interactiveTokens,
+    context,
     eventListeners,
     event => {
       props.onMouseUp?.(event)

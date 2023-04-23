@@ -2,9 +2,10 @@ import { Accessor, JSX } from 'solid-js'
 import { RegisterControllerEvents } from './controllers/controllers'
 import { CanvasToken } from './parser'
 import { RequiredPartially, SingleOrArray } from './utils/typehelpers'
-import { InternalContextType } from './context/InternalContext'
 
-export type Object2DProps = {
+export type CanvasFlags = 'shouldHitTest' | 'hasInteractiveTokens'
+
+export type Object2DProps = CanvasMouseEvents & {
   transform?: Transforms
   style?: {
     composite?: Composite
@@ -17,7 +18,7 @@ export type Object2DProps = {
   // controllers?: ((props: Object2DProps, events: ControllerEvents) => any)[]
 }
 
-export type Shape2DProps<T = Object> = Shape2DEvents & {
+export type Shape2DProps<T = Object> = CanvasMouseEvents & {
   transform?: Transforms & { '&:hover'?: Transforms }
   style?: Shape2DStyle & { '&:hover'?: Shape2DStyle }
 
@@ -38,6 +39,7 @@ export type Shape2DProps<T = Object> = Shape2DEvents & {
   controllers?: ((
     props: Accessor<T | Omit<Shape2DProps, 'controllers'>>,
     events: RegisterControllerEvents,
+    token: Accessor<CanvasToken>,
   ) => T | Shape2DProps<T>)[]
 }
 
@@ -57,27 +59,27 @@ export type ResolvedShape2DProps<T> = Shape2DProps<T> & {
   transform: Required<Transforms>
 }
 
-type Shape2DEvents = {
+type CanvasMouseEvents = {
   /**
    * Set onMouseDown-eventhandler.
    */
-  onMouseDown?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseDown?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseUp-eventhandler.
    */
-  onMouseUp?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseUp?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseMove-eventhandler.
    */
-  onMouseMove?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseMove?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseEnter-eventhandler.
    */
-  onMouseEnter?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseEnter?: (event: CanvasMouseEvent) => void
   /**
    * Set onMouseLeave-eventhandler.
    */
-  onMouseLeave?: SingleOrArray<(event: CanvasMouseEvent) => void>
+  onMouseLeave?: (event: CanvasMouseEvent) => void
 }
 
 export interface Transforms {

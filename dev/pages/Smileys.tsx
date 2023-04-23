@@ -55,7 +55,15 @@ const Smiley = (props: { counter: number }) => {
       <Group transform={{ position: { x: 0, y: 35 } }}>
         <Arc
           transform={{ position: { x: 40, y: 0 } }}
-          style={{ radius: 10, fill: 'black', stroke: false }}
+          style={{
+            radius: 10,
+            fill: 'black',
+            stroke: false,
+            pointerEvents: true,
+            '&:hover': {
+              fill: 'red',
+            },
+          }}
         />
         <Arc
           transform={{ position: { x: 80, y: 0 } }}
@@ -87,17 +95,57 @@ const App: Component = () => {
   })`
 
   const clock = createClock()
-  clock.start()
+  clock.start(1000 / 30)
+
+  const [amount, setAmount] = createSignal(300)
+  const [shouldUseClock, setShouldUseClock] = createSignal(false)
 
   return (
     <>
+      <div
+        style={{
+          position: 'absolute',
+          background: 'white',
+          padding: '5px',
+
+          margin: '5px',
+          'font-size': '10pt',
+          display: 'flex',
+          gap: '5px',
+          'font-family': 'monospace',
+          'flex-direction': 'column',
+        }}
+      >
+        <div style={{ display: 'flex', gap: '5px' }}>
+          <label>amount:</label>
+          <input
+            type="number"
+            style={{
+              border: 'none',
+              width: '50px',
+              'font-family': 'monospace',
+            }}
+            value={amount()}
+            onInput={e => setAmount(+e.currentTarget.value)}
+            step={10}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '5px' }}>
+          <label style={{ flex: 1 }}>clock:</label>
+          <input
+            type="checkbox"
+            checked={shouldUseClock()}
+            onInput={e => setShouldUseClock(e.currentTarget.checked)}
+          />
+        </div>
+      </div>
       <Canvas
-        clock={clock.clock()}
+        clock={shouldUseClock() ? clock.clock() : undefined}
         style={{ width: '100%', height: '100%', fill }}
         alpha
         stats
       >
-        <For each={new Array(500).fill('')}>
+        <For each={new Array(amount()).fill('')}>
           {() => <Smiley counter={clock.clock()} />}
         </For>
       </Canvas>

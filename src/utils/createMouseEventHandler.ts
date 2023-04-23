@@ -3,29 +3,29 @@ import { Accessor } from 'solid-js'
 import { InternalContextType } from 'src/context/InternalContext'
 import { CanvasToken } from 'src/parser'
 import {
-  Vector,
+  CanvasFlags,
   CanvasMouseEvent,
-  CanvasMouseEventListener,
   CanvasMouseEventTypes,
+  Vector,
 } from 'src/types'
-import forEachReversed from './forEachReversed'
+import { throttle } from './throttle'
 
 const createMouseEventHandler = (
   type: 'onMouseDown' | 'onMouseMove' | 'onMouseUp',
-  tokens: Accessor<TokenElement<CanvasToken>[]>,
-  ctx: CanvasRenderingContext2D,
+  tokens: Accessor<CanvasToken[]>,
+  context: InternalContextType,
   eventListeners: Record<
     CanvasMouseEventTypes,
     ((event: CanvasMouseEvent) => void)[]
   >,
-  final?: (event: CanvasMouseEvent) => void,
+  final: (event: CanvasMouseEvent) => void,
 ) => {
   let position: Vector
   let delta: Vector
   let event: CanvasMouseEvent
   let lastCursorPosition: Vector
 
-  return (e: MouseEvent) => {
+  const func = throttle((e: MouseEvent) => {
     position = { x: e.clientX, y: e.clientY }
     delta = lastCursorPosition
       ? {
@@ -37,7 +37,7 @@ const createMouseEventHandler = (
 
     // NOTE:  `event` gets mutated by `token.hitTest`
     event = {
-      ctx,
+      ctx: context.ctx,
       position,
       delta,
       propagation: true,
@@ -45,23 +45,25 @@ const createMouseEventHandler = (
       type,
       cursor: 'move',
     }
+    if (context.flags.shouldHitTest && context.flags.hasInteractiveTokens) {
+      tokens().forEach(data => {
+        if (!event.propagation) return
+        if ('hitTest' in data) {
+          data.hitTest(event)
+        }
+      })
+    }
 
-    tokens().forEach(({ data }) => {
-      // forEachReversed(tokens(), ({ data }) => {
-      if (!event.propagation) return
-      if ('hitTest' in data) {
-        data.hitTest(event)
-      }
-    })
-
-    if (event.propagation && final) final(event)
+    final?.(event)
 
     // setCursorStyle(event.cursor)
 
     eventListeners[type].forEach(listener => listener(event))
 
     return event
-  }
+  })
+
+  return func
 }
 
 export { createMouseEventHandler }

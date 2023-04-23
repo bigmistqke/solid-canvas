@@ -38,29 +38,29 @@ const App: Component = () => {
         draggable
       >
         <For
-          each={new Array(100).fill('').map(v => ({
-            position: {
-              x: Math.random() * (window.innerWidth + 200) - 100,
-              y: Math.random() * (window.innerHeight + 200) - 100,
+          each={new Array(600).fill('').map(v => ({
+            transform: {
+              position: {
+                x: Math.random() * (window.innerWidth + 200) - 100,
+                y: Math.random() * (window.innerHeight + 200) - 100,
+              },
+              skew: {
+                y: Math.random() * 90,
+              },
             },
-            fill: {
-              r: Math.random() * 215,
-              g: Math.random() * 215,
-              b: Math.random() * 215,
+            style: {
+              fill: {
+                r: Math.random() * 215,
+                g: Math.random() * 215,
+                b: Math.random() * 215,
+              },
+              stroke: false,
+              dimensions: { width: 100, height: 100 },
+              composite: 'hard-light' as const,
             },
-            skewY: Math.random() * 90,
           }))}
         >
-          {data => (
-            <Rectangle
-              {...data}
-              dimensions={{ width: 100, height: 100 }}
-              lineWidth={20}
-              stroke="transparent"
-              controllers={[Drag()]}
-              composite="hard-light"
-            />
-          )}
+          {data => <Rectangle {...data} controllers={[Drag()]} />}
         </For>
       </Canvas>
     </>

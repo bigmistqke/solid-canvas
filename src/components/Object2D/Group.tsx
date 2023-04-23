@@ -1,13 +1,12 @@
 import { createToken } from '@solid-primitives/jsx-tokenizer'
 import { Accessor, mergeProps, splitProps } from 'solid-js'
 import { JSX } from 'solid-js/jsx-runtime'
+import { useInternalContext } from 'src/context/InternalContext'
 import { RegisterControllerEvents } from 'src/controllers/controllers'
 import { CanvasToken, parser } from 'src/parser'
 import { Color, Object2DProps, ResolvedShape2DProps, Vector } from 'src/types'
 import { createParenthood } from 'src/utils/createParenthood'
-import { createUpdatedContext } from 'src/utils/createUpdatedContext'
 import { SingleOrArray } from 'src/utils/typehelpers'
-import { T } from 'vitest/dist/types-c800444e'
 
 export type GroupProps = {
   children: SingleOrArray<JSX.Element>
@@ -37,17 +36,35 @@ const Group = createToken(parser, (props: Object2DProps) => {
   //        until then we will only allow controllers for types extending `Shape2DProps`
 
   // const controlled = createControlledProps(mergedProps)
-  const context = createUpdatedContext(() => mergedProps)
-  const parenthood = createParenthood(props, context)
+  const context = useInternalContext()
+  const parenthood = createParenthood(props, context!)
   return {
     type: 'Object2D',
     id: 'Group',
-    render: ctx => parenthood.render(ctx),
-    debug: () => {},
+    render: ctx => {
+      ctx.translate(
+        props.transform?.position?.x ?? 0,
+        props.transform?.position?.y ?? 0,
+      )
+      ctx.rotate(props.transform?.rotation ?? 0)
+      parenthood.render(ctx)
+      ctx.translate(
+        (props.transform?.position?.x ?? 0) * -1,
+        (props.transform?.position?.y ?? 0) * -1,
+      )
+      ctx.rotate((props.transform?.rotation ?? 0) * -1)
+    },
+    debug: ctx => {
+      parenthood.debug(ctx)
+    },
     hitTest: event => {
-      parenthood.hitTest(event)
-      if (!event.propagation) return false
-      return true
+      if (!event.propagation) return
+
+      const hit = parenthood.hitTest(event)
+      if (hit) {
+        props[event.type]?.(event)
+      }
+      return hit
     },
     paths: () => [],
     tokens: [],

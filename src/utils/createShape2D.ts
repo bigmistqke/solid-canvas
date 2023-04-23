@@ -14,6 +14,7 @@ import { createUpdatedContext } from './createUpdatedContext'
 import { deepMergeGetters, mergeGetters } from './mergeGetters'
 import { mergeShape2DProps } from './mergeShape2DProps'
 import withContext from './withContext'
+import { createTransformedCallback } from './transformedCallback'
 
 const createShape2D = <
   T,
@@ -35,10 +36,10 @@ const createShape2D = <
   defaultValues: U
 }) => {
   const controlled = createControlledProps(
-    // TODO:  fix any
     deepMergeGetters(arg.defaultValues, arg.props),
+    [],
+    () => token,
   )
-  // const matrix = createMatrix(() => arg.props)
 
   const context = createUpdatedContext(() => controlled.props)
   const parenthood = createParenthood(arg.props, context)
@@ -78,32 +79,53 @@ const createShape2D = <
     context,
   ) as Accessor<TokenElement<Shape2DToken>>
 
+  let matrix: DOMMatrix
+
+  const transformedCallback = createTransformedCallback()
+
   const token: Object2DToken = {
     type: 'Object2D',
     id: arg.id,
     hitTest: event => {
+      if (!event.propagation) return false
       parenthood.hitTest(event)
       if (!event.propagation) return false
-      let hit = path().data.hitTest(event)
+      if (!arg.props.style?.pointerEvents) return false
 
+      event.ctx.setTransform(matrix)
+      let hit = path().data.hitTest(event)
       if (hit) {
         controlled.emit[event.type](event)
+        arg.props[event.type]?.(event)
       }
       controlled.emit.onHitTest(event)
-      if (!event.propagation) return false
+      event.ctx.resetTransform()
       return hit
     },
-    debug: event => path().data.debug(event),
+    debug: event => {
+      path().data.debug(event)
+    },
     render: ctx => {
       if (!arg.dimensions) return
 
-      path().data.render(ctx)
-      // TODO:  fix any
-      arg.render(controlled.props as any, context, context.matrix)
-      parenthood.render(ctx)
-      controlled.emit.onRender(ctx)
+      transformedCallback(ctx, arg.props, () => {
+        path().data.render(ctx)
+        // TODO:  fix any
+        arg.render(controlled.props as any, context, context.matrix)
+        parenthood.render(ctx)
+        controlled.emit.onRender(ctx)
+        if (arg.props.style?.pointerEvents && context.flags.shouldHitTest) {
+          matrix = ctx.getTransform()
+        }
+      })
     },
   }
+  createEffect(() =>
+    context?.registerInteractiveToken(
+      token,
+      controlled.props.style.pointerEvents,
+    ),
+  )
   return token
 }
 export { createShape2D }
